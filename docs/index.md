@@ -7,7 +7,7 @@ GA4Dataform is your one-click solution to harness the full power of GA4 data in 
 
 ### Versions
 #### Open-source version
-The open-source version of GA4Dataform is available as a public repository on Github. This version contains the Dataform models without the ‘one-click’ installer app. The open-source version contains the same .sqlx and .js files as the ‘Core’ variant of GA4Dataform.
+The open-source version of GA4Dataform will be available as a public repository on Github. This version contains the Dataform models without the ‘one-click’ installer app. The open-source version contains the same .sqlx and .js files as the ‘Core’ variant of GA4Dataform.
 
 #### Installer version
 The installer version of GA4Dataform is a ‘one-click’ app that handles the complete installation of the package. This version is available in the Superform Labs store.
@@ -18,11 +18,11 @@ Coming soon
 ### About Us
 GA4Dataform is a product by Superform Labs OÜ. Our company is settled in Estonia (EU), but we work remotely from different countries across the world. Together we have decades of experience in web and marketing analytics.
 
-- **Jules Stuifbergen** | Data Analyst | [LinkedIn](https://www.linkedin.com)
-- **Krisztián Korpa** | Analytics Engineer | [LinkedIn](https://www.linkedin.com)
-- **Artem Korneev** | Analytics Developer | [LinkedIn](https://www.linkedin.com)
-- **Simon Breton** | Analytics Engineer | [LinkedIn](https://www.linkedin.com)
-- **Johan van de Werken** | Data Analyst | [LinkedIn](https://www.linkedin.com)
+- **Jules Stuifbergen** | Data Analyst | [LinkedIn](https://www.linkedin.com/in/stuifbergen/)
+- **Krisztián Korpa** | Analytics Engineer | [LinkedIn](https://www.linkedin.com/in/krisztian-korpa/)
+- **Artem Korneev** | Analytics Developer | [LinkedIn](https://www.linkedin.com/in/artem-korneev/)
+- **Simon Breton** | Analytics Engineer | [LinkedIn](https://www.linkedin.com/in/simonbreton/)
+- **Johan van de Werken** | Data Analyst | [LinkedIn](https://www.linkedin.com/in/johanvdwerken/)
 
 ### License
 GNU General Public License. This file is part of "GA4 Dataform Package". Copyright (C) 2023-2024 Superform Labs <hello@ga4dataform.com> Artem Korneev, Jules Stuifbergen, Johan van de Werken, Krisztián Korpa, Simon Breton. "GA4 Dataform Package" is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
@@ -31,121 +31,21 @@ GNU General Public License. This file is part of "GA4 Dataform Package". Copyrig
 
 ### Requirements
 To use GA4Dataform you need:
-- An active GA4 property linked to a Google Cloud project with billing enabled. If the link is configured in the right way you’ll see a data set analytics_<property_id> in BigQuery.
+- A Google Cloud project with billing enabled
+- An active GA4 property with BigQuery export configured. If the link is configured correctly you’ll see a data set analytics_<property_id> in BigQuery.
 - A license key. You’ll receive the license key in the receipt email after ordering the product in the Superform Labs store. The license key is linked to the email address used in the store. License keys are valid for a limited time (dependent on the product plan) and can be used as often as you want, unless there is a reason to disable your license key.
 
-### Permissions
-
-| **Permissions**                               | **Why do we need it?**                                 | **What roles have this permission?**                                                     |
-|------------------------------------------------|--------------------------------------------------------|------------------------------------------------------------------------------------------|
-| `bigquery.datasets.get`                        | List out the available GA4 datasets                     | BigQuery Data Viewer, BigQuery User, BigQuery Admin                                       |
-| `dataform.releaseConfigs.create`               | Create release configurations for Dataform workflows    | Dataform Admin                                                                           |
-| `dataform.releaseConfigs.list`                 | List release configurations                             | Dataform Admin, Dataform Editor, Dataform Viewer                                          |
-| `dataform.repositories.create`                 | Create Dataform repositories                            | Dataform Admin, Dataform Editor, Code Creator, Code Editor, Code Owner                    |
-| `dataform.repositories.fetchHistory`           | Fetch the commit history of a repository                | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
-| `dataform.repositories.get`                    | Get details of a specific repository                    | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
-| `dataform.repositories.list`                   | List all repositories                                   | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
-| `dataform.repositories.update`                 | Update repository settings                              | Dataform Admin, Code Owner                                                                |
-| `dataform.workflowConfigs.create`              | Create workflow configurations                          | Dataform Admin                                                                           |
-| `dataform.workflowConfigs.list`                | List workflow configurations                            | Dataform Admin, Dataform Editor, Dataform Viewer                                          |
-| `dataform.workspaces.commit`                   | Commit changes to a workspace                           | Dataform Admin, Code Editor, Code Owner, Dataform Editor                                  |
-| `dataform.workspaces.create`                   | Create new workspaces                                   | Dataform Admin, Code Editor, Code Owner, Dataform Editor                                  |
-| `dataform.workspaces.fetchFileGitStatuses`     | Get Git status of files in a workspace                  | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
-| `dataform.workspaces.get`                      | Get details of a specific workspace                     | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
-| `dataform.workspaces.installNpmPackages`       | Install NPM packages in a workspace                     | Dataform Admin, Code Editor, Code Owner, Dataform Editor                                  |
-| `dataform.workspaces.list`                     | List all workspaces                                     | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
-| `dataform.workspaces.makeDirectory`            | Create directories in a workspace                       | Dataform Admin, Code Editor, Code Owner, Dataform Editor                                  |
-| `dataform.workspaces.pull`                     | Pull changes from a repository to a workspace           | Dataform Admin, Code Editor, Code Owner, Dataform Editor                                  |
-| `dataform.workspaces.push`                     | Push changes from a workspace to a repository           | Dataform Admin, Code Editor, Code Owner, Dataform Editor                                  |
-| `dataform.workspaces.queryDirectoryContents`   | List contents of a directory in a workspace             | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
-| `dataform.workspaces.readFile`                 | Read files in a workspace                               | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
-| `dataform.workspaces.writeFile`                | Write files in a workspace                              | Dataform Admin, Code Editor, Code Owner, Dataform Editor                                  |
-| `iam.serviceAccounts.setIamPolicy`             | Set IAM policies for service accounts                   | Service Account Admin, Project IAM Admin                                                  |
-| `resourcemanager.projects.get`                 | Get project details                                     | Viewer, Editor, Owner                                                                     |
-| `resourcemanager.projects.getIamPolicy`        | Get IAM policies for projects                           | Security Reviewer, Project IAM Admin                                                     |
-| `resourcemanager.projects.setIamPolicy`        | Set IAM policies for projects                           | Project IAM Admin, Owner                                                                  |
-| `serviceusage.services.enable`                 | Enable GCP services                                     | Service Usage Admin, Owner                                                                |
-| `serviceusage.services.list`                   | List available GCP services                             | Service Usage Consumer, Service Usage Admin                                               |
-
+> [!WARNING]  
+> Using ga4dataform will generate BigQuery costs, so please keep an eye on your Billing. We're not responsible for any charges that may come up.
 
 ### Installation Guide
-1. **New installation**: Instructions are provided by the app.
-2. **Update**: (To be completed).
-
-### Dataform Repository
-**Structure overview**:
-```
-definitions
-├── **01_sources**
-│   ├── `declarations.js`
-│   ├── `stg_ga4_events.sqlx`
-│   ├── `stg_ga4_sessions.sqlx`
-├── **02_intermediate**
-│   ├── `int_ga4_events.sqlx`
-│   ├── `int_ga4_sessions.sqlx`
-├── **03_outputs**
-│   ├── **aggregated**
-│   │   ├── `demo_daily_sessions_report.sqlx`
-│   │   ├── `demo_diagnostics.sqlx`
-│   ├── **base**
-│   │   ├── `ga4_events.sqlx`
-│   │   ├── `ga4_sessions.sqlx`
-├── **assertions**
-│   ├── `assertion_logs.sqlx`
-│   ├── `assertions_event_id_uniqueness.sqlx`
-│   ├── `assertions_session_duration_validity.sqlx`
-│   ├── `assertions_session_id_uniqueness.sqlx`
-│   ├── `assertions_sessions_validity.sqlx`
-│   ├── `assertions_tables_timeliness.sqlx`
-│   ├── `assertions_transaction_id_completeness.sqlx`
-│   ├── `assertions_user_pseudo_id_completeness.sqlx`
-├── **extra**
-│   ├── **ga4**
-│   │   ├── `source_categories.js`
-├── **unit_testing**
-│   ├── `unit_test.sqlx`
-├── **includes**
-│   ├── `core_params.js`
-│   ├── `custom_config.js`
-│   ├── `helpers.js`
-├── `.gitignore`
-├── `dataform.json`
-├── `package-lock.json`
-├── `package.json`
-```
-
-**Directories description**:
-| Directory                    | Description                                                                                       |
-|------------------------------|---------------------------------------------------------------------------------------------------|
-| **01_sources**               | Contains declarations and staging models                                                          |
-| **02_intermediate**          | Contains intermediate models                                                                      |
-| **03_outputs**               | Contains output models                                                                            |
-| **03_outputs/aggregated**    | Contains different aggregated tables that can be directly connected to Looker Studio or other visualization tools |
-| **03_outputs/base**          | Contains output tables that should be used for aggregations                                       |
-| **assertions**               | Contains all the assertions that check the data quality of our model                               |
-| **extra**                    | Is it needed?                                                                                     |
-| **unit_testing**             | Contains models related to unit testing                                                           |
-| **includes**                 | Contains all JS files with reusable variables and functions that help manage the repository        |
-
-
-**Model**:
-| Model                        | Description                                                                                                             |
-|------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| **stg_ga4_events**           | GA4 staging events table that incrementally queries the raw GA4 export and applies partitioning, clustering, cleaning, and several fixes |
-| **stg_ga4_sessions**         | GA4 staging sessions table that incrementally queries `stg_ga4_events` table and creates session-level dimensions and metrics |
-| **int_ga4_events**           | GA4 intermediate events table that widens the staging table with useful dimensions                                        |
-| **int_ga4_sessions**         | GA4 intermediate sessions table that widens the staging table with useful dimensions                                      |
-| **ga4_events**               | GA4 output events table that can be used for further transformations or aggregations                                      |
-| **ga4_sessions**             | GA4 output sessions table that fixes sessions broken by midnight, adds last non-direct click attribution, and can be used for further transformations or aggregations |
-| **demo_daily_sessions_report** |                                                                                                                         |
-| **demo_diagnostics**         |                                                                                                                         |
-| **unit_test**                |                                                                                                                         |
-
+- **New installation**: Instructions are provided by the app.
+- **Update**: You can run the installer again to update the app. Update is none destructive. A new workspace will be create. 
 
 ### Using GA4Dataform after installation
-1. **Releases and Scheduling**: Set by installer; customizable via Dataform UI. The installer will automatically create a Release and a Workflow configuration using the dataform API. The release will be triggered at 9AM UTC+00:00 and the workflow will be triggered at 10AM UTC+00:00. These values can be modified directly from the dataform UI without impacting the functionality of the project. 
-2. **Git Connection**: GA4Dataform is not (yet) linked to any git repository. If any changes and customisation are made to the project, changes should be committed to the default Dataform repository. Versioning is not available. 
-3. **Cost**: 
+- **Releases and Scheduling**: Set by installer; customizable via Dataform UI. The installer will automatically create a Release and a Workflow configuration using the dataform API. The release will be triggered at 9AM UTC+00:00 and the workflow will be triggered at 10AM UTC+00:00. These values can be modified directly from the dataform UI without impacting the functionality of the project. 
+- **Git Connection**: GA4Dataform is not (yet) linked to any git repository. If any changes and customisation are made to the project, changes should be committed to the default Dataform repository. Versioning is not available. 
+- **Cost**: 
 # Anticipated Costs for Using Dataform on GA4 BigQuery Export
 
 When using Dataform modeling on GA4 BigQuery export, users should consider the following cost factors:
@@ -461,6 +361,106 @@ This folder contains files that are needed for the Dataform package to work prop
 | **package-lock.json**  | Automatically generated file that locks the exact versions of the dependencies for reproducibility |
 | **.gitignore**         | Specifies files and directories that should be ignored by Git, preventing them from being tracked in version control |
 
+### Permissions
+Detailed list of all the permissions requiered to run the installer:
+
+| **Permissions**                               | **Why do we need it?**                                 | **What roles have this permission?**                                                     |
+|------------------------------------------------|--------------------------------------------------------|------------------------------------------------------------------------------------------|
+| `bigquery.datasets.get`                        | List out the available GA4 datasets                     | BigQuery Data Viewer, BigQuery User, BigQuery Admin                                       |
+| `dataform.releaseConfigs.create`               | Create release configurations for Dataform workflows    | Dataform Admin                                                                           |
+| `dataform.releaseConfigs.list`                 | List release configurations                             | Dataform Admin, Dataform Editor, Dataform Viewer                                          |
+| `dataform.repositories.create`                 | Create Dataform repositories                            | Dataform Admin, Dataform Editor, Code Creator, Code Editor, Code Owner                    |
+| `dataform.repositories.fetchHistory`           | Fetch the commit history of a repository                | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
+| `dataform.repositories.get`                    | Get details of a specific repository                    | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
+| `dataform.repositories.list`                   | List all repositories                                   | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
+| `dataform.repositories.update`                 | Update repository settings                              | Dataform Admin, Code Owner                                                                |
+| `dataform.workflowConfigs.create`              | Create workflow configurations                          | Dataform Admin                                                                           |
+| `dataform.workflowConfigs.list`                | List workflow configurations                            | Dataform Admin, Dataform Editor, Dataform Viewer                                          |
+| `dataform.workspaces.commit`                   | Commit changes to a workspace                           | Dataform Admin, Code Editor, Code Owner, Dataform Editor                                  |
+| `dataform.workspaces.create`                   | Create new workspaces                                   | Dataform Admin, Code Editor, Code Owner, Dataform Editor                                  |
+| `dataform.workspaces.fetchFileGitStatuses`     | Get Git status of files in a workspace                  | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
+| `dataform.workspaces.get`                      | Get details of a specific workspace                     | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
+| `dataform.workspaces.installNpmPackages`       | Install NPM packages in a workspace                     | Dataform Admin, Code Editor, Code Owner, Dataform Editor                                  |
+| `dataform.workspaces.list`                     | List all workspaces                                     | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
+| `dataform.workspaces.makeDirectory`            | Create directories in a workspace                       | Dataform Admin, Code Editor, Code Owner, Dataform Editor                                  |
+| `dataform.workspaces.pull`                     | Pull changes from a repository to a workspace           | Dataform Admin, Code Editor, Code Owner, Dataform Editor                                  |
+| `dataform.workspaces.push`                     | Push changes from a workspace to a repository           | Dataform Admin, Code Editor, Code Owner, Dataform Editor                                  |
+| `dataform.workspaces.queryDirectoryContents`   | List contents of a directory in a workspace             | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
+| `dataform.workspaces.readFile`                 | Read files in a workspace                               | Dataform Admin, Dataform Editor, Dataform Viewer, Code Creator, Code Editor, Code Owner, Code Viewer |
+| `dataform.workspaces.writeFile`                | Write files in a workspace                              | Dataform Admin, Code Editor, Code Owner, Dataform Editor                                  |
+| `iam.serviceAccounts.setIamPolicy`             | Set IAM policies for service accounts                   | Service Account Admin, Project IAM Admin                                                  |
+| `resourcemanager.projects.get`                 | Get project details                                     | Viewer, Editor, Owner                                                                     |
+| `resourcemanager.projects.getIamPolicy`        | Get IAM policies for projects                           | Security Reviewer, Project IAM Admin                                                     |
+| `resourcemanager.projects.setIamPolicy`        | Set IAM policies for projects                           | Project IAM Admin, Owner                                                                  |
+| `serviceusage.services.enable`                 | Enable GCP services                                     | Service Usage Admin, Owner                                                                |
+| `serviceusage.services.list`                   | List available GCP services                             | Service Usage Consumer, Service Usage Admin                                               |
+
+### Directories description:
+| Directory                    | Description                                                                                       |
+|------------------------------|---------------------------------------------------------------------------------------------------|
+| **01_sources**               | Contains declarations and staging models                                                          |
+| **02_intermediate**          | Contains intermediate models                                                                      |
+| **03_outputs**               | Contains output models                                                                            |
+| **03_outputs/aggregated**    | Contains different aggregated tables that can be directly connected to Looker Studio or other visualization tools |
+| **03_outputs/base**          | Contains output tables that should be used for aggregations                                       |
+| **assertions**               | Contains all the assertions that check the data quality of our model                               |
+| **extra**                    | Is it needed?                                                                                     |
+| **unit_testing**             | Contains models related to unit testing                                                           |
+| **includes**                 | Contains all JS files with reusable variables and functions that help manage the repository        |
+
+### Dataform Repository Structure:
+```
+definitions
+├── **01_sources**
+│   ├── `declarations.js`
+│   ├── `stg_ga4_events.sqlx`
+│   ├── `stg_ga4_sessions.sqlx`
+├── **02_intermediate**
+│   ├── `int_ga4_events.sqlx`
+│   ├── `int_ga4_sessions.sqlx`
+├── **03_outputs**
+│   ├── **aggregated**
+│   │   ├── `demo_daily_sessions_report.sqlx`
+│   │   ├── `demo_diagnostics.sqlx`
+│   ├── **base**
+│   │   ├── `ga4_events.sqlx`
+│   │   ├── `ga4_sessions.sqlx`
+├── **assertions**
+│   ├── `assertion_logs.sqlx`
+│   ├── `assertions_event_id_uniqueness.sqlx`
+│   ├── `assertions_session_duration_validity.sqlx`
+│   ├── `assertions_session_id_uniqueness.sqlx`
+│   ├── `assertions_sessions_validity.sqlx`
+│   ├── `assertions_tables_timeliness.sqlx`
+│   ├── `assertions_transaction_id_completeness.sqlx`
+│   ├── `assertions_user_pseudo_id_completeness.sqlx`
+├── **extra**
+│   ├── **ga4**
+│   │   ├── `source_categories.js`
+├── **unit_testing**
+│   ├── `unit_test.sqlx`
+├── **includes**
+│   ├── `core_params.js`
+│   ├── `custom_config.js`
+│   ├── `helpers.js`
+├── `.gitignore`
+├── `dataform.json`
+├── `package-lock.json`
+├── `package.json`
+```
+
+### Model:
+| Model                        | Description                                                                                                             |
+|------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| **stg_ga4_events**           | GA4 staging events table that incrementally queries the raw GA4 export and applies partitioning, clustering, cleaning, and several fixes |
+| **stg_ga4_sessions**         | GA4 staging sessions table that incrementally queries `stg_ga4_events` table and creates session-level dimensions and metrics |
+| **int_ga4_events**           | GA4 intermediate events table that widens the staging table with useful dimensions                                        |
+| **int_ga4_sessions**         | GA4 intermediate sessions table that widens the staging table with useful dimensions                                      |
+| **ga4_events**               | GA4 output events table that can be used for further transformations or aggregations                                      |
+| **ga4_sessions**             | GA4 output sessions table that fixes sessions broken by midnight, adds last non-direct click attribution, and can be used for further transformations or aggregations |
+| **demo_daily_sessions_report** |                                                                                                                         |
+| **demo_diagnostics**         |                                                                                                                         |
+| **unit_test**                |  
 
 
 Looker Studio report templates
