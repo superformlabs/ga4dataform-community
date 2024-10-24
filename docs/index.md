@@ -32,80 +32,28 @@ GNU General Public License. This file is part of "GA4 Dataform Package". Copyrig
 ### Requirements
 To use GA4Dataform you need:
 - A Google Cloud project with billing enabled
-- An active GA4 property with BigQuery export configured. If the link is configured correctly you’ll see a data set analytics_<property_id> in BigQuery.
-- A license key. You’ll receive the license key in the receipt email after ordering the product in the Superform Labs store. The license key is linked to the email address used in the store. License keys are valid for a limited time (dependent on the product plan) and can be used as often as you want, unless there is a reason to disable your license key.
+- An active GA4 property with BigQuery export configured. If the export is configured correctly you’ll see a data set analytics_<property_id> in BigQuery.
+- A license key. You’ll receive the license key in the receipt email after ordering the product in the [Superform Labs store](https://store.ga4dataform.com/). The license key is linked to the email address used in the store. License keys are valid for a limited time (dependent on the product plan) and can be used as often as you want, unless there is a reason to disable your license key.
 
 > [!WARNING]  
 > Using ga4dataform will generate BigQuery costs, so please keep an eye on your Billing. We're not responsible for any charges that may come up.
 
 ### Installation Guide
-- **New installation**: Instructions are provided by the app.
-- **Update**: You can run the installer again to update the app. Update is none destructive. A new workspace will be create. 
+- **New installation**: Instructions are provided when running the installer.
+- **Update**: You can run the installer again to update the app. Update is "non-destructive". A new workspace will be create. Each update will be retro-compatible with previous version of the model. full-refresh of your model is not necessary. 
 
 ### Using GA4Dataform after installation
-- **Releases and Scheduling**: Set by installer; customizable via Dataform UI. The installer will automatically create a Release and a Workflow configuration using the dataform API. The release will be triggered at 9AM UTC+00:00 and the workflow will be triggered at 10AM UTC+00:00. These values can be modified directly from the dataform UI without impacting the functionality of the project. 
-- **Git Connection**: GA4Dataform is not (yet) linked to any git repository. If any changes and customisation are made to the project, changes should be committed to the default Dataform repository. Versioning is not available. 
-- **Cost**: 
-# Anticipated Costs for Using Dataform on GA4 BigQuery Export
-
-When using Dataform modeling on GA4 BigQuery export, users should consider the following cost factors:
-
-1. **BigQuery Storage Costs**: 
-   - **GA4 Exported Data Size**: The amount of data exported from GA4 into BigQuery can vary greatly depending on the volume of events tracked, the frequency of tracking, and the granularity of the data collected.
-   - **Storage Pricing**: BigQuery charges based on the amount of data stored. Users can expect to incur costs for the data that is loaded into and stored in BigQuery, and this will grow as more data accumulates over time.
-
-2. **BigQuery Query Costs**:
-   - **Data Processing**: Query costs are based on the amount of data processed by the query. Complex queries, especially those involving large datasets, multiple joins, or advanced calculations (like CTEs), will increase costs.
-   - **Scheduled Queries**: If users are running automated or scheduled queries to keep their datasets up-to-date, they should anticipate regular query costs.
-
-3. **Dataform Query Execution Costs**:
-   - Dataform works by orchestrating queries in BigQuery. While Dataform itself doesn't charge for execution, any underlying BigQuery queries triggered by Dataform models will incur costs, just like running those queries directly.
-
-4. **Data Retention Policies**:
-   - **Table Partitioning**: Users can lower costs by partitioning tables (e.g., by date) and applying expiration dates to remove old or unneeded data.
-   - **Cost Optimization**: GA4 often provides event-level data, which can result in a large number of rows. Optimizing queries and aggregating data at appropriate levels (like sessions or users) can help reduce the data processed and, consequently, the costs.
-
-5. **Free Tier & Discounts**:
-   - BigQuery offers a free tier (usually 10 GB of storage and 1 TB of query processing per month) that small users might stay under. It's important for users to monitor their usage if they want to avoid unexpected costs.
-
-By planning how often they query the data, managing the storage footprint, and optimizing the queries, users can control and reduce their costs effectively.
-
-
-BigQuery Project
-GA4Dataform generates tables in BigQuery. Everything will be under the dataform-package project with the following structure: 
-
-```
-Dataform-package (project)
-├── superform_outputs (dataset)
-│   ├── demo_daily_sessions_report (tables)
-│   ├── demo_diagnostics
-│   ├── ga4_events
-│   ├── ga4_sessions
-├── superform_transformations
-│   ├── int_ga4_events
-│   ├── int_ga4_sessions
-│   ├── source_categories
-│   ├── stg_ga4_events
-│   ├── stg_ga4_sessions
-├── Superform_quality
-│   ├── assertion_logs
-```
-
-
-#### Releases and Scheduling
-
-
-#### Project Location
-Location of the dataform project is set during the installation. It is based on the Location of the GA4 dataset
-
-
+- **Releases and Scheduling**: The installer will automatically create a Release and a Workflow configuration using the dataform API. The release will be triggered at 9AM UTC+00:00 and the workflow will be triggered at 10AM UTC+00:00. These values can be modified directly from the dataform UI without impacting the functionality of the project. 
+- **Git Connection**: GA4Dataform is not (yet) linked to any git repository. If any changes and customisation are made to the project, changes should be committed to the default Dataform repository.
+- **Custom Folders**:
+- **Installed version**: The version of the package installed is available in the package.json file. 
 
 ## Product Features
 
 ### Core Features
 #### Basic features | No support & updates
 ##### Incremental loading
-The code shared is part of a GA4 data pipeline using Dataform. The incrementality works by processing only new or updated GA4 event data from BigQuery without reprocessing the entire dataset. Here's a summary of how this is implemented:
+The incrementality works by processing only new GA4 event data without reprocessing the entire dataset. Here's a summary of how this is implemented:
 
 1. **Checkpoint Management:**
 - A `date_checkpoint` variable is declared and set to the day after the most recent `event_date` found in the existing table (`stg_ga4_events`).
@@ -118,7 +66,7 @@ set date_checkpoint = (
 );
 
 2. **Deletion of Updated Data:**
-- Any existing records from the target table (`stg_ga4_events`) where `event_date` is equal to or greater than the `date_checkpoint` are deleted. This ensures that if GA4 has updated any past data, it gets removed and replaced by fresh data.
+- Any existing records from the target table (`stg_ga4_events`) where `event_date` is equal to or greater than the `date_checkpoint` are deleted. This ensures that if GA4 has re-processed any past data, it gets removed and replaced by fresh data.
 
 delete from `cst-gcp-projects.superform_transformations.stg_ga4_events`
 where event_date >= date_checkpoint;
@@ -138,18 +86,6 @@ and contains_substr(_table_suffix, 'intraday') is false;
 - The field `is_final` is computed in the process to determine whether the data is final (older than 3 days). This is used to manage the checkpoint logic, ensuring incremental processing only on data that is finalized.
 
 date_diff(current_date(), cast(event_date as date format 'YYYYMMDD'), day) > 3 as is_final;
-
-6. **Comprehensive Data Transformation:**
-- The code performs data transformations on new GA4 event data, such as sanitizing fields, unpacking nested structures (like `event_params`), and repacking `ecommerce` data.
-- The final step creates an `event_id` using a hash of key event fields to ensure uniqueness.
-
-Summary of Incremental Loading:
-- **Identify New Data:** By setting `date_checkpoint`, the pipeline only processes events that are newer than the last processed date.
-- **Data Deletion for Updates:** It deletes any existing data for the same `event_date` to accommodate updated records from GA4.
-- **Efficient Processing:** Only new and final events are processed, improving the efficiency of data loading.
-- **Finalization Logic:** The `is_final` flag ensures that only finalized events are used in the checkpoint, avoiding partial or incomplete records from intraday tables.
-
-This approach ensures an efficient and consistent update of the GA4 events data while minimizing unnecessary reprocessing.
 
 ##### Partitioning & Clustering
 Partitioning:
@@ -194,8 +130,6 @@ Creating unique event ID based on event_name, event_timestamp_micros, user_pseud
 Session with null session_id and user_pseudo_id null are filtered from final input (in the stg_ga4_sessions model)
 Duplicated hit are removed 
 
-##### Basic data quality checks (see Assertions section)
-##### Looker Studio report templates (see Looker Studio report templates section)
 ##### Event filters, custom parameters, custom channels etc… (see Custom Configuration section)
 
 ### Peripheral features
@@ -213,6 +147,158 @@ Url_params._gl
 
 
 ### Custom Configuration
+
+Here's a detailed explanation of the `config.js` file in the custom folder. This file allows users to customize various aspects of the GA4 Dataform model, focusing on parameters like event filtering, custom dimensions, and data validation checks.
+
+---
+
+## `config.js` - Custom Configuration File
+
+### Purpose:
+This configuration file provides a way for users to customize the behavior of the GA4 Dataform model. Below are the sections and parameters that can be modified:
+
+---
+
+### 1. GA4 Start Date (`GA4_START_DATE`)
+```javascript
+GA4_START_DATE: "2020-01-01"
+```
+**Description**: Defines the starting date for the GA4 data that the model should process.  
+**Customization**: Change this date to reflect the earliest data you want to include in your reports. For example, if you started collecting GA4 data on a different date, modify this to match that date.
+
+---
+
+### 2. Custom Event Parameters (`CUSTOM_EVENT_PARAMS_ARRAY`)
+```javascript
+CUSTOM_EVENT_PARAMS_ARRAY: []
+```
+**Description**: This allows you to specify custom event parameters that are not part of the standard GA4 data. The custom parameters will be added to the `event_params_custom` column.  
+**Customization**: Add parameters using the format `{ name: "paramname", type: "TYPE", renameTo: "outputcolumnname" }`.  
+Example:
+```javascript
+CUSTOM_EVENT_PARAMS_ARRAY: [
+  { name: "custom_param", type: "string", renameTo: "custom_output" }
+]
+```
+
+---
+
+### 3. Custom Item Parameters (`CUSTOM_ITEM_PARAMS_ARRAY`)
+```javascript
+CUSTOM_ITEM_PARAMS_ARRAY: []
+```
+**Description**: Similar to event parameters, but for **item custom dimensions and metrics**. These will be stored in the `items.item_params_custom.*` column.  
+**Customization**: Add custom item parameters in the same format.  
+Example:
+```javascript
+CUSTOM_ITEM_PARAMS_ARRAY: [
+  { name: "stock_status", type: "string" }
+]
+```
+
+---
+
+### 4. Custom URL Parameters (`CUSTOM_URL_PARAMS_ARRAY`)
+```javascript
+CUSTOM_URL_PARAMS_ARRAY: []
+```
+**Description**: Allows you to extract custom URL parameters into their own columns.  
+**Customization**: Define custom URL parameters you want to extract in the format `{ name: "param_name", cleaningMethod: "method" }`. Note that only strings are supported.  
+Example:
+```javascript
+CUSTOM_URL_PARAMS_ARRAY: [
+  { name: "q", cleaningMethod: lowerSQL }
+]
+```
+
+---
+
+### 5. Event and Hostname Filters
+- **Events to Exclude (`EVENTS_TO_EXCLUDE`)**
+```javascript
+EVENTS_TO_EXCLUDE: []
+```
+**Description**: List the event names that should be excluded from the events table.  
+**Customization**: Add event names you don’t want to process.  
+Example: `EVENTS_TO_EXCLUDE: ["user_engagement", "scroll"]`
+
+- **Hostname Exclude/Include (`HOSTNAME_EXCLUDE`, `HOSTNAME_INCLUDE_ONLY`)**
+```javascript
+HOSTNAME_EXCLUDE: []
+HOSTNAME_INCLUDE_ONLY: []
+```
+**Description**: Exclude or include specific hostnames from the data.  
+**Customization**: Add hostnames to either list based on whether you want to include or exclude them from the data.
+
+---
+
+### 6. Attribution Window (`LAST_NON_DIRECT_LOOKBACK_DAYS`)
+```javascript
+LAST_NON_DIRECT_LOOKBACK_DAYS: 90
+```
+**Description**: Defines the number of days to look back when assigning a source for a user who lands on your site without a direct source.  
+**Customization**: Change the number of days to fit your attribution model.
+
+---
+
+### 7. Data Quality Assertions
+These assertions check the data for consistency and quality. Users can enable or disable specific checks.
+
+- **Event ID Uniqueness (`ASSERTIONS_EVENT_ID_UNIQUENESS`)**
+```javascript
+ASSERTIONS_EVENT_ID_UNIQUENESS: true
+```
+**Description**: Ensures that each event has a unique event ID.
+  
+- **Session ID Uniqueness (`ASSERTIONS_SESSION_ID_UNIQUENESS`)**
+```javascript
+ASSERTIONS_SESSION_ID_UNIQUENESS: true
+```
+**Description**: Ensures that each session has a unique session ID.
+  
+- **Session Duration Validity (`ASSERTIONS_SESSION_DURATION_VALIDITY`)**
+```javascript
+ASSERTIONS_SESSION_DURATION_VALIDITY: true
+```
+**Description**: Ensures that session durations are valid and within reasonable limits.
+
+- **Session Validity (`ASSERTIONS_SESSIONS_VALIDITY`)**
+```javascript
+ASSERTIONS_SESSIONS_VALIDITY: true
+```
+**Description**: Validates that session data is correct.
+
+- **Tables Timeliness (`ASSERTIONS_TABLES_TIMELINESS`)**
+```javascript
+ASSERTIONS_TABLES_TIMELINESS: true
+```
+**Description**: Checks if the GA4 tables are up to date.
+
+- **Transaction ID Completeness (`ASSERTIONS_TRANSACTION_ID_COMPLETENESS`)**
+```javascript
+ASSERTIONS_TRANSACTION_ID_COMPLETENESS: false
+```
+**Description**: Checks if transaction IDs are present for purchase events.
+
+- **User Pseudo ID Completeness (`ASSERTIONS_USER_PSEUDO_ID_COMPLETENESS`)**
+```javascript
+ASSERTIONS_USER_PSEUDO_ID_COMPLETENESS: false
+```
+**Description**: Ensures that the `user_pseudo_id` is present for all hits.
+
+---
+
+### How to Customize:
+
+1. **Dates**: Adjust the `GA4_START_DATE` to match the date when you want the data processing to begin.
+2. **Custom Parameters**: Add any custom event, item, or URL parameters that are specific to your business in the appropriate arrays.
+3. **Filters**: Exclude certain events or hostnames from your dataset if they are not relevant to your analysis.
+4. **Attribution**: Modify the lookback window for non-direct sessions if needed.
+5. **Assertions**: Toggle data quality checks based on your requirements for accuracy and completeness.
+
+---
+
+This configuration file provides a high level of flexibility, allowing users to tailor the GA4 Dataform model to their specific data needs.
 
 
 3. RESERVED_COLUMN_NAMES_ARRAY
@@ -467,6 +553,59 @@ Looker Studio report templates
 Website diagnostics
 1 Looker Studio template (daily sessions)
 Troubleshooting
+
+# Anticipated Costs for Using Dataform on GA4 BigQuery Export
+
+When using Dataform modeling on GA4 BigQuery export, users should consider the following cost factors:
+
+1. **BigQuery Storage Costs**: 
+   - **GA4 Exported Data Size**: The amount of data exported from GA4 into BigQuery can vary greatly depending on the volume of events tracked, the frequency of tracking, and the granularity of the data collected.
+   - **Storage Pricing**: BigQuery charges based on the amount of data stored. Users can expect to incur costs for the data that is loaded into and stored in BigQuery, and this will grow as more data accumulates over time.
+
+2. **BigQuery Query Costs**:
+   - **Data Processing**: Query costs are based on the amount of data processed by the query. Complex queries, especially those involving large datasets, multiple joins, or advanced calculations (like CTEs), will increase costs.
+   - **Scheduled Queries**: If users are running automated or scheduled queries to keep their datasets up-to-date, they should anticipate regular query costs.
+
+3. **Dataform Query Execution Costs**:
+   - Dataform works by orchestrating queries in BigQuery. While Dataform itself doesn't charge for execution, any underlying BigQuery queries triggered by Dataform models will incur costs, just like running those queries directly.
+
+4. **Data Retention Policies**:
+   - **Table Partitioning**: Users can lower costs by partitioning tables (e.g., by date) and applying expiration dates to remove old or unneeded data.
+   - **Cost Optimization**: GA4 often provides event-level data, which can result in a large number of rows. Optimizing queries and aggregating data at appropriate levels (like sessions or users) can help reduce the data processed and, consequently, the costs.
+
+5. **Free Tier & Discounts**:
+   - BigQuery offers a free tier (usually 10 GB of storage and 1 TB of query processing per month) that small users might stay under. It's important for users to monitor their usage if they want to avoid unexpected costs.
+
+By planning how often they query the data, managing the storage footprint, and optimizing the queries, users can control and reduce their costs effectively.
+
+
+BigQuery Project
+GA4Dataform generates tables in BigQuery. Everything will be under the dataform-package project with the following structure: 
+
+```
+Dataform-package (project)
+├── superform_outputs (dataset)
+│   ├── demo_daily_sessions_report (tables)
+│   ├── demo_diagnostics
+│   ├── ga4_events
+│   ├── ga4_sessions
+├── superform_transformations
+│   ├── int_ga4_events
+│   ├── int_ga4_sessions
+│   ├── source_categories
+│   ├── stg_ga4_events
+│   ├── stg_ga4_sessions
+├── Superform_quality
+│   ├── assertion_logs
+```
+
+
+#### Releases and Scheduling
+
+
+#### Project Location
+Location of the dataform project is set during the installation. It is based on the Location of the GA4 dataset
+
 
 Support & contact
 support@ga4dataform.com
