@@ -1,0 +1,9 @@
+defaultAssertionDataset: superform_assertion
+defaultLocation: EU
+defaultProject: dataform-package
+vars:
+  GA4_DATASET: analytics_31337
+  LOCAL_TIMEZONE: Europe/Paris
+  QUALITY_DATASET: superform_quality_31337
+  TRANSFORMATIONS_DATASET: superform_transformations_31337
+  OUTPUTS_DATASET: superform_outputs_31337

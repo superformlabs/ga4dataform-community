@@ -1,0 +1,104 @@
+config {
+    type: "table",
+    description: "checking if all the tables are up to date",
+    schema: dataform.projectConfig.vars.QUALITY_DATASET,
+    dependencies: [
+      "assertion_logs", 
+      {name:"ga4_events"},  
+      {name:"int_ga4_sessions"}, 
+      {name:"ga4_sessions"}
+      ],
+    tags:[dataform.projectConfig.vars.GA4_DATASET, "assertions"],
+}
+
+js {
+    const { helpers } = require("includes/core/helpers");
+    const config = helpers.getConfig();
+}
+
+SELECT
+  'running assertion' AS placeholder
+
+pre_operations {
+  -- declare variables and default value
+  DECLARE
+    assertion STRING DEFAULT 'tables timeliness';
+  DECLARE
+    check INT64;
+  DECLARE
+    expectations INT64 DEFAULT 0;
+  DECLARE
+    sample STRING;
+  DECLARE
+    assertion_status STRING DEFAULT 'pass';
+  DECLARE
+    error_msg STRING DEFAULT 'Yippee-ki-yay';
+    -- run assertion and collect sample of flawed rows
+  IF
+    ${config.ASSERTIONS_TABLES_TIMELINESS} THEN
+  SET
+    (check,
+      sample) = (
+    WITH
+      max_dates AS (
+      SELECT
+        'int_ga4_sessions' AS table_name,
+        MAX(session_date) AS max_date
+      FROM
+        ${ref("int_ga4_sessions")}
+      UNION ALL
+      SELECT
+        'ga4_sessions' AS table_name,
+        MAX(session_date) AS max_date
+      FROM
+        ${ref("ga4_sessions")}
+      UNION ALL
+      SELECT
+        'ga4_events' AS table_name,
+        MAX(event_date) AS max_date
+      FROM
+        ${ref("ga4_events")})
+    SELECT
+      AS STRUCT COUNT(*),
+      STRING_AGG(CAST(table_name AS string), ", ")
+    FROM
+      max_dates
+    WHERE
+      max_date != (
+      SELECT
+        MAX(PARSE_DATE('%Y%m%d', event_date))
+      FROM
+        ${ref("events_*")}
+      WHERE
+        CONTAINS_SUBSTR(_TABLE_SUFFIX, 'intraday') IS FALSE) );
+  IF
+    check > expectations THEN
+  SET
+    assertion_status = 'fail';
+  SET
+    error_msg = FORMAT("%d tables are not up to date with ga4 raw event table", check);
+  END IF
+    ;
+    -- Log assertions
+  INSERT INTO
+    ${ref("assertion_logs")}
+  VALUES
+    (CURRENT_TIMESTAMP(), assertion, '${ref("events_*")}', expectations, check, sample, assertion_status, error_msg);
+  END IF
+}
+
+post_operations {
+  IF
+    ${config.ASSERTIONS_TABLES_TIMELINESS} THEN
+    -- raise error
+    -- drop placeholder table
+  DROP TABLE
+    ${self()};
+  IF
+    check > expectations THEN RAISE
+  USING
+    MESSAGE = error_msg;
+  END IF
+    ;
+  END IF
+}

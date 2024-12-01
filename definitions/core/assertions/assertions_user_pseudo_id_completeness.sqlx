@@ -1,0 +1,72 @@
+config {
+    type: "table",
+    schema: dataform.projectConfig.vars.QUALITY_DATASET,
+    description: "user_pseudo_id should not be null",
+    dependencies: ["assertion_logs",{name:"ga4_events"}],
+    tags:[dataform.projectConfig.vars.GA4_DATASET, "assertions"],
+}
+js {
+    const { helpers } = require("includes/core/helpers");
+    const config = helpers.getConfig();
+}
+SELECT
+  'running assertion' AS placeholder
+
+pre_operations {
+  -- declare variables and default value
+  DECLARE
+    assertion STRING DEFAULT 'user_pseudo_id completeness';
+  DECLARE
+    check INT64;
+  DECLARE
+    expectations INT64 DEFAULT 0;
+  DECLARE
+    sample STRING;
+  DECLARE
+    assertion_status STRING DEFAULT 'pass';
+  DECLARE
+    error_msg STRING DEFAULT 'Yippee-ki-yay';
+    -- run assertion and collect sample of flawed rows
+  IF ${config.ASSERTIONS_USER_PSEUDO_ID_COMPLETENESS}  THEN
+  SET
+    (check,
+      sample) = (
+    SELECT
+      AS STRUCT COUNT(*),
+      STRING_AGG(CAST(event_id AS string), ", "
+      LIMIT
+        5)
+    FROM
+      ${ref("ga4_events")}
+    WHERE
+      event_date >= DATE_SUB( CURRENT_DATE(), INTERVAL 3 day )
+      AND user_pseudo_id IS NULL );
+  IF
+    check > expectations THEN
+  SET
+    assertion_status = 'fail';
+  SET
+    error_msg = FORMAT("%d null user_pseudo_id", check);
+  END IF
+    ;
+    -- Log assertions
+  INSERT INTO
+    ${ref("assertion_logs")}
+  VALUES
+    (CURRENT_TIMESTAMP(), assertion, '${ref("ga4_events")}', expectations, check, sample, assertion_status, error_msg);
+  END IF
+}
+
+post_operations {
+  IF ${config.ASSERTIONS_USER_PSEUDO_ID_COMPLETENESS}  THEN
+  -- raise error
+    -- drop placeholder table
+  DROP TABLE
+    ${self()};
+  IF
+    check > expectations THEN RAISE
+  USING
+    MESSAGE = error_msg;
+  END IF;
+  END IF
+}

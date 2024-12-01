@@ -1,0 +1,72 @@
+config {
+    type: "table",
+    schema: dataform.projectConfig.vars.QUALITY_DATASET,
+    description: "session duration should not be negative",
+    dependencies: ["assertion_logs",{name:"ga4_sessions"}],
+    tags:[dataform.projectConfig.vars.GA4_DATASET, "assertions"],
+}
+js {
+    const { helpers } = require("includes/core/helpers");
+    const config = helpers.getConfig();
+}
+SELECT
+  'running assertion' AS placeholder
+
+pre_operations {
+  -- declare variables and default value
+  DECLARE
+    assertion STRING DEFAULT 'session duration validity';
+  DECLARE
+    check INT64;
+  DECLARE
+    expectations INT64 DEFAULT 0;
+  DECLARE
+    sample STRING;
+  DECLARE
+    assertion_status STRING DEFAULT 'pass';
+  DECLARE
+    error_msg STRING DEFAULT 'Yippee-ki-yay';
+    -- run assertion and collect sample of flawed rows
+  IF ${config.ASSERTIONS_SESSION_DURATION_VALIDITY}  THEN
+  SET
+    (check,
+      sample) = (
+    SELECT
+      AS STRUCT COUNT(*),
+      STRING_AGG(CAST(session_id AS string), ", "
+      LIMIT
+        5)
+    FROM
+      ${ref("ga4_sessions")}
+    WHERE
+      TIMESTAMP_DIFF(time.session_end_timestamp_utc, time.session_start_timestamp_utc, SECOND) < 0
+      AND session_date >= DATE_SUB( CURRENT_DATE(), INTERVAL 3 day ) );
+  IF
+    check > expectations THEN
+  SET
+    assertion_status = 'fail';
+  SET
+    error_msg = FORMAT("%d sessions with negative", check);
+  END IF
+    ;
+    -- Log assertions
+  INSERT INTO
+    ${ref("assertion_logs")}
+  VALUES
+    (CURRENT_TIMESTAMP(), assertion, '${ref("ga4_sessions")}', expectations, check, sample, assertion_status, error_msg);
+  END IF
+}
+
+post_operations {
+  IF ${config.ASSERTIONS_SESSION_DURATION_VALIDITY}  THEN
+  -- raise error
+    -- drop placeholder table
+  DROP TABLE
+    ${self()};
+  IF
+    check > expectations THEN RAISE
+  USING
+    MESSAGE = error_msg;
+  END IF;
+  END IF
+}

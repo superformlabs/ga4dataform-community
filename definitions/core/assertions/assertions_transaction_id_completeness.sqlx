@@ -1,0 +1,78 @@
+config {
+    type: "table",
+    schema: dataform.projectConfig.vars.QUALITY_DATASET,
+    description: "transaction id should not be null or not set",
+    dependencies: ["assertion_logs", "events_*"],
+    tags:[dataform.projectConfig.vars.GA4_DATASET, "assertions"],
+}
+js {
+    const { helpers } = require("includes/core/helpers");
+    const config = helpers.getConfig();
+}
+SELECT
+  'running assertion' AS placeholder
+
+pre_operations {
+  -- declare variables and default value
+  DECLARE
+    assertion STRING DEFAULT 'transaction id completeness';
+  DECLARE
+    check INT64;
+  DECLARE
+    expectations INT64 DEFAULT 0;
+  DECLARE
+    sample STRING;
+  DECLARE
+    assertion_status STRING DEFAULT 'pass';
+  DECLARE
+    error_msg STRING DEFAULT 'Yippee-ki-yay';
+    -- run assertion and collect sample of flawed rows
+  IF ${config.ASSERTIONS_TRANSACTION_ID_COMPLETENESS}  THEN
+  SET
+    (check,
+      sample) = (
+    SELECT
+      AS STRUCT COUNT(*),
+      STRING_AGG(CAST(transaction_id AS string), ", "
+      LIMIT
+        5)
+    FROM (
+      SELECT
+        ecommerce.transaction_id AS transaction_id
+      FROM
+        ${ref("events_*")}
+      WHERE
+        event_name = 'purchase'
+        AND (ecommerce.transaction_id = '(not set)'
+          OR ecommerce.transaction_id IS NULL)
+        AND CONTAINS_SUBSTR(_TABLE_SUFFIX, 'intraday') IS FALSE
+        AND PARSE_DATE('%Y%m%d', (REGEXP_EXTRACT(_table_suffix,'[0-9]+'))) >= DATE_SUB( CURRENT_DATE(), INTERVAL 3 day )) );
+  IF
+    check > expectations THEN
+  SET
+    assertion_status = 'fail';
+  SET
+    error_msg = FORMAT("%d null or not set transaction id(s)", check);
+  END IF
+    ;
+    -- Log assertions
+  INSERT INTO
+    ${ref("assertion_logs")}
+  VALUES
+    (CURRENT_TIMESTAMP(), assertion, '${ref("events_*")}', expectations, check, sample, assertion_status, error_msg);
+  END IF
+}
+
+post_operations {
+  IF ${config.ASSERTIONS_TRANSACTION_ID_COMPLETENESS}  THEN
+  -- raise error
+    -- drop placeholder table
+  DROP TABLE
+    ${self()};
+  IF
+    check > expectations THEN RAISE
+  USING
+    MESSAGE = error_msg;
+  END IF;
+  END IF
+}

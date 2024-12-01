@@ -1,0 +1,386 @@
+{
+      "_run_timestamp": "Timestamp of when the data was processed",
+      "event_name": "Name of the event (cluster column)",
+      "table_suffix": "Suffix of the events table name the event was sourced",
+      "event_date": "The date when the event was logged (YYYYMMDD format in the registered timezone of your property) (partitioning column)",
+      "is_final": "Indicates if the data is final or subject to change (based on 72h window)",
+      "user_pseudo_id": "Pseudonymous identifier for the user (could be NULL for cookieless pings)",
+      "user_id": "The unique ID assigned to a user",
+      "is_active_user": "Whether the user was active (True) or inactive (False) at any point in the calendar day",
+      "privacy_info": {
+        "description": "The privacy_info fields contain information based on the consent status of a user when consent mode is enabled",
+        "columns": {
+          "analytics_storage": "Whether Analytics storage is enabled for the user. Possible values: Yes, No, Unset",
+          "ads_storage": "Whether ad targeting is enabled for a user.",
+          "uses_transient_token": "Whether a web user has denied Analytics storage and the developer has enabled measurement without cookies based on transient tokens in server data"
+        }
+      },
+      "collected_traffic_source": {
+        "description": "Information about the traffic source",
+        "columns": {
+          "manual_campaign_id": "The manual campaign id (utm_id) that was collected with the event",
+          "manual_campaign_name": "The manual campaign name (utm_campaign) that was collected with the event",
+          "manual_source": "The manual campaign source (utm_source) that was collected with the event. Also includes parsed parameters from referral params, not just UTM values",
+          "manual_medium": "The manual campaign medium (utm_medium) that was collected with the event. Also includes parsed parameters from referral params, not just UTM values",
+          "manual_term": "The manual campaign keyword/term (utm_term) that was collected with the event",
+          "manual_content": "The additional manual campaign metadata (utm_content) that was collected with the event",
+          "manual_source_platform": "The manual campaign source platform (utm_source_platform) that was collected with the event",
+          "manual_creative_format": "The manual campaign creative format (utm_creative_format) that was collected with the event",
+          "manual_marketing_tactic": "The manual campaign marketing tactic (utm_marketing_tactic) that was collected with the event",
+          "gclid": "The Google click identifier that was collected with the event",
+          "dclid": "The DoubleClick Click Identifier for Display and Video 360 and Campaign Manager 360 that was collected with the event",
+          "srsltid": "The Google Merchant Center identifier that was collected with the event"
+        }
+      },
+"session_traffic_source_last_click": {
+  "description": "The session_traffic_source_last_click RECORD contains the last-click attributed session traffic source data across Google ads and manual contexts, where available",
+  "columns": {
+    "manual_campaign": {
+      "description": "Manually set campaign information",
+      "columns": {
+        "campaign_id": "The ID of the last clicked manual campaign",
+        "campaign_name": "The name of the last clicked manual campaign",
+        "source": "The specific source within the platform of the last clicked manual campaign",
+        "medium": "The medium of the last clicked manual campaign (e.g., paid search, organic search, email)",
+        "term": "The keyword/search term of the last clicked manual campaign",
+        "content": "Additional metadata of the last clicked manual campaign",
+        "source_platform": "The platform of the last clicked manual campaign (e.g., search engine, social media)",
+        "creative_format": "The format of the creative of the last clicked manual campaign",
+        "marketing_tactic": "The marketing tactic of the last clicked manual campaign"
+      }
+    },
+    "google_ads_campaign": {
+      "description": "Google Ads information",
+      "columns": {
+        "customer_id": "The customer ID associated with the Google Ads account",
+        "account_name": "The name of the Google Ads account",
+        "campaign_id": "The ID of the Google Ads campaign",
+        "campaign_name": "The name of the Google Ads campaign",
+        "ad_group_id": "The ID of the ad group within the Google Ads campaign",
+        "ad_group_name": "The name of the ad group within the Google Ads campaign"
+      }
+    }
+  }
+},
+      "user_ltv": {
+        "description": "Contains Lifetime Value information about the user",
+        "columns": {
+          "revenue": "The Lifetime Value (revenue) of the user",
+          "currency": "The Lifetime Value (currency) of the user"
+        }
+      },
+      "device": {
+        "description": "information about the device from which the event originated",
+        "columns": {
+          "category": "The device category (mobile, tablet, desktop)",
+          "mobile_brand_name": "Mobile device brand name",
+          "mobile_model_name": "Mobile device model name",
+          "mobile_marketing_name": "Mobile device marketing name",
+          "mobile_os_hardware_model": "The device model information retrieved directly from the operating system",
+          "operating_system": "Operating system name",
+          "operating_system_version": "Operating system version",
+          "vendor_id": "IDFV (present only if IDFA is not collected)",
+          "advertising_id": "Advertising ID/IDFA",
+          "language": "OS language setting",
+          "is_limited_ad_tracking": "Indicates if ad tracking is limited. On iOS14+, returns false if the IDFA is non-zero",
+          "time_zone_offset_seconds": "The offset from GMT in seconds",
+          "web_info": {
+            "description": "Web-specific device information",
+            "columns": {
+              "browser": "Web browser name",
+              "browser_version": "Web browser version",
+              "hostname": "The hostname associated with the logged event"
+            }
+          }
+        }
+      },
+      "app_info": {
+        "description": "contains information about the app in which the event was initiated",
+        "columns": {
+          "id": "The package name or bundle ID of the app",
+          "version": "The app's versionName (Android) or short bundle version",
+          "install_store": "The store that installed the app",
+          "firebase_app_id": "The Firebase App ID associated with the app",
+          "install_source": "The source that installed the app"
+        }
+      },
+      "geo": {
+        "description": "Geographic information",
+        "columns": {
+          "continent": "The continent from which events were reported, based on IP address",
+          "country": "The country from which events were reported, based on IP address",
+          "region": "The region from which events were reported, based on IP address",
+          "city": "The city from which events were reported, based on IP address",
+          "sub_continent": "The subcontinent from which events were reported, based on IP address",
+          "metro": "The metro from which events were reported, based on IP address"
+        }
+      },
+      "first_user_traffic_source": {
+        "description": "information about the traffic source that first acquired the user",
+        "columns": {
+          "campaign_name": "First campaign name",
+          "source": "First traffic source",
+          "medium": "First traffic medium"
+        }
+      },
+      "stream_id": "The numeric ID of the data stream from which the event originated",
+      "platform": "The data stream platform (Web, IOS or Android) from which the event originated",
+      "property_id": "Google Analytics property ID",
+      "items": {
+        "description": "information about items included in an event",
+        "columns": {
+          "item_id": "Product ID",
+          "item_name": "Product name",
+          "item_brand": "Product brand",
+          "item_variant": "Product variant",
+          "item_category": "Product category (level 1)",
+          "item_category2": "Product category (level 2)",
+          "item_category3": "Product category (level 3)",
+          "item_category4": "Product category (level 4)",
+          "item_category5": "Product category (level 5)",
+          "price_in_usd": "Product price in USD",
+          "price": "Product price in local currency",
+          "quantity": "Product quantity",
+          "item_revenue_in_usd": "Product revenue in USD",
+          "item_revenue": "Product revenue in local currency",
+          "item_refund_in_usd": "Product refund amount in USD",
+          "item_refund": "Product refund amount in local currency",
+          "coupon": "Coupon code applied to the product",
+          "affiliation": "Product affiliation",
+          "location_id": "Location ID where the product was sold",
+          "item_list_id": "ID of the list containing the product",
+          "item_list_name": "Name of the list containing the product",
+          "item_list_index": "Position of the product in the list",
+          "promotion_id": "ID of the promotion associated with the product",
+          "promotion_name": "Name of the promotion associated with the product",
+          "creative_name": "Name of the creative used in the promotion",
+          "creative_slot": "Slot of the creative used in the promotion"
+        }
+      },
+      "event_params": {
+        "description": "Event parameters associated with the event. Included are all parameters that are automatically collected or recommended",
+        "columns": {
+          "ignore_referrer": "Indicates if the referrer should be ignored",
+          "ga_session_id": "Google Analytics session ID (cluster column)",
+          "ga_session_number": "Google Analytics session number",
+          "synthetic_bundle": "Indicates if the event is part of a synthetic bundle",
+          "engagement_time_msec": "Engagement time in milliseconds",
+          "engaged_session_event": "Indicates if the event is part of an engaged session",
+          "entrances": "Number of entrances",
+          "session_engaged": "Indicates if the session is engaged",
+          "content_group": "Content group",
+          "content_id": "Content ID",
+          "content_type": "Content type",
+          "content": "Content description",
+          "medium": "Traffic medium",
+          "campaign": "Campaign name",
+          "source": "Traffic source",
+          "term": "Search term",
+          "gclid": "Google Click Identifier",
+          "dclid": "DoubleClick Click Identifier",
+          "srsltid": "Search Result Slot Identifier",
+          "aclid": "AdWords Click Identifier",
+          "cp1": "Custom parameter 1",
+          "anid": "Android Advertising ID",
+          "click_timestamp": "Timestamp of the click",
+          "campaign_info_source": "Source of campaign information",
+          "coupon": "Coupon code",
+          "currency": "Currency code",
+          "shipping": "Shipping cost",
+          "shipping_tier": "Shipping tier",
+          "payment_type": "Payment type",
+          "tax": "Tax amount",
+          "transaction_id": "Transaction ID",
+          "value": "Transaction value",
+          "item_list_id": "Item list ID",
+          "item_list_name": "Item list name",
+          "creative_name": "Creative name",
+          "creative_slot": "Creative slot",
+          "promotion_id": "Promotion ID",
+          "promotion_name": "Promotion name",
+          "item_name": "Item name",
+          "link_classes": "CSS classes of the clicked link",
+          "link_domain": "Domain of the clicked link",
+          "link_id": "ID of the clicked link",
+          "link_text": "Text of the clicked link",
+          "link_url": "URL of the clicked link",
+          "outbound": "Indicates if the link is outbound",
+          "ad_unit_code": "Ad unit code",
+          "ad_event_id": "Ad event ID",
+          "exposure_time": "Ad exposure time",
+          "reward_type": "Reward type",
+          "reward_value": "Reward value",
+          "video_current_time": "Current time of the video",
+          "video_duration": "Total duration of the video",
+          "video_percent": "Percentage of video watched",
+          "video_provider": "Video provider",
+          "video_title": "Video title",
+          "video_url": "Video URL",
+          "method": "Method name",
+          "app_version": "App version",
+          "cancellation_reason": "Reason for cancellation",
+          "fatal": "Indicates if the error is fatal",
+          "timestamp": "Event timestamp",
+          "firebase_error": "Firebase error code",
+          "firebase_error_value": "Firebase error value",
+          "firebase_screen": "Firebase screen name",
+          "firebase_screen_class": "Firebase screen class",
+          "firebase_screen_id": "Firebase screen ID",
+          "firebase_previous_screen": "Previous Firebase screen name",
+          "firebase_previous_class": "Previous Firebase screen class",
+          "firebase_previous_id": "Previous Firebase screen ID",
+          "free_trial": "Indicates if it's a free trial",
+          "message_device_time": "Message device time",
+          "message_id": "Message ID",
+          "message_name": "Message name",
+          "message_time": "Message time",
+          "message_type": "Message type",
+          "topic": "Message topic",
+          "label": "Label",
+          "previous_app_version": "Previous app version",
+          "previous_first_open_count": "Previous first open count",
+          "previous_os_version": "Previous OS version",
+          "subscription": "Subscription information",
+          "updated_with_analytics": "Indicates if updated with analytics",
+          "achievement_id": "Achievement ID",
+          "character": "Game character",
+          "level": "Game level",
+          "level_name": "Game level name",
+          "score": "Game score",
+          "virtual_currency_name": "Virtual currency name",
+          "success": "Indicates success",
+          "visible": "Indicates visibility",
+          "screen_resolution": "Screen resolution",
+          "system_app": "Indicates if it's a system app",
+          "system_app_update": "Indicates system app update",
+          "product_id": "Product ID",
+          "price": "Price",
+          "quantity": "Quantity",
+          "renewal_count": "Renewal count",
+          "previous_gmp_app_id": "Previous GMP app ID",
+          "deferred_analytics_collection": "Indicates deferred analytics collection",
+          "reset_analytics_cause": "Cause of analytics reset",
+          "introductory_price": "Introductory price",
+          "file_extension": "File extension",
+          "file_name": "File name",
+          "form_destination": "Form destination",
+          "form_id": "Form ID",
+          "form_name": "Form name",
+          "form_submit_text": "Form submit button text",
+          "group_id": "Group ID",
+          "language": "Language",
+          "percent_scrolled": "Percentage of page scrolled",
+          "search_term": "Search term",
+          "unconvert_lead_reason": "Reason for unconverting a lead",
+          "disqualified_lead_reason": "Reason for disqualifying a lead",
+          "lead_source": "Lead source",
+          "lead_status": "Lead status"
+        }
+      },
+      "batch": {
+        "description": "Batch processing information",
+        "columns": {
+          "batch_event_index": "A number indicating the sequential order of each event within a batch based on their order of occurrence on the device",
+          "batch_ordering_id": "A monotonically increasing number that is incremented each time a network request is sent from a given page",
+          "batch_page_id": "A sequential number assigned to a page that increases for each subsequent page within an engagement"
+        }
+      },
+      "ecommerce": {
+        "description": "Ecommerce-related information",
+        "columns": {
+          "total_item_quantity": "Total number of items in this event, which is the sum of items.quantity",
+          "purchase_revenue_in_usd": "Purchase revenue in USD",
+          "purchase_revenue": "Purchase revenue in local currency",
+          "refund_value_in_usd": "Refund value in USD",
+          "refund_value": "Refund value in local currency",
+          "shipping_value_in_usd": "Shipping value in USD",
+          "shipping_value": "Shipping value in local currency",
+          "tax_value_in_usd": "Tax value in USD",
+          "tax_value": "Tax value in local currency",
+          "unique_items": "The number of unique items in this event, based on item_id, item_name, and item_brand",
+          "transaction_id": "Transaction ID - set to NULL when '(not set)'"
+        }
+      },
+      "url_params": {
+        "description": "URL parameters sraped from the page_location",
+        "columns": {
+          "utm_marketing_tactic": "UTM marketing tactic",
+          "utm_source_platform": "UTM source platform",
+          "utm_term": "UTM term",
+          "utm_content": "UTM content",
+          "utm_source": "UTM source",
+          "utm_medium": "UTM medium",
+          "utm_campaign": "UTM campaign",
+          "utm_id": "UTM ID",
+          "utm_creative_format": "UTM creative format",
+          "gtm_debug": "GTM debug mode",
+          "_gl": "Google Analytics linker parameter"
+        }
+      },
+      "event_id": "Unique identifier for the event, based on user/session/event/timestamp/batch/engagement parameters - used for deduplication",
+      "click_ids": {
+        "description": "Various click identifiers, scraped from page_location",
+        "columns": {
+          "gclid": "Google Click Identifier",
+          "dclid": "DoubleClick Click Identifier",
+          "srsltid": "Search Result Slot Identifier",
+          "gbraid": "Google Ads Click Identifier for iOS",
+          "wbraid": "Google Ads Click Identifier for Web",
+          "msclkid": "Microsoft Click Identifier"
+        }
+      },
+      "fixed_traffic_source": {
+        "description": "Sanitised version of the collected_traffic_source information, cleaned from bugs in the BQ export",
+        "columns": {
+          "campaign_id": "Campaign ID",
+          "campaign": "Campaign name",
+          "source": "Traffic source",
+          "medium": "Traffic medium",
+          "term": "Search term",
+          "content": "Content identifier",
+          "source_platform": "The platform responsible for directing traffic to a given Analytics property - utm_marketing_platform",
+          "creative_format": "Type of creative - utm_creative_format",
+          "marketing_tactic": "Targeting criteria applied to a campaign - utm_marketing_tactic"
+        }
+      },
+      "time": {
+        "description": "Time-related information",
+        "columns": {
+          "event_timestamp": "Event timestamp (microseconds)",
+          "event_timestamp_utc": "Event timestamp in UTC",
+          "user_first_touch_timestamp": "User's first touch timestamp (microseconds)",
+          "user_first_touch_timestamp_utc": "User's first touch timestamp in UTC",
+          "timestamp_local": "Local timestamp of the event (based on the settings in dataform)",
+          "date_local": "Local date of the event (based on the settings in dataform)"
+        }
+      },
+      "is_measurement_protocol_hit": "Indicates if the hit is from Measurement Protocol - best guess",
+      "session_id": "Unique identifier for the session. NULL if event is cookieless ping",
+      "page": {
+        "description": "Page-related information",
+        "columns": {
+          "hostname": "Hostname of the event",
+          "location": "Full URL of the page",
+          "path": "Path of the page, without URL parameters",
+          "referrer": "Full page referrer URL",
+          "title": "Page title"
+        }
+      },
+      "has_source": "Indicates if the event has a source (based on fixed_traffic_source and referrer",
+      "session_info": {
+        "description": "Session-related information",
+        "columns": {
+          "hit_number": "Hit number within the session (based on session_id)",
+          "page_number": "Page number within the session (based on session_id)"
+        }
+    },
+    "publisher": {
+        "description": "A record of publisher data coming from AdMob",
+        "columns": {
+          "ad_format": "Describes the way ads appeared and where they were located. Typical formats include Interstitial, Banner, Rewarded, and Native advanced",
+          "ad_revenue_in_usd": "Estimated ad revenue resulting from this event, represented in USD",
+          "ad_source_name": "The source network that served an ad. Typical sources include, AdMob Network, Meta audience Network, and Mediated house ads",
+          "ad_unit_id": "The name you chose to describe this Ad unit. Ad units are containers that you place in your apps to show ads to users"
+        }
+    }
+}

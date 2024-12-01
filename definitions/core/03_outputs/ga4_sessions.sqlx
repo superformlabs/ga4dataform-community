@@ -1,0 +1,115 @@
+/*
+    This file is part of "GA4 Dataform Package".
+    Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+    Artem Korneev, Jules Stuifbergen,
+    Johan van de Werken, Krisztián Korpa,
+    Simon Breton
+
+    Do not redistribute this version! The open source version will become
+    available at github.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+
+*/
+
+config {
+  type: "incremental",
+  description: "Output sessions table with last non direct logic added",
+  schema: dataform.projectConfig.vars.OUTPUTS_DATASET,
+  tags:[dataform.projectConfig.vars.GA4_DATASET,"sessions","outputs"],
+  bigquery: {
+    partitionBy: "session_date",
+    clusterBy: [ "session_id" ]
+  },
+  columns: require("includes/core/documentation/helpers.js").ga4Sessions
+}
+
+js {
+    const { helpers } = require("includes/core/helpers");
+    const config = helpers.getConfig();
+}
+
+/* incrementality */
+pre_operations {
+  declare date_checkpoint DATE;
+  ---
+  set date_checkpoint = (
+    ${when(incremental(),
+    `select max(session_date)+1 from ${self()} where is_final = true`,
+    `select date('1970-01-01')`)}   /* the default, when it's not incremental */
+  );
+
+  -- delete some older data, since this may be updated later by GA4
+  ${
+    when(incremental(),
+      `delete from ${self()} where session_date >= date_checkpoint`
+      )
+  }
+}
+
+with int as (
+    select
+        * 
+    from ${ref("int_ga4_sessions")}
+    where session_date >= date_checkpoint - interval ${config.LAST_NON_DIRECT_LOOKBACK_DAYS} day
+),
+
+
+last_non_direct as (
+    select
+        *,
+        if(
+            session_info.is_with_source, -- use the first source if there is one
+            session_source.first,
+            -- if there is no source, lookback, and use LAST non-null source
+            last_value(
+                -- make sure we do not carry empty source structs
+                if(
+                    coalesce(
+                        session_source.last.campaign_id,
+                        session_source.last.campaign,
+                        session_source.last.source,
+                        session_source.last.medium,
+                        session_source.last.term,
+                        session_source.last.content,
+                        ${helpers.getClickIdsDimensionsSQL(config.CLICK_IDS_ARRAY,'session_source.last')}
+                    ) is null,
+                    null,
+                    session_source.last
+                )
+                ignore nulls
+            )  over lookback_window
+            
+        ) as last_non_direct_traffic_source
+
+    from int
+    
+    window lookback_window as (
+        partition by user_pseudo_id
+        order by unix_millis(time.session_start_timestamp_utc)
+        range between ${config.LAST_NON_DIRECT_LOOKBACK_MILLIS} preceding and current row
+    )
+),
+
+-- now rewrite NULL default channel grouping to Direct
+final as (
+    select
+        * except (session_source)
+        replace (
+            (
+              select as struct
+                last_non_direct_traffic_source.* except(default_channel_grouping),
+                coalesce(last_non_direct_traffic_source.default_channel_grouping, "Direct") as default_channel_grouping
+            ) as last_non_direct_traffic_source
+        ),
+        session_source.first as session_source
+    from last_non_direct
+)
+
+select
+    *
+from final
+where session_date >= date_checkpoint
+

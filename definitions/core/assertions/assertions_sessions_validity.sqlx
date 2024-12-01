@@ -1,0 +1,79 @@
+config {
+    type: "table",
+    schema: dataform.projectConfig.vars.QUALITY_DATASET,
+    description: "checking if sessions are valid",
+    dependencies: ["assertion_logs",{name:"ga4_sessions"}],
+    tags:[dataform.projectConfig.vars.GA4_DATASET, "assertions"],
+}
+
+js {
+    const { helpers } = require("includes/core/helpers");
+    const config = helpers.getConfig();
+}
+
+SELECT
+  'running assertion' AS placeholder
+
+pre_operations {
+  -- declare variables and default value
+  DECLARE
+    assertion STRING DEFAULT 'sessions validity';
+  DECLARE
+    check INT64;
+  DECLARE
+    expectations INT64 DEFAULT 0;
+  DECLARE
+    sample STRING;
+  DECLARE
+    assertion_status STRING DEFAULT 'pass';
+  DECLARE
+    error_msg STRING DEFAULT 'Yippee-ki-yay';
+    -- run assertion and collect sample of flawed rows
+  IF ${config.ASSERTIONS_SESSIONS_VALIDITY}  THEN
+  SET
+    (check,
+      sample) = (
+    SELECT
+      AS STRUCT COUNT(*),
+      STRING_AGG(CAST(session_id AS string), ", "
+      LIMIT
+        5)
+    FROM
+      ${ref("ga4_sessions")}
+    WHERE
+      session_date >= DATE_SUB( CURRENT_DATE(), INTERVAL 3 day )
+      AND (landing_page.landing_page_location IS NULL
+        OR user_pseudo_id IS NULL
+        OR session_id IS NULL
+        OR session_date IS NULL
+        OR device.category IS NULL
+        OR time.session_start_timestamp_utc IS NULL ) );
+  IF
+    check > expectations THEN
+  SET
+    assertion_status = 'fail';
+  SET
+    error_msg = FORMAT("%d sessions not valid. one of these is null: landing_page_location, user_pseudo_id, session_id, session_date, device.category, session_start_timestamp_utc", check);
+  END IF
+    ;
+    -- Log assertions
+  INSERT INTO
+    ${ref("assertion_logs")}
+  VALUES
+    (CURRENT_TIMESTAMP(), assertion, '${ref("ga4_sessions")}', expectations, check, sample, assertion_status, error_msg);
+  END IF
+}
+
+post_operations {
+  IF ${config.ASSERTIONS_SESSIONS_VALIDITY}  THEN
+  -- raise error
+    -- drop placeholder table
+  DROP TABLE
+    ${self()};
+  IF
+    check > expectations THEN RAISE
+  USING
+    MESSAGE = error_msg;
+  END IF;
+  END IF
+}
