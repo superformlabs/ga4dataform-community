@@ -10,23 +10,33 @@ You can use this repository to:
 
 Please take a look at our [documentation](https://docs.ga4dataform.com/docs/) if you want to learn more about GA4Dataform!
 
-## Installation
+## Installation Tips
 
 If you want to install our most up-to-date version of GA4Dataform or an easy and quick way to deploy it to your project, please use the [Installer](https://setup.ga4dataform.com/)!
 
 We will try to keep this open-source repository as updated as we can, but there might be some delay. Use this repository at your own risk!
 
-## Connect your Dataform repository
+### 1. Clone this repository and connect your Git repo to Dataform
+If you choose this route, you will be able to keep iterating on the existing models with a Git connection that you own. The downside is that you will have to update the repository yourself (if you want to) when we roll out new versions.
 
-Connecting your Dataform repository to this Github repo (even just temporarily) is probably the least amount of effort to move all files and folders to your workspace.
+1. Run git clone locally
+```bash
+git clone https://github.com/superformlabs/ga4dataform.git
+```
+2. Push the cloned files to a Git repository that you own
+3. Connect your Git repository with Dataform
 
-### Prerequisites
+### 2. Connect your Dataform repository to this Github repo
+
+Connecting your Dataform repository to this Github repo (even just temporarily) is probably the least amount of effort to move all files and folders to your workspace. The downside is that you will have to disconnect Github if you want to add your own queries to the workspace.
+
+#### Prerequisites
 * Your project has billing enabled
 * You have proper [permissions](https://docs.ga4dataform.com/docs/permissions)
 * [Secret Manager API](https://console.cloud.google.com/apis/api/secretmanager.googleapis.com/metrics) is enabled
 * [Dataform service account](https://console.cloud.google.com/iam-admin/iam) has `Secret Manager, Secret Accessor` role
 
-### Steps
+#### Steps
 1. Navigate to [Dataform](https://console.cloud.google.com/bigquery/dataform)
 2. Select the repository you want to connect
 3. Click on `Settings`
