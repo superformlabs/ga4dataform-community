@@ -5,21 +5,19 @@
     Johan van de Werken, Krisztián Korpa,
     Simon Breton
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, version 3 of the License.
+    Do not redistribute this version! The open source version will become
+    available at github.
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License in the LICENSE.txt file for more details.
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 const ga4Events = require("includes/core/documentation/ga4_events.json");
 const ga4Sessions = require("includes/core/documentation/ga4_sessions.json");
+const ga4Transactions = require("includes/core/documentation/ga4_transactions.json");
+
 const { helpers } = require("includes/core/helpers");
 const config = helpers.getConfig();
 
@@ -83,4 +81,5 @@ config.CUSTOM_ITEM_PARAMS_ARRAY.forEach((param) => {
 module.exports = {
   ga4Events,
   ga4Sessions,
+  ga4Transactions
 };

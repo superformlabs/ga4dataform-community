@@ -5,17 +5,6 @@
     Johan van de Werken, Krisztián Korpa,
     Simon Breton
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, version 3 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License in the LICENSE.txt file for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 // do not remove this line
@@ -108,6 +97,14 @@ const customConfig = {
   // if a visitors lands on your site without a source, we look back to
   // find a previous session of this user with a source. How many days?
   LAST_NON_DIRECT_LOOKBACK_DAYS: 90,
+
+  // by default, we leave duplicate transaction_ids alone, but you can deduplicate here
+  // note: setting this to true will still keep all transactions with NULL transaction_id
+  TRANSACTIONS_DEDUPE: true,
+
+  // we keep a running count for transactions, based on an identifier. Defaults to "user_pseudo_id"
+  // if you have an other one, you can change it here (e.g. "user_id" - make sure it's a valid column)
+  TRANSACTION_TOTALS_UID: 'user_pseudo_id',
 
   // assertions and quality checks can be toggled on (true) or off (false) here
   // quality checks can be toggled off by changing to false

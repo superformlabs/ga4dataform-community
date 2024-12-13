@@ -5,17 +5,15 @@
     Johan van de Werken, Krisztián Korpa,
     Simon Breton
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, version 3 of the License.
+    Do not redistribute this version! The open source version will become
+    available at github.
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License in the LICENSE.txt file for more details.
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    test test
+
 */
 
 declare({

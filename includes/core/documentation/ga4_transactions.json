@@ -1,0 +1,154 @@
+{
+  "transaction_date": "partition column: the event_date of the purchase event",
+  "is_final": "Indicates if the data is final or subject to change (based on 72h window)",
+  "transaction_id": "ecommerce.transaction_id",
+  "event_id": "Unique identifier for the event to link to events table",
+  "session_id": "Unique identifier for the session. NULL if event is cookieless ping - link to sessions table",
+  "user_pseudo_id": "Pseudonymous identifier for the user (could be NULL for cookieless pings)",
+  "user_id": "The unique ID assigned to a user",
+  "uid": "The configured ID uses to calculate the running totals",
+  "stream_id": "The numeric ID of the data stream from which the event originated",
+  "platform": "The data stream platform (Web, IOS or Android) from which the event originated",
+  "time": {
+    "description": "Time-related information",
+    "columns": {
+      "event_timestamp": "Event timestamp (microseconds)",
+      "event_timestamp_utc": "Event timestamp in UTC",
+      "user_first_touch_timestamp": "User's first touch timestamp (microseconds)",
+      "user_first_touch_timestamp_utc": "User's first touch timestamp in UTC",
+      "timestamp_local": "Local timestamp of the event (based on the settings in dataform)",
+      "date_local": "Local date of the event (based on the settings in dataform)"
+    }
+  },
+  "currency": "Currency code",
+  "coupon": "Coupon code",
+  "ecommerce": {
+    "description": "Ecommerce-related information",
+    "columns": {
+      "total_item_quantity": "Total number of items in this event, which is the sum of items.quantity",
+      "purchase_revenue_in_usd": "Purchase revenue in USD",
+      "purchase_revenue": "Purchase revenue in local currency",
+      "refund_value_in_usd": "Refund value in USD",
+      "refund_value": "Refund value in local currency",
+      "shipping_value_in_usd": "Shipping value in USD",
+      "shipping_value": "Shipping value in local currency",
+      "tax_value_in_usd": "Tax value in USD",
+      "tax_value": "Tax value in local currency",
+      "unique_items": "The number of unique items in this event, based on item_id, item_name, and item_brand",
+      "transaction_id": "Transaction ID - set to NULL when '(not set)'"
+    }
+  },
+  "items": {
+    "description": "information about items included in an event",
+    "columns": {
+      "item_id": "Product ID",
+      "item_name": "Product name",
+      "item_brand": "Product brand",
+      "item_variant": "Product variant",
+      "item_category": "Product category (level 1)",
+      "item_category2": "Product category (level 2)",
+      "item_category3": "Product category (level 3)",
+      "item_category4": "Product category (level 4)",
+      "item_category5": "Product category (level 5)",
+      "price_in_usd": "Product price in USD",
+      "price": "Product price in local currency",
+      "quantity": "Product quantity",
+      "item_revenue_in_usd": "Product revenue in USD",
+      "item_revenue": "Product revenue in local currency",
+      "item_refund_in_usd": "Product refund amount in USD",
+      "item_refund": "Product refund amount in local currency",
+      "coupon": "Coupon code applied to the product",
+      "affiliation": "Product affiliation",
+      "location_id": "Location ID where the product was sold",
+      "item_list_id": "ID of the list containing the product",
+      "item_list_name": "Name of the list containing the product",
+      "item_list_index": "Position of the product in the list",
+      "promotion_id": "ID of the promotion associated with the product",
+      "promotion_name": "Name of the promotion associated with the product",
+      "creative_name": "Name of the creative used in the promotion",
+      "creative_slot": "Slot of the creative used in the promotion"
+    }
+  },
+  "item_totals": {
+    "description": "Like ecommerce, but for items: aggregated item totals",
+    "columns": {
+      "quantity": "sum of item_quantity",
+      "item_revenue": "sum of item_revenue",
+      "item_revenue_in_usd": "sum of item revenue in usd",
+      "coupons": "count of coupons used",
+      "unique_coupons": "distinct coupons used"
+    }
+  },
+  "net_item_totals": {
+    "description": "aggregated item totals MINUS the refund item totals",
+    "columns": {
+      "quantity": "sum of item_quantity",
+      "item_revenue": "sum of item_revenue",
+      "item_revenue_in_usd": "sum of item revenue in usd"
+    }
+  },
+  "duplicate_count": "Nth occurrence of this transaction_id in the dataset (1 = first, 2 and up: duplicate)",
+  "is_duplicate": "true if this transaction id is a duplicate",
+  "running_totals": {
+    "description": "running aggregate (lifetime, based on uid and ecommerce.*)",
+    "columns": {
+      "transactions": "Nth purchase",
+      "purchase_revenue": "running sum of purchase revenue",
+      "purchase_revenue_in_usd": "running sum of purchase revenue in usd",
+      "total_item_quantity": "running sum of quantity",
+      "seconds_since_previous_purchase": "number of seconds since the previous purchase of this user (or NULL if this is the first)",
+      "seconds_to_next_purchase": "number of seconds to the next purchase of this user (or NULL if none follows)"
+    }
+  },
+  "number_of_refunds": "count of refund events on this transaction",
+  "refund_info": {
+    "description": "If there are any refunds, info is in this struct",
+    "columns": {
+        "min_refund_timestamp": "timestamp (utc) of first refund - if any",
+        "max_refund_timestamp": "timestamp (utc) of last refund - if any",
+        "refund_item_totals": {
+            "description": "aggregated item totals for refunds",
+            "columns": {
+                "quantity": "sum of item_quantity",
+                "item_refund": "sum of item_revenue",
+                "item_refund_in_usd": "sum of item revenue in usd"
+            }
+        },
+        "refunds": {
+            "description": "array of refund event info",
+            "columns": {
+                "event_id": "Unique identifier for the event to link to events table",
+                "session_id": "Unique identifier for the session. NULL if event is cookieless ping - link to sessions table",
+                "user_pseudo_id": "Pseudonymous identifier for the user (could be NULL for cookieless pings)",
+                "user_id": "The unique ID assigned to a user",
+                "uid": "The configured ID uses to calculate the running totals",
+                "stream_id": "The numeric ID of the data stream from which the event originated",
+                "platform": "The data stream platform (Web, IOS or Android) from which the event originated",
+                "time": {
+                    "description": "Time-related information",
+                    "columns": {
+                        "event_timestamp": "Event timestamp (microseconds)",
+                        "event_timestamp_utc": "Event timestamp in UTC",
+                        "user_first_touch_timestamp": "User's first touch timestamp (microseconds)",
+                        "user_first_touch_timestamp_utc": "User's first touch timestamp in UTC",
+                        "timestamp_local": "Local timestamp of the event (based on the settings in dataform)",
+                        "date_local": "Local date of the event (based on the settings in dataform)"
+                    }
+                },
+                "currency": "Currency code",
+                "coupon": "Coupon code",
+                "item_totals": {
+                    "description": "Like ecommerce, but for items: aggregated item totals",
+                    "columns": {
+                        "quantity": "sum of item_quantity",
+                        "item_refund": "sum of item_refund",
+                        "item_refund_in_usd": "sum of item refund in usd",
+                        "coupons": "count of coupons used",
+                        "unique_coupons": "distinct coupons used"
+                    }
+                }
+            }
+        }
+    }
+  }
+}
