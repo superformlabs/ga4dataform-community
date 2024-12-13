@@ -1,18 +1,3 @@
-/*
-    This file is part of "GA4 Dataform Package".
-    Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
-    Artem Korneev, Jules Stuifbergen,
-    Johan van de Werken, Krisztián Korpa,
-    Simon Breton
-
-    Do not redistribute this version! The open source version will become
-    available at github.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-
-*/
 
 
 
@@ -38,16 +23,6 @@ const URL_PARAMS_ARRAY = [
     { name: "_gl" },
 ];
 
-/*
-    The following table lists most of the event parameters from automatically
-    collected events, enhanced measurement events, and recommended events.
-    Enhanced measurement events are collected automatically when enhanced
-    measurement is enabled. The table includes a description of each event
-    parameter and the dimension or metric you can use to see the event parameter
-    in reports and explorations, if a dimension or metric is available.
-
-    https://support.google.com/analytics/table/13594742?hl=en&ref_topic=13367566
-*/
 
 
 const CORE_PARAMS_ARRAY = [

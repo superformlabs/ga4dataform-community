@@ -1,27 +1,7 @@
-/*
-    This file is part of "GA4 Dataform Package".
-    Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
-    Artem Korneev, Jules Stuifbergen,
-    Johan van de Werken, Krisztián Korpa,
-    Simon Breton
-
-*/
 
 // do not remove this line
 const { lowerSQL } = require("../core/helpers");
 
-/*
-    ga4dataform runs the core model with SQL that can be tweaked with
-    configuration settings in this file.
-
-    Below, you will find a sample config file that you can tweak to
-    your likings.
-
-    See the documentation for all details.
-
-    There are more configuration settings than in this sample file.
-    See core/config.js for all config parameters
-*/
 
 // config object should be a valid javascript object
 

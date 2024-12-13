@@ -1,18 +1,3 @@
-/*
-    This file is part of "GA4 Dataform Package".
-    Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
-    Artem Korneev, Jules Stuifbergen,
-    Johan van de Werken, Krisztián Korpa,
-    Simon Breton
-
-    Do not redistribute this version! The open source version will become
-    available at github.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-
-*/
 
 // function to generate the SQL
 
@@ -20,11 +5,6 @@ const { coreConfig } = require("./default_config");
 const { customConfig } = require("../custom/config");
 
 
-/**
- * Generates SQL for the qualify statement in the transactions table
- * @param {boolean} tf - true or false, true: output, false: no output
- * @returns {string} SQL fragment for qualify statement to dedupe transactions
- */
 const generateTransactionsDedupeSQL = (tf) => {
   if(tf) {
         return `qualify duplicate_count = 1`
@@ -33,16 +13,6 @@ const generateTransactionsDedupeSQL = (tf) => {
   }
 }
 
-/**
- * Generates SQL for a single parameter unnest based on its configuration. By default, it will unnest from event_params column, but you cold change it to user_properties or items.item_params.
- * @param {Object} config - Parameter configuration object
- * @param {string} config.type - Data type ('decimal', 'string', 'integer, 'float, 'double')
- * @param {string} config.name - Parameter name
- * @param {string} [config.renameTo] - Optional new name for the parameter alias
- * @param {Function} [config.cleaningMethod] - Optional function to clean the value
- * @param {string} [column='event_params'] - Column name containing the parameters
- * @returns {string} SQL fragment for parameter unnest
- */
 const generateParamSQL = (config, column = "event_params") => {
   let value = "";
   if (config.type === "decimal") {
@@ -61,12 +31,6 @@ const generateParamSQL = (config, column = "event_params") => {
   return `${value} as ${config.renameTo ? config.renameTo : config.name}`;
 };
 
-/**
- * Generates SQL for multiple parameters unnest based on their configuration.
- * @param {Array} config_array - Array of parameter configuration objects
- * @param {string} [column='event_params'] - Column name containing the parameters
- * @returns {string} SQL fragment for multiple parameters unnest
- */
 const generateParamsSQL = (config_array, column = "event_params") => {
   return `
       ${config_array
@@ -77,16 +41,6 @@ const generateParamsSQL = (config_array, column = "event_params") => {
     `;
 };
 
-/**
- * Generates SQL for a single URL parameter extraction based on its configuration.
- * @param {string} columnName - Column name containing the URL parameters, usually 'event_params.page_location'
- * @param {Object} urlParam - URL parameter configuration object
- * @param {string} urlParam.name - Parameter name
- * @param {string} [urlParam.renameTo] - Optional alias for the parameter
- * @param {Function} [urlParam.cleaningMethod] - Optional function to clean the value
- * @param {boolean} [urlDecode=true] - Whether to URL decode the extracted value, default is true
- * @returns {string} SQL fragment for URL parameter extraction
- */
 const generateURLParamSQL = (columnName, urlParam, urlDecode = true) => {
   let value = `regexp_extract(${columnName}, r"^[^#]+[?&]${urlParam.name}=([^&#]+)")`;
   value = urlParam.cleaningMethod ? urlParam.cleaningMethod(value) : value;
@@ -94,13 +48,6 @@ const generateURLParamSQL = (columnName, urlParam, urlDecode = true) => {
   return `${value} as ${urlParam.renameTo ? urlParam.renameTo : urlParam.name}`;
 };
 
-/**
- * Generates SQL for multiple URL parameters extraction based on their configuration.
- * @param {string} columnName - Column name containing the URL parameters, usually 'event_params.page_location'
- * @param {Array} urlParamsArray - Array of URL parameter configuration objects
- * @param {boolean} [urlDecode=true] - Whether to URL decode the extracted values, default is true
- * @returns {string} SQL fragment for multiple URL parameters extraction
- */
 const generateURLParamsSQL = (columnName, urlParamsArray, urlDecode = true) => {
   // generate the SQL:
   return `
@@ -112,47 +59,22 @@ const generateURLParamsSQL = (columnName, urlParamsArray, urlDecode = true) => {
       `;
 };
 
-/**
- * Generates SQL for a struct creation based on provided SQL.
- * @param {string} SQL - SQL fragment
- * @returns {string} SQL fragment for struct creation
- */
 const generateStructSQL = (SQL) => {
   return `
     STRUCT (${SQL})
   `;
 };
 
-/**
- * Generates SQL for a list creation based on provided list.
- * @param {Array} list - JavaScript array of values
- * @returns {string} SQL fragment for list creation
- */
 const generateListSQL = (list) => {
   return `('${list.join("','")}')`;
 };
 
-/**
- * Generates SQL for a WHERE clause based on provided list.
- * @param {string} type - Filter type ('exclude' or 'include')
- * @param {string} columm - Column name
- * @param {Array} list - JavaScript array of values
- * @returns {string} SQL fragment for WHERE clause creation
- */
 const generateFilterTypeFromListSQL = (type = "exclude", columm, list) => {
   if (list.length == 0) return `true`;
   const filterType = type === "exclude" ? "not in" : "in";
   return `${columm} ${filterType}  ${generateListSQL(list)}`;
 };
 
-/**
- * Generates SQL to return the first or last value of an array aggregation. Used in sensitization.
- * @param {string} paramName - Parameter name
- * @param {string} [columnName] - Optional column name for alias
- * @param {boolean} [orderTypeAsc=true] - Optional order type, default is ascending
- * @param {string} [orderBy='time.event_timestamp_utc'] - Optional order by clause
- * @returns {string} SQL fragment for array aggregation
- */
 const generateArrayAggSQL = (
   paramName,
   columnName = false,
@@ -166,14 +88,6 @@ const generateArrayAggSQL = (
   } LIMIT 1)[SAFE_OFFSET(0)] ${alias}`;
 };
 
-/**
- * Generates SQL to return the first or last value of an array aggregation. Special case for traffic_source structs. Used in sensitization.
- * @param {string} fixedTrafficSourceTable - Table name containing the traffic source data
- * @param {string} [columnName] - Optional column name for alias
- * @param {boolean} [orderTypeAsc=true] - Optional order type, default is ascending
- * @param {string} [orderBy='time.event_timestamp_utc'] - Optional order by clause
- * @returns {string} SQL fragment for array aggregation
- */
 const generateTrafficSourceSQL = (
   fixedTrafficSourceTable,
   columnName = null,
@@ -204,15 +118,6 @@ const generateTrafficSourceSQL = (
         )[safe_offset(0)] ${alias}`;
 };
 
-/**
- * Generates SQL to return the first or last value of an array aggregation. Special case for click_ids structs. Used in sensitization.
- * @param {string} clickIdStruct - Table name containing the click_ids data
- * @param {Array} clickIdsArray - Array of click_id configuration objects
- * @param {string} [columnName] - Optional column name for alias
- * @param {boolean} [orderTypeAsc=true] - Optional order type, default is ascending
- * @param {string} [orderBy='time.event_timestamp_utc'] - Optional order by clause
- * @returns {string} SQL fragment for array aggregation
- */
 const generateClickIdTrafficSourceSQL = (
   clickIdStruct,
   clickIdsArray,
@@ -242,11 +147,6 @@ const generateClickIdTrafficSourceSQL = (
         )[safe_offset(0)] ${alias}`;
 };
 
-/**
- * Generates SQL to generate SELECT statements for a single object.
- * @param {Object} config - Data object
- * @returns {string} SQL fragment for SELECT statement creation
- */
 const getSqlSelectFromRowSQL = (config) => {
   return Object.entries(config)
     .map(([key, value]) => {
@@ -280,11 +180,6 @@ const getSqlSelectFromRowSQL = (config) => {
     .join(", ");
 };
 
-/**
- * Generates SQL to generate SELECT statements for list of objects and concatenate them with UNION ALL. Needed to create list of source_categories based on JSON config.
- * @param {Array} rows - Array of data objects
- * @returns {string} SQL fragment for UNION ALL concatenation
- */
 const getSqlUnionAllFromRowsSQL = (rows) => {
   try {
     const selectStatements = rows
@@ -296,18 +191,6 @@ const getSqlUnionAllFromRowsSQL = (rows) => {
   }
 };
 
-/**
- * Generates SQL for a CASE statement to determine the channel grouping based on provided parameters. This logic represents the default channel grouping logic in GA4.
- * @param {Object} custom_config - Custom configuration object
- * @param {string} source - Source column name
- * @param {string} medium - Medium column name
- * @param {string} campaign - Campaign column name
- * @param {string} category - Category column name
- * @param {string} term - Term column name
- * @param {string} content - Content column name
- * @param {string} campaign_id - Campaign ID column name
- * @returns {string} SQL fragment for CASE statement creation
- */
 const getDefaultChannelGroupingSQL = (
   custom_config,
   source,
@@ -397,11 +280,6 @@ const getDefaultChannelGroupingSQL = (
   `;
 };
 
-/**
- * Generates SQL to URL decode a column. Used to clean up URL parameters, like utm_source e.
- * @param {string} urlColumnName - Column name containing the URL
- * @returns {string} SQL fragment for URL decoding
- */
 const urlDecodeSQL = (urlColumnName) => {
   return `
   (
@@ -413,46 +291,18 @@ const urlDecodeSQL = (urlColumnName) => {
   )`;
 };
 
-/**
- * Generates SQL to concatenate click_ids column names.
- * @param {Array} clickIds - Array of click_id configuration objects
- * @param {string} prefix - Prefix for the click_id column names
- * @returns {string} SQL fragment for click_id column names concatenation
- */
 const getClickIdsDimensionsSQL = (clickIds, prefix) => {
   return clickIds.map((id) => `${prefix}.${id.name}`).join(",\n");
 };
 
-/**
- * Generates SQL to safely cast a column to a specified type. This method is used as cleaningMethod in generateParamSQL method.
- * @param {string} columnName - Column name to be cast
- * @param {string} [type='INT64'] - Optional type, default is INT64
- * @returns {string} SQL fragment for safe casting
- */
 const safeCastSQL = (columnName, type = "INT64") =>
   `safe_cast(${columnName} as ${type})`;
 
-/**
- * Generates SQL to clear URL parameters. This method is used as cleaningMethod in generateParamSQL method.
- * @param {string} columnName - Column name containing the URL
- * @returns {string} SQL fragment for URL clearing
- */
 const clearURLSQL = (columnName) =>
   `REGEXP_REPLACE(${columnName}, r'(?i)&amp(;|=)', '&')`;
 
-/**
- * Generates SQL to convert a column to lowercase. This method is used as cleaningMethod in generateParamSQL method.
- * @param {string} columnName - Column name to be converted
- * @returns {string} SQL fragment for lowercase conversion
- */
 const lowerSQL = (columnName) => `lower(${columnName})`;
 
-/**
- * Generates SQL to coalesce click_ids from different sources to return the first non-null value.
- * @param {Object} clickId - Click_id configuration object
- * @param {string} clickId.name - Name of the click_id
- * @returns {string} SQL fragment for click_id coalescing
- */
 const generateClickIdCoalesceSQL = (clickId) => {
   if (clickId.sources.includes("collected_traffic_source")) {
     return `coalesce(collected_traffic_source.${clickId.name}, event_params.${clickId.name},click_ids.${clickId.name}) as ${clickId.name}`;
@@ -460,12 +310,6 @@ const generateClickIdCoalesceSQL = (clickId) => {
   return `click_ids.${clickId.name} as ${clickId.name}`;
 };
 
-/**
- * Generates SQL to create a CASE statement for click_ids based on configuration CLICK_IDS_ARRAY. it return one of source/medium/campaign if click_id is not null.
- * @param {string} parameterName - Name of the parameter to be used in the CASE statement
- * @param {Array<{name: string, source: string, medium: string, campaign: string, sources: string[]}>>} clickIdsArray - Array of click_id configuration objects. Containd click_id name, and values that should be set if click_id is not null.
- * @returns {string} SQL fragment for click_id CASE statement creation
- */
 const generateClickIdCasesSQL = (parameterName, clickIdsArray) => {
   return clickIdsArray
     .map(
@@ -477,21 +321,11 @@ const generateClickIdCasesSQL = (parameterName, clickIdsArray) => {
 
 // Generic helper functions
 
-/**
- * Checks if a string can be safely converted to an integer. Helper function for getSqlSelectFromRowSQL
- * @param {string} str - String to be checked
- * @returns {boolean} True if the string can be safely converted to an integer, false otherwise
- */
 const isStringInteger = (str) => {
   const num = Number(str);
   return Number.isInteger(num);
 };
 
-/**
- * Checks for duplicate column names and invalid column names in the configuration. To make a sanity check before using the config in models.
- * @param {Object} config - Configuration object
- * @returns {boolean} True if the configuration is valid, false otherwise
- */
 const checkColumnNames = (config) => {
   // column checker helper function
   const sanityCheck = (configArray, description) => {
@@ -531,10 +365,6 @@ const checkColumnNames = (config) => {
   return true;
 };
 
-/**
- * Returns the merged core and custom configuration objects.
- * @returns {Object} Merged configuration object
- */
 const getConfig = () => {
   return { ...coreConfig, ...customConfig };
 };
