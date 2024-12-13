@@ -1,3 +1,288 @@
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 
 // function to generate the SQL
 
@@ -5,6 +290,101 @@ const { coreConfig } = require("./default_config");
 const { customConfig } = require("../custom/config");
 
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const generateTransactionsDedupeSQL = (tf) => {
   if(tf) {
         return `qualify duplicate_count = 1`
@@ -13,6 +393,196 @@ const generateTransactionsDedupeSQL = (tf) => {
   }
 }
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const generateParamSQL = (config, column = "event_params") => {
   let value = "";
   if (config.type === "decimal") {
@@ -31,6 +601,120 @@ const generateParamSQL = (config, column = "event_params") => {
   return `${value} as ${config.renameTo ? config.renameTo : config.name}`;
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const generateParamsSQL = (config_array, column = "event_params") => {
   return `
       ${config_array
@@ -41,6 +725,196 @@ const generateParamsSQL = (config_array, column = "event_params") => {
     `;
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const generateURLParamSQL = (columnName, urlParam, urlDecode = true) => {
   let value = `regexp_extract(${columnName}, r"^[^#]+[?&]${urlParam.name}=([^&#]+)")`;
   value = urlParam.cleaningMethod ? urlParam.cleaningMethod(value) : value;
@@ -48,6 +922,139 @@ const generateURLParamSQL = (columnName, urlParam, urlDecode = true) => {
   return `${value} as ${urlParam.renameTo ? urlParam.renameTo : urlParam.name}`;
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const generateURLParamsSQL = (columnName, urlParamsArray, urlDecode = true) => {
   // generate the SQL:
   return `
@@ -59,22 +1066,497 @@ const generateURLParamsSQL = (columnName, urlParamsArray, urlDecode = true) => {
       `;
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const generateStructSQL = (SQL) => {
   return `
     STRUCT (${SQL})
   `;
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const generateListSQL = (list) => {
   return `('${list.join("','")}')`;
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const generateFilterTypeFromListSQL = (type = "exclude", columm, list) => {
   if (list.length == 0) return `true`;
   const filterType = type === "exclude" ? "not in" : "in";
   return `${columm} ${filterType}  ${generateListSQL(list)}`;
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const generateArrayAggSQL = (
   paramName,
   columnName = false,
@@ -88,6 +1570,158 @@ const generateArrayAggSQL = (
   } LIMIT 1)[SAFE_OFFSET(0)] ${alias}`;
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const generateTrafficSourceSQL = (
   fixedTrafficSourceTable,
   columnName = null,
@@ -118,6 +1752,177 @@ const generateTrafficSourceSQL = (
         )[safe_offset(0)] ${alias}`;
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const generateClickIdTrafficSourceSQL = (
   clickIdStruct,
   clickIdsArray,
@@ -147,6 +1952,101 @@ const generateClickIdTrafficSourceSQL = (
         )[safe_offset(0)] ${alias}`;
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const getSqlSelectFromRowSQL = (config) => {
   return Object.entries(config)
     .map(([key, value]) => {
@@ -180,6 +2080,101 @@ const getSqlSelectFromRowSQL = (config) => {
     .join(", ");
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const getSqlUnionAllFromRowsSQL = (rows) => {
   try {
     const selectStatements = rows
@@ -191,6 +2186,234 @@ const getSqlUnionAllFromRowsSQL = (rows) => {
   }
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const getDefaultChannelGroupingSQL = (
   custom_config,
   source,
@@ -280,6 +2503,101 @@ const getDefaultChannelGroupingSQL = (
   `;
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const urlDecodeSQL = (urlColumnName) => {
   return `
   (
@@ -291,18 +2609,550 @@ const urlDecodeSQL = (urlColumnName) => {
   )`;
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const getClickIdsDimensionsSQL = (clickIds, prefix) => {
   return clickIds.map((id) => `${prefix}.${id.name}`).join(",\n");
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const safeCastSQL = (columnName, type = "INT64") =>
   `safe_cast(${columnName} as ${type})`;
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const clearURLSQL = (columnName) =>
   `REGEXP_REPLACE(${columnName}, r'(?i)&amp(;|=)', '&')`;
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const lowerSQL = (columnName) => `lower(${columnName})`;
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const generateClickIdCoalesceSQL = (clickId) => {
   if (clickId.sources.includes("collected_traffic_source")) {
     return `coalesce(collected_traffic_source.${clickId.name}, event_params.${clickId.name},click_ids.${clickId.name}) as ${clickId.name}`;
@@ -310,6 +3160,120 @@ const generateClickIdCoalesceSQL = (clickId) => {
   return `click_ids.${clickId.name} as ${clickId.name}`;
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const generateClickIdCasesSQL = (parameterName, clickIdsArray) => {
   return clickIdsArray
     .map(
@@ -321,11 +3285,201 @@ const generateClickIdCasesSQL = (parameterName, clickIdsArray) => {
 
 // Generic helper functions
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const isStringInteger = (str) => {
   const num = Number(str);
   return Number.isInteger(num);
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const checkColumnNames = (config) => {
   // column checker helper function
   const sanityCheck = (configArray, description) => {
@@ -365,6 +3519,82 @@ const checkColumnNames = (config) => {
   return true;
 };
 
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+/*
+This file is part of "GA4 Dataform Package".
+Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+Artem Korneev, Jules Stuifbergen,
+Johan van de Werken, Krisztián Korpa,
+Simon Breton
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License in the LICENSE.txt file for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 const getConfig = () => {
   return { ...coreConfig, ...customConfig };
 };
