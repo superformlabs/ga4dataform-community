@@ -1,17 +1,21 @@
 /*
-    This file is part of "GA4 Dataform Package".
-    Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
-    Artem Korneev, Jules Stuifbergen,
-    Johan van de Werken, Krisztián Korpa,
-    Simon Breton
+	This file is part of "GA4 Dataform Package".
+	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+	Artem Korneev, Jules Stuifbergen,
+	Johan van de Werken, Krisztián Korpa,
+	Simon Breton
 
-    Do not redistribute this version! The open source version will become
-    available at github.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, version 3 of the License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License in the LICENSE.txt file for more details.
 
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 
@@ -592,6 +596,14 @@ const ASSERTIONS_TRANSACTION_ID_COMPLETENESS = true;
 const ASSERTIONS_USER_PSEUDO_ID_COMPLETENESS = true;
 
 
+// deduplicate transactions?
+const TRANSACTIONS_DEDUPE = false;
+
+// what column to use for tranasction running totals to use?
+// valid values: user_pseudo_id | user_id | <some valid column name>
+const TRANSACTION_TOTALS_UID = "user_pseudo_id";
+
+
 // ga4 event param config
 
 // type: string, int, decimal
@@ -684,7 +696,9 @@ const coreConfig = {
     SOCIAL_PLATFORMS_REGEX,
     CUSTOM_USER_PROPERTIES_ARRAY,
     CUSTOM_ITEM_PARAMS_ARRAY,
-    CUSTOM_URL_PARAMS_ARRAY
+    CUSTOM_URL_PARAMS_ARRAY,
+    TRANSACTIONS_DEDUPE,
+    TRANSACTION_TOTALS_UID
 }
 
 module.exports = {

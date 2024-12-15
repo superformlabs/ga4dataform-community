@@ -98,6 +98,14 @@ const customConfig = {
   // find a previous session of this user with a source. How many days?
   LAST_NON_DIRECT_LOOKBACK_DAYS: 90,
 
+  // by default, we leave duplicate transaction_ids alone, but you can deduplicate here
+  // note: setting this to true will still keep all transactions with NULL transaction_id
+  TRANSACTIONS_DEDUPE: true,
+
+  // we keep a running count for transactions, based on an identifier. Defaults to "user_pseudo_id"
+  // if you have an other one, you can change it here (e.g. "user_id" - make sure it's a valid column)
+  TRANSACTION_TOTALS_UID: 'user_pseudo_id',
+
   // assertions and quality checks can be toggled on (true) or off (false) here
   // quality checks can be toggled off by changing to false
 

@@ -1,23 +1,41 @@
 /*
-    This file is part of "GA4 Dataform Package".
-    Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
-    Artem Korneev, Jules Stuifbergen,
-    Johan van de Werken, Krisztián Korpa,
-    Simon Breton
+	This file is part of "GA4 Dataform Package".
+	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+	Artem Korneev, Jules Stuifbergen,
+	Johan van de Werken, Krisztián Korpa,
+	Simon Breton
 
-    Do not redistribute this version! The open source version will become
-    available at github.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, version 3 of the License.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License in the LICENSE.txt file for more details.
 
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 // function to generate the SQL
 
 const { coreConfig } = require("./default_config");
 const { customConfig } = require("../custom/config");
+
+
+/**
+ * Generates SQL for the qualify statement in the transactions table
+ * @param {boolean} tf - true or false, true: output, false: no output
+ * @returns {string} SQL fragment for qualify statement to dedupe transactions
+ */
+const generateTransactionsDedupeSQL = (tf) => {
+  if(tf) {
+        return `qualify duplicate_count = 1`
+  } else {
+     return ``
+  }
+}
 
 /**
  * Generates SQL for a single parameter unnest based on its configuration. By default, it will unnest from event_params column, but you cold change it to user_properties or items.item_params.
@@ -545,6 +563,7 @@ const helpers = {
   getConfig,
   generateClickIdCoalesceSQL,
   generateClickIdCasesSQL,
+  generateTransactionsDedupeSQL
 };
 
 module.exports = {
