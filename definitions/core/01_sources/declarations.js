@@ -23,10 +23,3 @@ declare({
     schema: dataform.projectConfig.vars.GA4_DATASET,
     name: 'events_*',
 });
-
-
-/*
-
-test
-
-*/
