@@ -40,10 +40,12 @@ pre_operations {
   ---
   set date_checkpoint = (
     ${when(incremental(),
-    `select max(transaction_date)+1 from ${self()} where is_final = true`,
-    `select date('1970-01-01')`)}   /* grab everyting, when not incremental */
+      `select
+        coalesce(max(transaction_date)+1, date('${config.GA4_START_DATE}'))
+      from ${self()}
+      where is_final = true`,
+    `select date('${config.GA4_START_DATE}')`)}   /* the default, when it's not incremental */
   );
-
   -- delete non-final data, since this may be updated later by GA4
   ${
     when(incremental(),
