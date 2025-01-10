@@ -21,7 +21,7 @@ If you choose this route, you will be able to keep iterating on the existing mod
 
 1. Run git clone locally
 ```bash
-git clone https://github.com/superformlabs/ga4dataform.git
+git clone https://github.com/superformlabs/ga4dataform-community.git
 ```
 2. Push the cloned files to a Git repository that you own
 3. Connect your Git repository with Dataform
@@ -40,7 +40,7 @@ Connecting your Dataform repository to this Github repo (even just temporarily) 
 1. Navigate to [Dataform](https://console.cloud.google.com/bigquery/dataform)
 2. Select the repository you want to connect
 3. Click on `Settings`
-4. Select `HTTPS` and paste in this link: `https://github.com/superformlabs/ga4dataform.git`
+4. Select `HTTPS` and paste in this link: `https://github.com/superformlabs/ga4dataform-community.git`
 5. Set your default branch to `main`
 6. Create a new secret with any name and value
 7. Click `Link`
