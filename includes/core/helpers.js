@@ -1,6 +1,6 @@
 /*
 	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
 	Artem Korneev, Jules Stuifbergen,
 	Johan van de Werken, Krisztián Korpa,
 	Simon Breton
@@ -146,7 +146,7 @@ const generateListSQL = (list) => {
 const generateFilterTypeFromListSQL = (type = "exclude", columm, list) => {
   if (list.length == 0) return `true`;
   const filterType = type === "exclude" ? "not in" : "in";
-  return `${columm} ${filterType}  ${generateListSQL(list)}`;
+  return `coalesce(${columm},"") ${filterType} ${generateListSQL(list)}`;
 };
 
 /**

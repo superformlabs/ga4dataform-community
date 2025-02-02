@@ -1,6 +1,6 @@
 /*
     This file is part of "GA4 Dataform Package".
-    Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+    Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
     Artem Korneev, Jules Stuifbergen,
     Johan van de Werken, Krisztián Korpa,
     Simon Breton
@@ -90,6 +90,7 @@ const customConfig = {
   // array: list the event names you want to exclude from the events table 
   EVENTS_TO_EXCLUDE: [],
   // arrays: list the hostnames you want to exclude (or include) from the events table
+  // for including/excluding NULL values, use the empty string ( "" )
   HOSTNAME_EXCLUDE: [],
   HOSTNAME_INCLUDE_ONLY: [],
 
