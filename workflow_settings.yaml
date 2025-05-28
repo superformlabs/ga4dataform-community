@@ -1,9 +1,8 @@
 defaultAssertionDataset: superform_assertion
 defaultLocation: EU
-defaultProject: dataform-package
+defaultProject: vaulted-acolyte-435210-u6
 vars:
-  GA4_DATASET: analytics_31337
-  LOCAL_TIMEZONE: Europe/Paris
+  GA4_DATASET: analytics_375884617
   QUALITY_DATASET: superform_quality_31337
   TRANSFORMATIONS_DATASET: superform_transformations_31337
   OUTPUTS_DATASET: superform_outputs_31337
