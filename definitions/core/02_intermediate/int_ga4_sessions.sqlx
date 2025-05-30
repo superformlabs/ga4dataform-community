@@ -1,21 +1,6 @@
 /*
-	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
-	Artem Korneev, Jules Stuifbergen,
-	Johan van de Werken, Krisztián Korpa,
-	Simon Breton
-
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, version 3 of the License.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License in the LICENSE.txt file for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+   ___legal_text_placeholder___
+   
 */
 
 config {
@@ -26,7 +11,8 @@ config {
   dependencies: ["source_categories"],
   bigquery: {
     partitionBy: "session_date",
-    clusterBy: [ "session_id" ]
+    clusterBy: [ "session_id" ],
+    labels: require("includes/core/helpers.js").helpers.storageLabels()
   },
 }
 
@@ -37,8 +23,8 @@ js {
 
 /* incrementality */
 pre_operations {
-  declare date_checkpoint DATE
-  ---
+  declare date_checkpoint DATE;
+  set @@query_label = "${helpers.executionLabels()}";
   set date_checkpoint = (
     ${when(incremental(),
       `select
@@ -63,8 +49,9 @@ with events as (
     stream_id,
     user_pseudo_id,
     property_id,
-    table_suffix,
-    min(is_final) as is_final, --return false if even 1 event is not final
+    min(table_suffix) as table_suffix,
+    count(distinct table_suffix) > 1 as is_multiday_session,
+    max(is_final) as is_final, --return true if session started on an is_final day
 
     -- first
     ${helpers.generateArrayAggSQL('device')},
@@ -112,7 +99,7 @@ with events as (
     ) as session_info
 
   from ${ref("ga4_events")}
-  where event_date >= date_checkpoint
+  where event_date >= date_checkpoint -1 -- grab 1 extra day, to include sessions starting earlier
 
   -- only hits with user_pseudo_id and session_id
   and user_pseudo_id is not null
@@ -121,10 +108,8 @@ with events as (
     session_id,
     stream_id,
     user_pseudo_id,
-    property_id,
-    table_suffix
-  -- fix session breakage on midnight
-  qualify row_number() over (partition by session_id order by session_start_timestamp_utc) = 1
+    property_id
+    -- this should not lead to duplicates. If it does, we'll get rid of those in ga4_sessions anyway
 ),
 
 source_categories as (
@@ -193,11 +178,14 @@ add_meta_info as (
     on join_last.source = events.last_traffic_source.source
 )
 
--- 
 select
-  *
+  * except(is_multiday_session)
 from add_meta_info
-
+where (
+  session_date >= date_checkpoint -- new sessions
+  or is_multiday_session -- or older sessions from yesterday
+)
+-- could be some incremental duplicates, these will be discarded downstream
 
 
 

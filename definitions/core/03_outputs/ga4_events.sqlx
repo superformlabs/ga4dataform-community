@@ -1,21 +1,6 @@
 /*
-	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
-	Artem Korneev, Jules Stuifbergen,
-	Johan van de Werken, Krisztián Korpa,
-	Simon Breton
-
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, version 3 of the License.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License in the LICENSE.txt file for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+   ___legal_text_placeholder___
+   
 */
 
 config {
@@ -25,7 +10,8 @@ config {
   description: "Output events table: unnested, cleaned, clustered data with several fixes",
   bigquery: {
     partitionBy: "event_date",
-    clusterBy: [ "event_name", "session_id" ]
+    clusterBy: ["event_name", "session_id"],
+    labels: require("includes/core/helpers.js").helpers.storageLabels()
   },
     columns: require("includes/core/documentation/helpers.js").ga4Events
 }
@@ -43,8 +29,8 @@ js {
 
 /* incrementality */
 pre_operations {
-  declare date_checkpoint DATE
-  ---
+  declare date_checkpoint DATE;
+  set @@query_label = "${helpers.executionLabels()}";
   set date_checkpoint = (
     ${when(incremental(),
       `select
@@ -76,6 +62,8 @@ with query_source as (
 
     -- intraday filter: exclude
     and contains_substr(_table_suffix, 'intraday') is false
+    -- fresh filter: exclude
+    and contains_substr(_table_suffix, 'fresh') is false
 
     -- filters from config:
     -- discard unwanted events

@@ -1,21 +1,6 @@
 /*
-	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
-	Artem Korneev, Jules Stuifbergen,
-	Johan van de Werken, Krisztián Korpa,
-	Simon Breton
-
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, version 3 of the License.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License in the LICENSE.txt file for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+   ___legal_text_placeholder___
+   
 */
 
 config {
@@ -25,7 +10,8 @@ config {
   tags:[dataform.projectConfig.vars.GA4_DATASET,"sessions","outputs"],
   bigquery: {
     partitionBy: "session_date",
-    clusterBy: [ "session_id" ]
+    clusterBy: [ "session_id" ],
+    labels: require("includes/core/helpers.js").helpers.storageLabels()
   },
   columns: require("includes/core/documentation/helpers.js").ga4Sessions
 }
@@ -38,7 +24,7 @@ js {
 /* incrementality */
 pre_operations {
   declare date_checkpoint DATE;
-  ---
+  set @@query_label = "${helpers.executionLabels()}";
   set date_checkpoint = (
     ${when(incremental(),
       `select
@@ -60,6 +46,11 @@ with int as (
         * 
     from ${ref("int_ga4_sessions")}
     where session_date >= date_checkpoint - interval ${config.LAST_NON_DIRECT_LOOKBACK_DAYS} day
+    -- discard the multiday session dupes here, keeping only the first, with the latest end time
+    qualify row_number() over (
+      partition by session_id
+      order by time.session_start_timestamp_utc asc, time.session_end_timestamp_utc desc
+    ) = 1
 ),
 
 
@@ -95,7 +86,7 @@ last_non_direct as (
     window lookback_window as (
         partition by user_pseudo_id
         order by unix_millis(time.session_start_timestamp_utc)
-        range between ${config.LAST_NON_DIRECT_LOOKBACK_MILLIS} preceding and current row
+        range between ${config.LAST_NON_DIRECT_LOOKBACK_DAYS * 24 * 3600 * 1000}  preceding and current row
     )
 ),
 

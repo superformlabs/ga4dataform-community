@@ -57,6 +57,8 @@
   { "source": "aol", "source_category": "SOURCE_CATEGORY_SEARCH" },
   { "source": "aolanswers", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "aolanswers.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
+  { "source": "app.copy.ai", "source_category": "SOURCE_CATEGORY_AI" },
+  { "source": "app.writesonic.ai", "source_category": "SOURCE_CATEGORY_AI" },
   {
     "source": "apps.facebook.com",
     "source_category": "SOURCE_CATEGORY_SOCIAL"
@@ -147,6 +149,7 @@
   { "source": "blogspot.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "blogster", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "blogster.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
+  { "source": "go.bsky.app", "source_category": "SOURCE_CATEGORY_SOCIAL"},
   { "source": "blurtit", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "blurtit.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   {
@@ -200,6 +203,10 @@
     "source_category": "SOURCE_CATEGORY_SEARCH"
   },
   { "source": "chat.zalo.me", "source_category": "SOURCE_CATEGORY_SOCIAL" },
+  { "source": "chat.openai.com", "source_category": "SOURCE_CATEGORY_AI" },
+  { "source": "chatgpt.com", "source_category": "SOURCE_CATEGORY_AI" },
+  { "source": "chat-gpt.org", "source_category": "SOURCE_CATEGORY_AI" },
+  
   {
     "source": "checkout.shopify.com",
     "source_category": "SOURCE_CATEGORY_SHOPPING"
@@ -223,6 +230,7 @@
   { "source": "classmates.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "classquest", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "classquest.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
+  { "source": "claude.ai", "source_category": "SOURCE_CATEGORY_AI" },
   { "source": "cn.bing.com", "source_category": "SOURCE_CATEGORY_SEARCH" },
   { "source": "cnn", "source_category": "SOURCE_CATEGORY_SEARCH" },
   { "source": "co.pinterest.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
@@ -241,6 +249,7 @@
     "source": "copainsdavant.linternaute.com",
     "source_category": "SOURCE_CATEGORY_SOCIAL"
   },
+  { "source": "copilot.microsoft.com", "source_category": "SOURCE_CATEGORY_AI"},
   { "source": "couchsurfing.org", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "cozycot", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "cozycot.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
@@ -333,6 +342,8 @@
   { "source": "ebay.com.au", "source_category": "SOURCE_CATEGORY_SHOPPING" },
   { "source": "ebay.de", "source_category": "SOURCE_CATEGORY_SHOPPING" },
   { "source": "ecosia.org", "source_category": "SOURCE_CATEGORY_SEARCH" },
+  { "source": "link.edgepilot.com", "source_category": "SOURCE_CATEGORY_AI"},
+  { "source": "edgeservices.bing.com", "source_category": "SOURCE_CATEGORY_AI"},
   { "source": "edublogs.org", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "elftown", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "elftown.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
@@ -435,6 +446,7 @@
   { "source": "gamerdna", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "gamerdna.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "gather.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
+  { "source": "gemini.google.com", "source_category": "SOURCE_CATEGORY_AI" },
   { "source": "geni.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "getpocket.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "glassboard", "source_category": "SOURCE_CATEGORY_SOCIAL" },
@@ -495,6 +507,7 @@
   { "source": "hulu.com", "source_category": "SOURCE_CATEGORY_VIDEO" },
   { "source": "hyves.net", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "hyves.nl", "source_category": "SOURCE_CATEGORY_SOCIAL" },
+  { "source": "iask.ai", "source_category": "SOURCE_CATEGORY_AI" },
   { "source": "ibibo", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "ibibo.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "id.pinterest.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
@@ -556,6 +569,7 @@
   { "source": "l.facebook.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "l.instagram.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "l.messenger.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
+  { "source": "labs.perplexity.ai", "source_category": "SOURCE_CATEGORY_AI"},
   { "source": "last.fm", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "librarything", "source_category": "SOURCE_CATEGORY_SOCIAL" },
   { "source": "librarything.com", "source_category": "SOURCE_CATEGORY_SOCIAL" },
@@ -765,6 +779,7 @@
     "source": "pe.search.yahoo.com",
     "source_category": "SOURCE_CATEGORY_SEARCH"
   },
+  { "source": "www.perplexity.ai", "source_category": "SOURCE_CATEGORY_AI"},
   {
     "source": "ph.search.yahoo.com",
     "source_category": "SOURCE_CATEGORY_SEARCH"

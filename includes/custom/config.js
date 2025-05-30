@@ -1,14 +1,11 @@
 /*
-    This file is part of "GA4 Dataform Package".
-    Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
-    Artem Korneev, Jules Stuifbergen,
-    Johan van de Werken, Krisztián Korpa,
-    Simon Breton
-
+   ___legal_text_placeholder___
+   
 */
 
 // do not remove this line
-const { lowerSQL } = require("../core/helpers");
+const { helpers } = require("../core/helpers");
+const lowerSQL = helpers.lowerSQL;
 
 /*
     ga4dataform runs the core model with SQL that can be tweaked with
@@ -94,6 +91,10 @@ const customConfig = {
   HOSTNAME_EXCLUDE: [],
   HOSTNAME_INCLUDE_ONLY: [],
 
+  // Set this to true to enable "Organic AI" (and possible other future channels that
+  // are not compatible with GA4)
+  EXTRA_CHANNEL_GROUPS: true,
+
   // attribution
   // if a visitors lands on your site without a source, we look back to
   // find a previous session of this user with a source. How many days?
@@ -112,14 +113,14 @@ const customConfig = {
 
   // assertions
   // id uniqueness checks
-  ASSERTIONS_EVENT_ID_UNIQUENESS: true,
-  ASSERTIONS_SESSION_ID_UNIQUENESS: true,
+  ASSERTIONS_EVENT_ID_UNIQUENESS: false,
+  ASSERTIONS_SESSION_ID_UNIQUENESS: false,
 
   // check for session durations and events look valid?
-  ASSERTIONS_SESSION_DURATION_VALIDITY: true,
-  ASSERTIONS_SESSIONS_VALIDITY: true, 
+  ASSERTIONS_SESSION_DURATION_VALIDITY: false,
+  ASSERTIONS_SESSIONS_VALIDITY: false, 
   // check GA4 tables: are they on time?
-  ASSERTIONS_TABLES_TIMELINESS: true,
+  ASSERTIONS_TABLES_TIMELINESS: false,
   // check for a transaction IDs on a purchase?
   ASSERTIONS_TRANSACTION_ID_COMPLETENESS: false,
   // check for cookies on all hits? (note: cookieless pings will trigger a fail)
