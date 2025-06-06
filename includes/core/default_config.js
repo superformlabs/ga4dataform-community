@@ -577,7 +577,7 @@ const CORE_PARAMS_ARRAY = [
 // config starts here
 
 // this date will be the first shard that is processed
-const GA4_START_DATE = "2020-01-01";
+const GA4_START_DATE = "2025-05-01";
 
 // how many days should pass in order to deem an event 'final'
 // we recommend using 3 as Measurement Protocol hits can arrive 72 hours into the past
@@ -617,6 +617,26 @@ const TRANSACTION_TOTALS_UID = "user_pseudo_id";
 const CUSTOM_EVENT_PARAMS_ARRAY = [
   // example set: this will populate 5 fields in the `event_params_custom` column in the `ga4_events` table
   // known limitation: the output column names must be valid. use letters and underscores to be safe 
+    {
+        type: "string",
+        name: "application_status"
+    },
+    {
+        type: "string",
+        name: "login_status"
+    },
+    {
+        type: "string",
+        name: "monetate_id"
+    },
+    {
+        type: "string",
+        name: "monetate_status"
+    },
+    {
+        type: "string",
+        name: "customer_id"
+    },
 ];
 
 

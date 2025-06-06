@@ -23,6 +23,22 @@
 const { coreConfig } = require("./default_config");
 const { customConfig } = require("../custom/config");
 
+/**
+ * Generates array of all event parameter keys in a comma-separated string
+ * for the past year(?), to be used in PIVOT statment 
+ * @returns {string} 
+ */
+const getEventParamKeysArray = (tbl) => {
+     let value = "";
+    // value = config.cleaningMethod ? config.cleaningMethod(value) : value;
+
+    value = `SELECT  CONCAT("'", STRING_AGG(DISTINCT event_params.key, "', '" ORDER BY key ), "'") FROM ${tbl}, UNNEST(event_params) event_params`;
+    // value = "'alina', 'alina'";
+    return `${value}`;
+
+
+}
+
 
 /**
  * Generates SQL for the qualify statement in the transactions table
@@ -563,7 +579,8 @@ const helpers = {
   getConfig,
   generateClickIdCoalesceSQL,
   generateClickIdCasesSQL,
-  generateTransactionsDedupeSQL
+  generateTransactionsDedupeSQL,
+  getEventParamKeysArray
 };
 
 module.exports = {

@@ -23,7 +23,7 @@ config {
   description: "Intermediate incremental sessions table with modeling helpers implemented. 1 row per unique session_id. Contains only valid sessions.",
   schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
   tags:[dataform.projectConfig.vars.GA4_DATASET,"sessions","intermediate"],
-  dependencies: ["source_categories"],
+  /* dependencies: ["source_categories"], */
   bigquery: {
     partitionBy: "session_date",
     clusterBy: [ "session_id" ]
@@ -59,11 +59,16 @@ pre_operations {
 
 with events as (
   select
+    property_id,
+    table_suffix,
+    min(event_date) as session_date,
     session_id,
     stream_id,
     user_pseudo_id,
-    property_id,
-    table_suffix,
+    -- last
+    ${helpers.generateArrayAggSQL('user_id',false, false)}, -- to account for potentially multiple
+    min(event_params.ga_session_number) as ga_session_number, -- could be NULL when hit comes from MP
+    
     min(is_final) as is_final, --return false if even 1 event is not final
 
     -- first
@@ -79,16 +84,7 @@ with events as (
       ${helpers.generateArrayAggSQL('page.referrer','landing_page_referrer')},
       ${helpers.generateArrayAggSQL('event_params.content_group','landing_content_group')}
     ) as landing_page,
-    ${helpers.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')},
-    
-    -- these will be packaged to a single struct later
-    ${helpers.generateTrafficSourceSQL('fixed_traffic_source','first_traffic_source')},
-    ${helpers.generateTrafficSourceSQL('fixed_traffic_source','last_traffic_source', false)},
-    ${helpers.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'first_click_ids')},
-    ${helpers.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'last_click_ids', false)},
-    
-    -- last
-    ${helpers.generateArrayAggSQL('user_id',false, false)}, -- to account for potentially multiple
+
     struct(
       ${helpers.generateArrayAggSQL('page.location','exit_page_location', false)},
       ${helpers.generateArrayAggSQL('page.path','exit_page_path', false)},
@@ -96,9 +92,14 @@ with events as (
       ${helpers.generateArrayAggSQL('event_params.content_group','exit_content_group', false)}
     ) as exit_page,
 
-    min(event_params.ga_session_number) as ga_session_number, -- could be NULL when hit comes from MP
+    ${helpers.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')},
     
-    min(event_date) as session_date,
+    -- these will be packaged to a single struct later
+    ${helpers.generateTrafficSourceSQL('fixed_traffic_source','first_traffic_source')},
+    ${helpers.generateTrafficSourceSQL('fixed_traffic_source','last_traffic_source', false)},
+    ${helpers.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'first_click_ids')},
+    ${helpers.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'last_click_ids', false)},
+
     min(time.event_timestamp_utc) as session_start_timestamp_utc,
     max(time.event_timestamp_utc) as session_end_timestamp_utc,
     sum(event_params.engagement_time_msec) as engagement_time_msec,
@@ -127,20 +128,20 @@ with events as (
   qualify row_number() over (partition by session_id order by session_start_timestamp_utc) = 1
 ),
 
-source_categories as (
-    select
-     source,
-     source_category
-    from ${ref("source_categories")}
-),
+-- source_categories as (
+--     select
+--      source,
+--      source_category
+--     from ${ref("source_categories")}
+-- ),
 
 
 -- create time struct + session_source struct with first and last traffic_source of the session
 add_meta_info as (
   select
     * except (
-        source,
-        source_category,
+        -- source,
+        -- source_category,
         session_start_timestamp_utc,
         session_end_timestamp_utc,
         engagement_time_msec,
@@ -155,42 +156,42 @@ add_meta_info as (
       engagement_time_msec,
       timestamp_diff(session_end_timestamp_utc, session_start_timestamp_utc, second) as session_duration_s
     ) as time,
-    (
-     select as struct
-      (
-        select as struct
-        first_traffic_source.*,
-        first_click_ids.*,
-        ${helpers.getDefaultChannelGroupingSQL(config,
-                                            'first_traffic_source.source',
-                                            'first_traffic_source.medium',
-                                            'first_traffic_source.campaign',
-                                            'join_first.source_category',
-                                            'first_traffic_source.term',
-                                            'first_traffic_source.content',
-                                            'first_traffic_source.campaign_id'
-                                            )} as default_channel_grouping,
-        ) first,
-      (
-        select as struct
-        last_traffic_source.*,
-        last_click_ids.*,
-        ${helpers.getDefaultChannelGroupingSQL(config,
-                                            'last_traffic_source.source',
-                                            'last_traffic_source.medium',
-                                            'last_traffic_source.campaign',
-                                            'join_last.source_category',
-                                            'last_traffic_source.term',
-                                            'last_traffic_source.content',
-                                            'last_traffic_source.campaign_id'
-                                            )} as default_channel_grouping
-      ) last
-    ) session_source
+    -- (
+    --  select as struct
+    --   (
+    --     select as struct
+    --     first_traffic_source.*,
+    --     first_click_ids.*,
+    --     ${helpers.getDefaultChannelGroupingSQL(config,
+    --                                         'first_traffic_source.source',
+    --                                         'first_traffic_source.medium',
+    --                                         'first_traffic_source.campaign',
+    --                                         'join_first.source_category',
+    --                                         'first_traffic_source.term',
+    --                                         'first_traffic_source.content',
+    --                                         'first_traffic_source.campaign_id'
+    --                                         )} as default_channel_grouping,
+    --     ) first,
+    --   (
+    --     select as struct
+    --     last_traffic_source.*,
+    --     last_click_ids.*,
+    --     ${helpers.getDefaultChannelGroupingSQL(config,
+    --                                         'last_traffic_source.source',
+    --                                         'last_traffic_source.medium',
+    --                                         'last_traffic_source.campaign',
+    --                                         'join_last.source_category',
+    --                                         'last_traffic_source.term',
+    --                                         'last_traffic_source.content',
+    --                                         'last_traffic_source.campaign_id'
+    --                                         )} as default_channel_grouping
+    --   ) last
+    -- ) session_source
   from events
-  left join source_categories join_first
-    on join_first.source = events.first_traffic_source.source
-  left join source_categories join_last
-    on join_last.source = events.last_traffic_source.source
+  -- left join source_categories join_first
+  --   on join_first.source = events.first_traffic_source.source
+  -- left join source_categories join_last
+  --   on join_last.source = events.last_traffic_source.source
 )
 
 -- 
