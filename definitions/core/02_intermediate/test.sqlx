@@ -1,0 +1,12 @@
+
+js {
+    const { helpers } = require("includes/core/helpers");
+    const config = helpers.getConfig();
+	const fieldnames = helpers.getEventParamKeysArray("`pd-strategy.analytics_207462216.events_2025*`");
+}
+declare ff string default (${fieldnames});
+select ff;
+
+-- EXECUTE IMMEDIATE FORMAT("""
+-- select event_name from `pd-strategy.analytics_207462216.events_2025*` where event_name in (%s)
+-- """, ff)
