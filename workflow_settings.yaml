@@ -2,6 +2,7 @@ defaultAssertionDataset:  IT_assertion
 defaultLocation: US
 defaultProject: pd-strategy
 vars:
+  OUTPUT_PROJECT: pd-strategy
   GA4_DATASET: analytics_207462216
   LOCAL_TIMEZONE: America/New_York
   QUALITY_DATASET: ga4_quality
