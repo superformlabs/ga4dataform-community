@@ -33,12 +33,17 @@ const getConfig = () => {
  * for the past year(?), to be used in PIVOT statment 
  * @returns {string} 
  */
-const getEventParamKeysArray = (tbl) => {
+const getEventParamKeysArray = (tbl, param_array = "event_params") => {
      let value = "";
     // value = config.cleaningMethod ? config.cleaningMethod(value) : value;
 
-    value = `SELECT  CONCAT("'", STRING_AGG(DISTINCT event_params.key, "', '" ORDER BY key ), "'") FROM ${tbl}, UNNEST(event_params) event_params`;
-    // value = "'alina', 'alina'";
+  if (param_array == 'item_params') {
+        // value = "'alina', 'alina'";
+      value = `SELECT  IFNULL(CONCAT("'", STRING_AGG(DISTINCT params.key, "', '" ORDER BY key ), "'"), "''") FROM ${tbl}, UNNEST(items) items, UNNEST(items.item_params)  params`;
+  } else {
+      value = `SELECT  IFNULL(CONCAT("'", STRING_AGG(DISTINCT params.key, "', '" ORDER BY key ), "'"), "''") FROM ${tbl}, UNNEST(event_params)  params`;
+
+  }
     return `${value}`;
 
 
