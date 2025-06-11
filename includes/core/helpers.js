@@ -29,6 +29,22 @@ const getConfig = () => {
 };
 
 /**
+ * Generates array of all event parameter keys in a comma-separated string
+ * for the past year(?), to be used in PIVOT statment 
+ * @returns {string} 
+ */
+const getEventParamKeysArray = (tbl) => {
+     let value = "";
+    // value = config.cleaningMethod ? config.cleaningMethod(value) : value;
+
+    value = `SELECT  CONCAT("'", STRING_AGG(DISTINCT event_params.key, "', '" ORDER BY key ), "'") FROM ${tbl}, UNNEST(event_params) event_params`;
+    // value = "'alina', 'alina'";
+    return `${value}`;
+
+
+}
+
+/**
  * Generates SQL for the qualify statement in the transactions table
  * @param {boolean} tf - true or false, true: output, false: no output
  * @returns {string} SQL fragment for qualify statement to dedupe transactions
