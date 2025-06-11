@@ -61,8 +61,7 @@ with int as (
         * 
     from ${ref("int_ga4_sessions")}
     where session_date >= date_checkpoint - interval ${config.LAST_NON_DIRECT_LOOKBACK_DAYS} day
-<<<<<<< HEAD
-=======
+
     -- discard the multiday session dupes here, keeping only the first, with the latest end time
     qualify row_number() over (
       partition by session_id

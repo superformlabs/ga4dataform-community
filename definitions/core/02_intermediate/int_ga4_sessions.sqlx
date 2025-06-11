@@ -66,18 +66,15 @@ with events as (
     session_id,
     stream_id,
     user_pseudo_id,
-<<<<<<< HEAD
     -- last
     ${helpers.generateArrayAggSQL('user_id',false, false)}, -- to account for potentially multiple
     min(event_params.ga_session_number) as ga_session_number, -- could be NULL when hit comes from MP
     
     min(is_final) as is_final, --return false if even 1 event is not final
-=======
     property_id,
     min(table_suffix) as table_suffix,
     count(distinct table_suffix) > 1 as is_multiday_session,
     max(is_final) as is_final, --return true if session started on an is_final day
->>>>>>> refs/heads/main
 
     -- first
     ${helpers.generateArrayAggSQL('device')},
