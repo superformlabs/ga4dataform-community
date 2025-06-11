@@ -1,12 +1,12 @@
-defaultAssertionDataset:  gmp_quality
+defaultAssertionDataset:  gmp_quality_Sally
 defaultLocation: US
-defaultProject: pd-strategy
+defaultProject: sallybeauty-us-ga4
 vars:
   OUTPUT_PROJECT: pd-strategy
-  GA4_DATASET: analytics_207462216
+  GA4_DATASET: analytics_320983557
   LOCAL_TIMEZONE: America/New_York
-  QUALITY_DATASET: gmp_quality
-  TRANSFORMATIONS_DATASET: gmp_base 
-  OUTPUTS_DATASET: gmp_outputs 
-  REPORTING_DATASET: gmp_reporting 
+  QUALITY_DATASET: gmp_quality_Sally
+  TRANSFORMATIONS_DATASET: gmp_base_Sally
+  OUTPUTS_DATASET: gmp_outputs_Sally
+  REPORTING_DATASET: gmp_reporting_Sally
 

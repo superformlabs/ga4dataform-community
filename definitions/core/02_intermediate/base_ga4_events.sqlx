@@ -8,14 +8,15 @@
 
 config {
     type: "operations",
-    hasOutput: false
+    hasOutput: true,
+    schema: "gmp_base",
+    name: "base_ga4_events"
 }
-
 js {
     const { helpers } = require("includes/core/helpers");
     const config = helpers.getConfig();
-    const fieldnames_sql = helpers.getEventParamKeysArray("`pd-strategy.analytics_207462216.events_2025*`");
-    const base_events_tbl = [dataform.projectConfig.vars.OUTPUT_PROJECT, dataform.projectConfig.vars.TRANSFORMATIONS_DATASET, "base_ga4_events"].join(".");
+    const fieldnames_sql = helpers.getEventParamKeysArray(ref("events_2025*"));
+    const base_tbl = self();
 }
 
 DECLARE insert_sql, delete_sql, incremental_sql STRING ;
@@ -32,7 +33,7 @@ DECLARE is_incremental BOOL DEFAULT (
 DECLARE date_checkpoint DATE DEFAULT  (  
     CASE
       WHEN is_incremental 
-      -- THEN ( SELECT COALESCE(MAX(event_date)+1, DATE('${config.GA4_START_DATE}')) FROM `${base_events_tbl}` where data_is_final = true)
+      -- THEN ( SELECT COALESCE(MAX(event_date)+1, DATE('${config.GA4_START_DATE}')) FROM `${base_tbl}` where data_is_final = true)
       THEN ( SELECT  DATE('${config.GA4_START_DATE}'))
       ELSE ( SELECT  DATE('${config.GA4_START_DATE}'))
     END
@@ -42,8 +43,8 @@ DECLARE date_checkpoint DATE DEFAULT  (
 SET incremental_sql = (
     CASE
       WHEN is_incremental 
-      THEN """INSERT INTO `${base_events_tbl}`  """
-      ELSE """CREATE OR REPLACE TABLE `${base_events_tbl}`
+      THEN """INSERT INTO `${base_tbl}`  """
+      ELSE """CREATE OR REPLACE TABLE `${base_tbl}`
           PARTITION BY event_date
           CLUSTER BY session_id
           OPTIONS(description='''Intermediate incremental events table flattened event parameters.''')
@@ -55,7 +56,7 @@ select incremental_sql;
 SET delete_sql = (
     CASE
       WHEN is_incremental 
-      THEN  FORMAT("""DELETE FROM `${base_events_tbl}` WHERE event_date between  '%s'  and CURRENT_DATE();""", CAST(date_checkpoint AS STRING))
+      THEN  FORMAT("""DELETE FROM `${base_tbl}` WHERE event_date between  '%s'  and CURRENT_DATE();""", CAST(date_checkpoint AS STRING))
       ELSE "SELECT 1=1"
     END);
   
