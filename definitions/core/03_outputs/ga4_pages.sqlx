@@ -1,1 +1,113 @@
+config {
+    type: "incremental",
+    tags: [dataform.projectConfig.vars.GA4_DATASET, "pages", "outputs"],
+    schema: dataform.projectConfig.vars.OUTPUTS_DATASET,
+    description: "Table containing all captured page views",
+    bigquery: {
+        partitionBy: "event_date", // To improve query performance and control costs. You can only partition based on one dimension.
+        clusterBy: ["event_name", "session_id"]
+    }
+}
+
+js {
+    const {
+        helpers
+    } = require("includes/core/helpers");
+    const config = helpers.getConfig();
+    /* check if there's invalid columns or dupe columns in the custom column definitions */
+    helpers.checkColumnNames(config);
+}
+
+  -- ==============================
+  --        PRE-OPERATIONS
+  -- ==============================
+  -- Note that pre_operations blocks will only work via the "Start Execution" button and not via the "Run" button
+
+pre_operations {
+  declare date_checkpoint DATE
+  ---
+  set date_checkpoint = (
+    ${when(incremental(),
+      `select
+        coalesce(max(session_date)+1, date('${config.GA4_START_DATE}'))
+      from ${self()}
+      where is_final = true`,
+    `select date('${config.GA4_START_DATE}')`)}   /* the default, when it's not incremental */
+  );
+    -- delete some older data, since this may be updated later by GA4
+  ${
+    when(incremental(),
+      `delete from ${self()} where session_date >= date_checkpoint`
+      )
+  }
+}
+
+  -- ==============================
+  --            QUERY
+  -- ==============================
+SELECT
+  property_id,
+  table_suffix,
+  MIN(event_date) AS session_date,
+  session_id,
+  stream_id,
+  user_pseudo_id,
+  -- last
+  ${helpers.generateArrayAggSQL('user_id', false, false)},
+  -- to account for potentially multiple
+  MIN(event_params.ga_session_number) AS ga_session_number,
+  -- could be NULL when hit comes from MP
+  MIN(is_final) AS is_final,
+  --return false if even 1 event is not final
+  -- first
+  ${helpers.generateArrayAggSQL('device')},
+  ${helpers.generateArrayAggSQL('geo')},
+  ${helpers.generateArrayAggSQL('app_info')},
+  ${helpers.generateArrayAggSQL('platform')},
+  STRUCT( ${helpers.generateArrayAggSQL('page.location', 'landing_page_location')},
+    ${helpers.generateArrayAggSQL('page.path', 'landing_page_path')},
+    ${helpers.generateArrayAggSQL('page.hostname', 'landing_page_hostname')},
+    ${helpers.generateArrayAggSQL('page.referrer', 'landing_page_referrer')},
+    ${helpers.generateArrayAggSQL('event_params.content_group', 'landing_content_group')} ) AS landing_page,
+  STRUCT( ${helpers.generateArrayAggSQL('page.location', 'exit_page_location', false)},
+    ${helpers.generateArrayAggSQL('page.path', 'exit_page_path', false)},
+    ${helpers.generateArrayAggSQL('page.hostname', 'exit_page_hostname', false)},
+    ${helpers.generateArrayAggSQL('event_params.content_group', 'exit_content_group', false)} ) AS exit_page,
+  ${helpers.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')},
+  CASE
+    WHEN REGEXP_CONTAINS(page_path, r'\/da\/|\/de\/|\/en\/|\/es\/|\/fi\/|\/fr\/|\/it\/|\/nl\/|\/no\/|\/pt\/|\/sv\/') THEN RIGHT(REGEXP_REPLACE(regexp_replace(page_path, r'^https?://[^/]+', ''),r'[\?#].*',''), LENGTH(REGEXP_REPLACE(regexp_replace(page_path, r'^https?://[^/]+', ''),r'[\?#].*',''))-3)
+    ELSE REGEXP_REPLACE(regexp_replace(page_path,
+      r'^https?://[^/]+',
+      ''),r'[\?#].*','')
+END
+  AS page_path_cleaned,
+  page_referrer,
+  ROW_NUMBER() OVER (PARTITION BY event_date, session_code ORDER BY event_timestamp ASC) AS page_rank_asc,
+  ROW_NUMBER() OVER (PARTITION BY event_date, session_code ORDER BY event_timestamp DESC) AS page_rank_desc
+FROM
+  ${ref("ga4_events")}
+WHERE  session_date >= date_checkpoint 
+  -- ${helper_date_range.FilterDate}
+  AND event_name = 'page_view'
+
+pre_operations {
+  -- Date checkpoint is based on the latest date that had "final" data
+  DECLARE
+    date_checkpoint DATE
+
+  ---
+
+  SET
+    date_checkpoint = (
+    ${
+        when(incremental(),
+            `select
+                coalesce(max(session_date)+1, date('${config.GA4_START_DATE}'))
+              from ${self()}
+              where is_final = true`,
+            `select date('${config.GA4_START_DATE}')`)
+    }
+    /* the default, when it's not incremental */
+    );
+}
 
