@@ -58,7 +58,7 @@ pre_operations {
 with int as (
     select
         * 
-    from ${ref("int_ga4_sessions")}
+    from ${ref("base_ga4_events")}
     where session_date >= date_checkpoint - interval ${config.LAST_NON_DIRECT_LOOKBACK_DAYS} day
 ),
 

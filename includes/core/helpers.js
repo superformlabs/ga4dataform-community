@@ -37,16 +37,6 @@ const getEventParamKeysArray = (tbl) => {
      let value = "";
     // value = config.cleaningMethod ? config.cleaningMethod(value) : value;
 
-
-/**
- * Generates array of all event parameter keys in a comma-separated string
- * for the past year(?), to be used in PIVOT statment 
- * @returns {string} 
- */
-const getEventParamKeysArray = (tbl) => {
-     let value = "";
-    // value = config.cleaningMethod ? config.cleaningMethod(value) : value;
-
     value = `SELECT  CONCAT("'", STRING_AGG(DISTINCT event_params.key, "', '" ORDER BY key ), "'") FROM ${tbl}, UNNEST(event_params) event_params`;
     // value = "'alina', 'alina'";
     return `${value}`;
@@ -693,14 +683,11 @@ const helpers = {
   generateClickIdCoalesceSQL,
   generateClickIdCasesSQL,
   generateTransactionsDedupeSQL,
-<<<<<<< HEAD
-  getEventParamKeysArray
-=======
+  getEventParamKeysArray,
   storageLabels,
   executionLabels,
   storageUpdateLabels,
   generateAlterTableStatements
->>>>>>> refs/heads/main
 };
 
 module.exports = {
