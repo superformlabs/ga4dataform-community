@@ -1,6 +1,6 @@
 /*
 	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
+	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
 	Artem Korneev, Jules Stuifbergen,
 	Johan van de Werken, Krisztián Korpa,
 	Simon Breton

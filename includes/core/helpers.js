@@ -1,6 +1,6 @@
 /*
 	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
+	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
 	Artem Korneev, Jules Stuifbergen,
 	Johan van de Werken, Krisztián Korpa,
 	Simon Breton
@@ -18,10 +18,25 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// function to generate the SQL
+/**
+ * Returns the merged core and custom configuration objects.
+ * @returns {Object} Merged configuration object
+ */
+const getConfig = () => {
+  const { coreConfig } = require("./default_config");
+  const { customConfig } = require("../custom/config");
+  return { ...coreConfig, ...customConfig };
+};
 
-const { coreConfig } = require("./default_config");
-const { customConfig } = require("../custom/config");
+/**
+ * Generates array of all event parameter keys in a comma-separated string
+ * for the past year(?), to be used in PIVOT statment 
+ * @returns {string} 
+ */
+const getEventParamKeysArray = (tbl) => {
+     let value = "";
+    // value = config.cleaningMethod ? config.cleaningMethod(value) : value;
+
 
 /**
  * Generates array of all event parameter keys in a comma-separated string
@@ -162,7 +177,7 @@ const generateListSQL = (list) => {
 const generateFilterTypeFromListSQL = (type = "exclude", columm, list) => {
   if (list.length == 0) return `true`;
   const filterType = type === "exclude" ? "not in" : "in";
-  return `coalesce(${columm},"") ${filterType} ${generateListSQL(list)}`;
+  return `coalesce(${columm},"") ${filterType}  ${generateListSQL(list)}`;
 };
 
 /**
@@ -318,7 +333,7 @@ const getSqlUnionAllFromRowsSQL = (rows) => {
 
 /**
  * Generates SQL for a CASE statement to determine the channel grouping based on provided parameters. This logic represents the default channel grouping logic in GA4.
- * @param {Object} custom_config - Custom configuration object
+ * @param {Object} config - Custom configuration object
  * @param {string} source - Source column name
  * @param {string} medium - Medium column name
  * @param {string} campaign - Campaign column name
@@ -329,7 +344,7 @@ const getSqlUnionAllFromRowsSQL = (rows) => {
  * @returns {string} SQL fragment for CASE statement creation
  */
 const getDefaultChannelGroupingSQL = (
-  custom_config,
+  config,
   source,
   medium,
   campaign,
@@ -350,13 +365,13 @@ const getDefaultChannelGroupingSQL = (
         then 'Direct'
       when 
         (
-          regexp_contains(${source}, r"^(${custom_config.SOCIAL_PLATFORMS_REGEX})$")
+          regexp_contains(${source}, r"^(${config.SOCIAL_PLATFORMS_REGEX})$")
           or ${category} = 'SOURCE_CATEGORY_SOCIAL'
         )
         and regexp_contains(${medium}, r"^(.*cp.*|ppc|retargeting|paid.*)$")
         then 'Paid Social'
       when 
-        regexp_contains(${source}, r"^(${custom_config.SOCIAL_PLATFORMS_REGEX})$")
+        regexp_contains(${source}, r"^(${config.SOCIAL_PLATFORMS_REGEX})$")
         or ${medium} in ("social", "social-network", "social-media", "sm", "social network", "social media")
         or ${category} = 'SOURCE_CATEGORY_SOCIAL'
         then 'Organic Social'
@@ -398,6 +413,9 @@ const getDefaultChannelGroupingSQL = (
         ${category} = 'SOURCE_CATEGORY_VIDEO'
         or regexp_contains(${medium}, r"^(.*video.*)$")
         then 'Organic Video'
+      when ${config.EXTRA_CHANNEL_GROUPS} and
+        ${medium} = 'referral' and ${category} = 'SOURCE_CATEGORY_AI'
+        then 'Organic AI'
       when 
         ${medium} in ("referral", "app", "link") -- VALIDATED?
         then 'Referral'
@@ -551,13 +569,108 @@ const checkColumnNames = (config) => {
   return true;
 };
 
-/**
- * Returns the merged core and custom configuration objects.
- * @returns {Object} Merged configuration object
- */
-const getConfig = () => {
-  return { ...coreConfig, ...customConfig };
+
+
+// Returns a comma-separated string of execution labels in the format "key:value"
+// Used for dynamically tagging BigQuery jobs with labels
+const executionLabels = () => {
+  const vars = dataform.projectConfig.vars;
+
+  // Filter keys that are either generic or execution-specific labels
+  const keys = Object.keys(vars).filter(
+    key => key.includes("LABEL_GENERIC_") || key.includes("LABEL_EXECUTION_")
+  );
+
+  // Format each label as "key:value" and join with commas
+  return keys
+    .map(key => {
+      const labelName = key
+        .replace("LABEL_GENERIC_", "")
+        .replace("LABEL_EXECUTION_", "")
+        .toLowerCase();
+      return `${labelName}:${vars[key]}`;
+    })
+    .join(", ");
 };
+
+// Returns an object of key-value pairs for storage labels
+// Used to apply table-level labeling
+const storageLabels = () => {
+  const vars = dataform.projectConfig.vars;
+
+  // Select only generic labels that are not storage-specific
+  const keys = Object.keys(vars).filter(
+    key => key.includes("GENERIC") && !key.includes("STORAGE")
+  );
+
+  // Return an object where each key is a cleaned label name and value is from vars
+  return Object.fromEntries(
+    keys.map(key => {
+      const labelName = key.replace("LABEL_GENERIC_", "").toLowerCase();
+      return [labelName, vars[key]];
+    })
+  );
+};
+
+
+// Returns a comma-separated list of labels formatted as SQL-compatible tuples
+// Example output: ('department', 'analytics'), ('cost_center', 'growth')
+// Intended for use in BigQuery SET QUERIES clause to label tables
+const storageUpdateLabels = () => {
+  const vars = dataform.projectConfig.vars;
+
+  return Object.keys(vars)
+    // Filter for generic labels that are not related to storage-specific configs
+    .filter(
+      key => key.includes("GENERIC") && !key.includes("STORAGE")
+    )
+    // Convert each key-value pair into a SQL tuple string
+    .map(key => {
+      const labelName = key.replace("LABEL_GENERIC_", "").toLowerCase();
+      return `('${labelName}', '${vars[key]}')`;
+    })
+    // Join all tuples with commas to produce a valid SQL list
+    .join(", ");
+};
+
+
+/**
+ * Generates a series of ALTER TABLE statements to apply storage labels
+ * to a list of BigQuery tables, based on naming conventions.
+ *
+ * @param {string[]} tables - Array of table names (without dataset prefix).
+ * @returns {string} - A string containing ALTER TABLE SQL statements.
+ */
+function generateAlterTableStatements(tables) {
+  // Access project-level variables defined in dataform.json or dataform project config
+  const vars = dataform.projectConfig.vars;
+
+  // Generate the label string, e.g., ('department', 'analytics'), ('env', 'prod')
+  const labelString = storageUpdateLabels();
+
+  // Loop through each table to create an ALTER TABLE statement
+  return tables
+    .map(table => {
+      let dataset;
+
+      // Decide which dataset the table belongs to based on its name prefix
+      // Tables starting with 'int_' are in the TRANSFORMATIONS_DATASET
+      // Others are in the OUTPUTS_DATASET
+      if (table.startsWith("int_")) {
+        dataset = vars.TRANSFORMATIONS_DATASET;
+      } else {
+        dataset = vars.OUTPUTS_DATASET;
+      }
+
+      // Construct and return the SQL string for setting table labels
+      return `ALTER TABLE \`${dataset}.${table}\`\nSET OPTIONS (\n  labels = [${labelString}]);`;
+    })
+
+    // Join all statements with line breaks to form the full script
+    .join("\n\n");
+}
+
+
 
 const helpers = {
   checkColumnNames,
@@ -580,9 +693,16 @@ const helpers = {
   generateClickIdCoalesceSQL,
   generateClickIdCasesSQL,
   generateTransactionsDedupeSQL,
+<<<<<<< HEAD
   getEventParamKeysArray
+=======
+  storageLabels,
+  executionLabels,
+  storageUpdateLabels,
+  generateAlterTableStatements
+>>>>>>> refs/heads/main
 };
 
 module.exports = {
-  helpers,
+  helpers
 };

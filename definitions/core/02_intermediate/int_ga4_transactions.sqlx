@@ -1,6 +1,6 @@
 /*
 	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
+	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
 	Artem Korneev, Jules Stuifbergen,
 	Johan van de Werken, Krisztián Korpa,
 	Simon Breton
@@ -24,7 +24,8 @@ config {
   schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
   description: "transactions table with nested items - so could be used as line_items table, too",
   bigquery: {
-    partitionBy: "transaction_date"
+    partitionBy: "transaction_date",
+    labels: require("includes/core/helpers.js").helpers.storageLabels()
   },
     columns: require("includes/core/documentation/helpers.js").ga4Transactions
 }
@@ -37,7 +38,7 @@ js {
 /* incrementality */
 pre_operations {
   declare date_checkpoint DATE;
-  ---
+  set @@query_label = "${helpers.executionLabels()}";
   set date_checkpoint = (
     ${when(incremental(),
       `select

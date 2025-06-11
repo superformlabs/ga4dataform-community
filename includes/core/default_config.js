@@ -1,6 +1,6 @@
 /*
 	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
+	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
 	Artem Korneev, Jules Stuifbergen,
 	Johan van de Werken, Krisztián Korpa,
 	Simon Breton
@@ -576,6 +576,11 @@ const CORE_PARAMS_ARRAY = [
 
 // config starts here
 
+
+// Default Channel Grouping mimics GA4
+// We create extra channels, enable those?
+const EXTRA_CHANNEL_GROUPS = false;
+
 // this date will be the first shard that is processed
 const GA4_START_DATE = "2025-05-01";
 
@@ -681,8 +686,6 @@ const HOSTNAME_INCLUDE_ONLY = []; // a list of hostnames to include (discard all
 
 // do not change anything below this line
 
-const LAST_NON_DIRECT_LOOKBACK_MILLIS = LAST_NON_DIRECT_LOOKBACK_DAYS * 24 * 3600 * 1000;
-
 const SOCIAL_PLATFORMS_REGEX = ['pinterest',
                                 'facebook',
                                 'instagram',
@@ -693,6 +696,13 @@ const SOCIAL_PLATFORMS_REGEX = ['pinterest',
                                 'messenger',
                                 'twitter'].join('|');
 
+const TABLES_OUTPUT = [
+                        "ga4_events",
+                        "int_ga4_sessions",
+                        "int_ga4_transactions",
+                        "ga4_sessions",
+                        "ga4_transactions"
+];
 
 const coreConfig = {
     CORE_PARAMS_ARRAY,
@@ -700,8 +710,8 @@ const coreConfig = {
     CUSTOM_EVENT_PARAMS_ARRAY,
     GA4_START_DATE,
     DATA_IS_FINAL_DAYS,
+    EXTRA_CHANNEL_GROUPS,
     LAST_NON_DIRECT_LOOKBACK_DAYS,
-    LAST_NON_DIRECT_LOOKBACK_MILLIS,
     CLICK_IDS_ARRAY,
     ASSERTIONS_EVENT_ID_UNIQUENESS,
     ASSERTIONS_SESSION_DURATION_VALIDITY,
@@ -718,7 +728,8 @@ const coreConfig = {
     CUSTOM_ITEM_PARAMS_ARRAY,
     CUSTOM_URL_PARAMS_ARRAY,
     TRANSACTIONS_DEDUPE,
-    TRANSACTION_TOTALS_UID
+    TRANSACTION_TOTALS_UID,
+    TABLES_OUTPUT
 }
 
 module.exports = {

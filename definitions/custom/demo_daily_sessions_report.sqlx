@@ -1,6 +1,6 @@
 /*
 	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
+	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
 	Artem Korneev, Jules Stuifbergen,
 	Johan van de Werken, Krisztián Korpa,
 	Simon Breton
@@ -19,16 +19,23 @@
 */
 
 
-
 config {
     type: "table",
     schema: dataform.projectConfig.vars.OUTPUTS_DATASET,
     description: "Daily session aggregate table - can be used for LP report, marketing, etc",
     bigquery: {
-        partitionBy: "session_date"
+        partitionBy: "session_date",
+        labels: require("includes/core/helpers.js").helpers.storageLabels()
     }
 }
 
+js {
+  const { helpers } = require("includes/core/helpers");
+}
+
+pre_operations {
+  set @@query_label = "${helpers.executionLabels()}"
+}
 
 with sessions_aggregation as (
 

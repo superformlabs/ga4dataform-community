@@ -1,6 +1,6 @@
 /*
 	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
+	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
 	Artem Korneev, Jules Stuifbergen,
 	Johan van de Werken, Krisztián Korpa,
 	Simon Breton
@@ -23,6 +23,9 @@ config {
     type: "table",
     schema: dataform.projectConfig.vars.OUTPUTS_DATASET,
     description: "What is in your GA4 - past 64 days",
+    bigquery: {
+        labels: require("includes/core/helpers.js").helpers.storageLabels()
+    }
 }
 
 
@@ -35,10 +38,14 @@ config {
 
 */
 
+js {
+  const { helpers } = require("includes/core/helpers");
+}
 
 -- only read this many days from the events table:
 pre_operations {
-  declare lookback_days INT64 default 64
+  declare lookback_days INT64 default 64;
+  set @@query_label = "${helpers.executionLabels()}"
 }
 
 with daily_diagnostics as (

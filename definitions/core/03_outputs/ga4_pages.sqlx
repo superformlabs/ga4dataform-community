@@ -110,3 +110,7 @@ pre_operations {
     /* the default, when it's not incremental */
     );
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/heads/main
