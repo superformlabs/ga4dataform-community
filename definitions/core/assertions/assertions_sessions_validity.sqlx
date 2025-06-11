@@ -42,7 +42,7 @@ pre_operations {
       ${ref("ga4_sessions")}
     WHERE
       session_date >= DATE_SUB( CURRENT_DATE(), INTERVAL 3 day )
-      AND (landing_page.landing_page_location IS NULL
+      AND ((landing_page.landing_page_location IS NULL AND app_info.id IS NULL)
         OR user_pseudo_id IS NULL
         OR session_id IS NULL
         OR session_date IS NULL
