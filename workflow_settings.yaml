@@ -1,4 +1,4 @@
-//defaultAssertionDataset:  IT_assertion
+defaultAssertionDataset:  gmp_quality
 defaultLocation: US
 defaultProject: pd-strategy
 vars:
