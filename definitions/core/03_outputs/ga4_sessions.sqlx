@@ -20,15 +20,14 @@
 
 config {
   type: "incremental",
-  description: "Output sessions table with last non direct logic added",
-  schema: dataform.projectConfig.vars.OUTPUTS_DATASET,
-  tags:[dataform.projectConfig.vars.GA4_DATASET,"sessions","outputs"],
+  description: "Intermediate incremental sessions table with modeling helpers implemented. 1 row per unique session_id. Contains only valid sessions.",
+  schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
+  tags:[dataform.projectConfig.vars.GA4_DATASET,"sessions","intermediate"],
   bigquery: {
     partitionBy: "session_date",
     clusterBy: [ "session_id" ],
-    labels: require("includes/core/helpers.js").helpers.storageLabels()
+    // labels: require("includes/core/helpers.js").helpers.storageLabels()
   },
-  columns: require("includes/core/documentation/helpers.js").ga4Sessions
 }
 
 js {
@@ -39,7 +38,7 @@ js {
 /* incrementality */
 pre_operations {
   declare date_checkpoint DATE;
-  set @@query_label = "${helpers.executionLabels()}";
+--   set @@query_label = "${helpers.executionLabels()}";
   set date_checkpoint = (
     ${when(incremental(),
       `select
@@ -48,7 +47,7 @@ pre_operations {
       where is_final = true`,
     `select date('${config.GA4_START_DATE}')`)}   /* the default, when it's not incremental */
   );
-  -- delete some older data, since this may be updated later by GA4
+    -- delete some older data, since this may be updated later by GA4
   ${
     when(incremental(),
       `delete from ${self()} where session_date >= date_checkpoint`
@@ -56,126 +55,177 @@ pre_operations {
   }
 }
 
-with int as (
-    select
-        * 
-    from ${ref("base_ga4_events")}
-    where session_date >= date_checkpoint - interval ${config.LAST_NON_DIRECT_LOOKBACK_DAYS} day
+-- simple sessions: referrers as is, no Last Non Direct - 1 source per session (the first no null)
 
-    -- discard the multiday session dupes here, keeping only the first, with the latest end time
-    qualify row_number() over (
-      partition by session_id
-      order by time.session_start_timestamp_utc asc, time.session_end_timestamp_utc desc
-    ) = 1
-),
+with events as (
+  select
+      min(event_date) as session_date,
+    session_id,
+    stream_id,
+    user_pseudo_id,
+    ${helpers.generateArrayAggSQL('user_id',false, false)}, -- to account for potentially multiple
+     '${dataform.projectConfig.vars.GA4_DATASET}' as property_id,
+    -- min(table_suffix) as table_suffix,
+    -- count(distinct table_suffix) > 1 as is_multiday_session,  -- for later AZ
+    max(data_is_final) as is_final, --return true if session started on an is_final day
 
+    -- first
+    ${helpers.generateArrayAggSQL('device')},
+    ${helpers.generateArrayAggSQL('geo')},
+    -- ${helpers.generateArrayAggSQL('app_info')},
+    ${helpers.generateArrayAggSQL('platform')},
 
-last_non_direct as (
-    select
-        *,
-        if(
-            session_info.is_with_source, -- use the first source if there is one
-            session_source.first,
-            -- if there is no source, lookback, and use LAST non-null source
-            last_value(
-                -- make sure we do not carry empty source structs
-                if(
-                    coalesce(
-                        session_source.last.campaign_id,
-                        session_source.last.campaign,
-                        session_source.last.source,
-                        session_source.last.medium,
-                        session_source.last.term,
-                        session_source.last.content,
-                        ${helpers.getClickIdsDimensionsSQL(config.CLICK_IDS_ARRAY,'session_source.last')}
-                    ) is null,
-                    null,
-                    session_source.last
-                )
-                ignore nulls
-            )  over lookback_window
-            
-        ) as last_non_direct_traffic_source
+    --  traffic info
+    -- ${helpers.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')} ,
+     
+    ${helpers.generateArrayAggSQL('page_location','landing_page')}  ,
+    ${helpers.generateArrayAggSQL('page_location','exit_page', false)} ,
 
-    from int
+    ${helpers.generateArrayAggSQL('cross_channel_campaign', 'cross_channel_campaign')} ,
+    -- struct(
+    --   ${helpers.generateArrayAggSQL('page.location','landing_page_location')},
+    --   ${helpers.generateArrayAggSQL('page.path','landing_page_path')},
+    --   ${helpers.generateArrayAggSQL('page.hostname','landing_page_hostname')},
+    --   ${helpers.generateArrayAggSQL('page.referrer','landing_page_referrer')},
+    --   ${helpers.generateArrayAggSQL('event_params.content_group','landing_content_group')}
+    -- ) as landing_page,
+
+    -- these will be packaged to a single struct later
+    -- ${helpers.generateTrafficSourceSQL('fixed_traffic_source','first_traffic_source')},
+    -- ${helpers.generateTrafficSourceSQL('fixed_traffic_source','last_traffic_source', false)},
+    -- ${helpers.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'first_click_ids')},
+    -- ${helpers.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'last_click_ids', false)},
     
-    window lookback_window as (
-        partition by user_pseudo_id
-        order by unix_millis(time.session_start_timestamp_utc)
-        range between ${config.LAST_NON_DIRECT_LOOKBACK_DAYS * 24 * 3600 * 1000}  preceding and current row
-    )
+    -- -- last
+    -- struct(
+    --   ${helpers.generateArrayAggSQL('page.location','exit_page_location', false)},
+    --   ${helpers.generateArrayAggSQL('page.path','exit_page_path', false)},
+    --   ${helpers.generateArrayAggSQL('page.hostname','exit_page_hostname', false)},
+    --   ${helpers.generateArrayAggSQL('event_params.content_group','exit_content_group', false)}
+    -- ) as exit_page,
+
+    -- min(event_params.ga_session_number) as ga_session_number, -- could be NULL when hit comes from MP
+    
+    -- min(event_date) as session_date,
+    -- min(time.event_timestamp_utc) as session_start_timestamp_utc,
+    -- max(time.event_timestamp_utc) as session_end_timestamp_utc,
+    -- sum(event_params.engagement_time_msec) as engagement_time_msec,
+
+        logical_or(session_engaged = "1") as is_engaged_session,
+        min(timestamp_micros(event_timestamp)) as session_start_timestamp_utc,
+        max(timestamp_micros(event_timestamp)) as session_end_timestamp_utc,
+        sum(cast(engagement_time_msec as int64)) as engagement_time_msec,
+        count(event_name) events,
+        countif(event_name="page_view") pageviews
+
+    -- struct(
+    --   logical_or(event_params.session_engaged = "1") as is_engaged_session,
+    --   logical_or(has_source) as is_with_source,
+    --   not logical_or(has_source) as is_direct_session
+    --   logical_or(url_params.gtm_debug is not null) as is_debug_session,
+    --   logical_or(url_params._gl is not null) as is_cross_domain
+    -- ) as session_info
+
+  from ${ref("base_ga4_events")}
+  where event_date >= date_checkpoint -1 -- grab 1 extra day, to include sessions starting earlier
+
+  -- only hits with user_pseudo_id and session_id
+  and user_pseudo_id is not null
+  and session_id is not null
+  group by
+    session_id,
+    stream_id,
+    user_pseudo_id,
+    property_id
+    -- this should not lead to duplicates. If it does, we'll get rid of those in ga4_sessions anyway
 ),
 
--- now rewrite NULL default channel grouping to Direct
-final as (
-    select
-        * except (session_source)
-        replace (
-            (
-              select as struct
-                last_non_direct_traffic_source.* except(default_channel_grouping),
-                coalesce(last_non_direct_traffic_source.default_channel_grouping, "Direct") as default_channel_grouping
-            ) as last_non_direct_traffic_source
+
+-- create time struct + session_source struct with first and last traffic_source of the session
+add_meta_info as (
+  select
+    * except (
+        -- source,
+        -- source_category,
+        session_start_timestamp_utc,
+        session_end_timestamp_utc,
+        engagement_time_msec
+        -- first_traffic_source,
+        -- last_traffic_source,
+        -- first_click_ids,
+        -- last_click_ids
         ),
-        session_source.first as session_source
-    from last_non_direct
->>>>>>> refs/heads/main
+    struct(
+      session_start_timestamp_utc,
+      session_end_timestamp_utc,
+      engagement_time_msec,
+      timestamp_diff(session_end_timestamp_utc, session_start_timestamp_utc, second) as session_duration_s
+    ) as time,
+
+    cross_channel_campaign.*
+  from events
 )
 
-
--- last_non_direct as (
---     select
---         *,
---         if(
---             session_info.is_with_source, -- use the first source if there is one
---             session_source.first,
---             -- if there is no source, lookback, and use LAST non-null source
---             last_value(
---                 -- make sure we do not carry empty source structs
---                 if(
---                     coalesce(
---                         session_source.last.campaign_id,
---                         session_source.last.campaign,
---                         session_source.last.source,
---                         session_source.last.medium,
---                         session_source.last.term,
---                         session_source.last.content,
---                         ${helpers.getClickIdsDimensionsSQL(config.CLICK_IDS_ARRAY,'session_source.last')}
---                     ) is null,
---                     null,
---                     session_source.last
---                 )
---                 ignore nulls
---             )  over lookback_window
-            
---         ) as last_non_direct_traffic_source
-
---     from int
-    
---     window lookback_window as (
---         partition by user_pseudo_id
---         order by unix_millis(time.session_start_timestamp_utc)
---         range between ${config.LAST_NON_DIRECT_LOOKBACK_MILLIS} preceding and current row
---     )
--- ),
-
--- -- now rewrite NULL default channel grouping to Direct
--- final as (
---     select
---         * except (session_source)
---         replace (
---             (
---               select as struct
---                 last_non_direct_traffic_source.* except(default_channel_grouping),
---                 coalesce(last_non_direct_traffic_source.default_channel_grouping, "Direct") as default_channel_grouping
---             ) as last_non_direct_traffic_source
+-- add_meta_info as (
+--   select
+--     * except (
+--         source,
+--         source_category,
+--         session_start_timestamp_utc,
+--         session_end_timestamp_utc,
+--         engagement_time_msec,
+--         first_traffic_source,
+--         last_traffic_source,
+--         first_click_ids,
+--         last_click_ids
 --         ),
---         session_source.first as session_source
---     from last_non_direct
+--     struct(
+--       session_start_timestamp_utc,
+--       session_end_timestamp_utc,
+--       engagement_time_msec,
+--       timestamp_diff(session_end_timestamp_utc, session_start_timestamp_utc, second) as session_duration_s
+--     ) as time,
+--     (
+--      select as struct
+--       (
+--         select as struct
+--         first_traffic_source.*,
+--         first_click_ids.*,
+--         ${helpers.getDefaultChannelGroupingSQL(config,
+--                                             'first_traffic_source.source',
+--                                             'first_traffic_source.medium',
+--                                             'first_traffic_source.campaign',
+--                                             'join_first.source_category',
+--                                             'first_traffic_source.term',
+--                                             'first_traffic_source.content',
+--                                             'first_traffic_source.campaign_id'
+--                                             )} as default_channel_grouping,
+--         ) first,
+--       (
+--         select as struct
+--         last_traffic_source.*,
+--         last_click_ids.*,
+--         ${helpers.getDefaultChannelGroupingSQL(config,
+--                                             'last_traffic_source.source',
+--                                             'last_traffic_source.medium',
+--                                             'last_traffic_source.campaign',
+--                                             'join_last.source_category',
+--                                             'last_traffic_source.term',
+--                                             'last_traffic_source.content',
+--                                             'last_traffic_source.campaign_id'
+--                                             )} as default_channel_grouping
+--       ) last
+--     ) session_source,
+
+--     cross_channel_campaign.*
+--   from events
 -- )
 
 select
-    *
-from int
-where session_date >= date_checkpoint
-
+  *  --except(is_multiday_session)
+from add_meta_info
+where (
+  session_date >= date_checkpoint -- new sessions
+--   or is_multiday_session -- or older sessions from yesterday
+)
+-- could be some incremental duplicates, these will be discarded downstream

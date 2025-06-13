@@ -41,7 +41,7 @@ const lowerSQL = helpers.lowerSQL;
 const customConfig = {
   // on a new or full build, this start date will be picked
 
-  GA4_START_DATE: "2025-06-01",
+  GA4_START_DATE: "2025-05-01",
 
   // custom definitions
   // a very complete list of all recommended and standard event parameters is
