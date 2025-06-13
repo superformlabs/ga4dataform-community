@@ -53,7 +53,7 @@ with src as (
         ),
         1
       ) as duplicate_count
-    from ${ref("int_ga4_transactions")}
+    from ${ref("base_ga4_events")}
     -- if we want to dedupe, insert deduplication code here
     ${helpers.generateTransactionsDedupeSQL(config.TRANSACTIONS_DEDUPE)} -- rewrite
 ),

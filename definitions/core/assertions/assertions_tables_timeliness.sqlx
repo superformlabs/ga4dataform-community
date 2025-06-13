@@ -5,7 +5,6 @@ config {
     dependencies: [
       "assertion_logs", 
       {name:"ga4_events"},  
-      {name:"int_ga4_sessions"}, 
       {name:"ga4_sessions"}
       ],
     tags:[dataform.projectConfig.vars.GA4_DATASET, "assertions"],
@@ -41,12 +40,12 @@ pre_operations {
       sample) = (
     WITH
       max_dates AS (
-      SELECT
-        'int_ga4_sessions' AS table_name,
-        MAX(session_date) AS max_date
-      FROM
-        ${ref("int_ga4_sessions")}
-      UNION ALL
+      -- SELECT
+      --   'int_ga4_sessions' AS table_name,
+      --   MAX(session_date) AS max_date
+      -- FROM
+      --   ${ref("int_ga4_sessions")}
+      -- UNION ALL
       SELECT
         'ga4_sessions' AS table_name,
         MAX(session_date) AS max_date
@@ -68,7 +67,7 @@ pre_operations {
       SELECT
         MAX(PARSE_DATE('%Y%m%d', event_date))
       FROM
-        ${ref("events_*")}
+        ${ref("events_2025*")}
       WHERE
         CONTAINS_SUBSTR(_TABLE_SUFFIX, 'intraday') IS FALSE) );
   IF
@@ -83,7 +82,7 @@ pre_operations {
   INSERT INTO
     ${ref("assertion_logs")}
   VALUES
-    (CURRENT_TIMESTAMP(), assertion, '${ref("events_*")}', expectations, check, sample, assertion_status, error_msg);
+    (CURRENT_TIMESTAMP(), assertion, '${ref("events_2025*")}', expectations, check, sample, assertion_status, error_msg);
   END IF
 }
 

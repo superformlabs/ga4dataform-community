@@ -52,8 +52,6 @@ const URL_PARAMS_ARRAY = [
 
     https://support.google.com/analytics/table/13594742?hl=en&ref_topic=13367566
 */
-
-
 const CORE_PARAMS_ARRAY = [
     // never remove, do not rename - this can break the core model
 
@@ -582,7 +580,7 @@ const CORE_PARAMS_ARRAY = [
 const EXTRA_CHANNEL_GROUPS = false;
 
 // this date will be the first shard that is processed
-const GA4_START_DATE = "2020-01-01";
+const GA4_START_DATE = "2025-05-01";
 
 // how many days should pass in order to deem an event 'final'
 // we recommend using 3 as Measurement Protocol hits can arrive 72 hours into the past
@@ -618,17 +616,37 @@ const TRANSACTION_TOTALS_UID = "user_pseudo_id";
 // decimal will cast/coalesce into numeric via - INT, FLOAT, DOUBLE
 // string will cast/coalesce into string via STRING, INT, FLOAT DOUBLE
 
-
+const CUSTOM_EVENT_PARAMS_TO_EXCLUDE = ['batch_event_index','batch_ordering_id','batch_page_id']; // by default,  all custom arams are unnested except thse listed here
 const CUSTOM_EVENT_PARAMS_ARRAY = [
   // example set: this will populate 5 fields in the `event_params_custom` column in the `ga4_events` table
   // known limitation: the output column names must be valid. use letters and underscores to be safe 
+    {
+        type: "string",
+        name: "application_status"
+    },
+    {
+        type: "string",
+        name: "login_status"
+    },
+    {
+        type: "string",
+        name: "monetate_id"
+    },
+    {
+        type: "string",
+        name: "monetate_status"
+    },
+    {
+        type: "string",
+        name: "customer_id"
+    },
 ];
 
 
 const CUSTOM_USER_PROPERTIES_ARRAY = [
 ];
 
-
+const CUSTOM_ITEM_PARAMS_TO_EXCLUDE = []; // by default,  all custom item params are unnested except thse listed here
 const CUSTOM_ITEM_PARAMS_ARRAY = [
 
 ];
@@ -636,8 +654,6 @@ const CUSTOM_ITEM_PARAMS_ARRAY = [
 const CUSTOM_URL_PARAMS_ARRAY = [
 
 ];
-
-
 
 const CLICK_IDS_ARRAY = [
   // how to classify click ids (from collected_traffic_source) when there is no source/medium/campaign found?
@@ -654,18 +670,12 @@ const CLICK_IDS_ARRAY = [
   {name:'msclkid', source:"bing", medium:"cpc", campaign: "(not set)", sources:["url"] }
 ];
 
-
-
-
 // if you have events you don't want to process, include them here
 const EVENTS_TO_EXCLUDE = [];
 const HOSTNAME_EXCLUDE = []; // a list of hostnames to exclude (leave all others in)
 const HOSTNAME_INCLUDE_ONLY = []; // a list of hostnames to include (discard all others)
 
-
-
 // do not change anything below this line
-
 const SOCIAL_PLATFORMS_REGEX = ['pinterest',
                                 'facebook',
                                 'instagram',
@@ -688,6 +698,7 @@ const coreConfig = {
     CORE_PARAMS_ARRAY,
     URL_PARAMS_ARRAY,
     CUSTOM_EVENT_PARAMS_ARRAY,
+    CUSTOM_EVENT_PARAMS_TO_EXCLUDE,
     GA4_START_DATE,
     DATA_IS_FINAL_DAYS,
     EXTRA_CHANNEL_GROUPS,
@@ -705,6 +716,7 @@ const coreConfig = {
     HOSTNAME_INCLUDE_ONLY,
     SOCIAL_PLATFORMS_REGEX,
     CUSTOM_USER_PROPERTIES_ARRAY,
+    CUSTOM_ITEM_PARAMS_TO_EXCLUDE,
     CUSTOM_ITEM_PARAMS_ARRAY,
     CUSTOM_URL_PARAMS_ARRAY,
     TRANSACTIONS_DEDUPE,

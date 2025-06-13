@@ -29,6 +29,28 @@ const getConfig = () => {
 };
 
 /**
+ * Generates array of all event parameter keys in a comma-separated string
+ * for the past year(?), to be used in PIVOT statment 
+ * @returns {string} 
+ */
+const getEventParamKeysArray = (config, tbl, param_array = "event_params") => {
+     let value = "";
+    // value = config.cleaningMethod ? config.cleaningMethod(value) : value;
+
+  if (param_array == 'item_params') {
+        // value = "'alina', 'alina'";
+      value = `SELECT IFNULL(CONCAT("'", STRING_AGG(DISTINCT params.key, "', '" ORDER BY key ), "'"), "''") FROM ${tbl}, UNNEST(items) items, UNNEST(items.item_params)  params
+              WHERE NOT REGEXP_CONTAINS(params.key, "${config.CUSTOM_ITEM_PARAMS_TO_EXCLUDE.join("|")}")`;
+  } else {
+      value = `SELECT IFNULL(CONCAT("'", STRING_AGG(DISTINCT params.key, "', '" ORDER BY key ), "'"), "''") FROM ${tbl}, UNNEST(event_params) params 
+                WHERE NOT REGEXP_CONTAINS(params.key, "${config.CUSTOM_EVENT_PARAMS_TO_EXCLUDE.join("|")}")`; //exclude these as Google moved them to separate columns
+
+  }
+    return `${value}`;
+}
+
+
+/**
  * Generates SQL for the qualify statement in the transactions table
  * @param {boolean} tf - true or false, true: output, false: no output
  * @returns {string} SQL fragment for qualify statement to dedupe transactions
@@ -165,7 +187,8 @@ const generateArrayAggSQL = (
   paramName,
   columnName = false,
   orderTypeAsc = true,
-  orderBy = "time.event_timestamp_utc"
+//   orderBy = "time.event_timestamp_utc"
+  orderBy = "event_timestamp"
 ) => {
   const alias =
     columnName === null ? "" : `AS ${columnName ? columnName : paramName} `;
@@ -666,6 +689,7 @@ const helpers = {
   generateClickIdCoalesceSQL,
   generateClickIdCasesSQL,
   generateTransactionsDedupeSQL,
+  getEventParamKeysArray,
   storageLabels,
   executionLabels,
   storageUpdateLabels,
