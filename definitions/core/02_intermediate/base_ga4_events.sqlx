@@ -9,13 +9,14 @@
 config {
     type: "operations",
     hasOutput: true,
-    schema: "gmp_base",
+    database: dataform.projectConfig.vars.OUTPUT_PROJECT,
+    schema: "gmp_base_sally",
     name: "base_ga4_events"
 }
 js {
     const { helpers } = require("includes/core/helpers");
     const config = helpers.getConfig();
-    const fieldnames_sql = helpers.getEventParamKeysArray(ref("events_2025*"));
+    const fieldnames_sql = helpers.getEventParamKeysArray(config, ref("events_2025*"), "event_params");
     const base_tbl = self();
 }
 
@@ -26,7 +27,7 @@ DECLARE  fieldnames STRING DEFAULT (${fieldnames_sql});   -- Comma-separated arr
 -- Check if this is a brand new deployment and table must be created first
 DECLARE is_incremental BOOL DEFAULT (
   SELECT  COUNT(1) > 0
-  FROM  `pd-strategy.gmp_base.INFORMATION_SCHEMA.TABLES`
+  FROM  `pd-strategy.gmp_base_sally.INFORMATION_SCHEMA.TABLES`
   WHERE  table_name = 'base_ga4_events' );
 -- select is_incremental;
 -- Identify start date
@@ -43,8 +44,8 @@ DECLARE date_checkpoint DATE DEFAULT  (
 SET incremental_sql = (
     CASE
       WHEN is_incremental 
-      THEN """INSERT INTO `${base_tbl}`  """
-      ELSE """CREATE OR REPLACE TABLE `${base_tbl}`
+      THEN """INSERT INTO ${base_tbl}  """
+      ELSE """CREATE OR REPLACE TABLE ${base_tbl}
           PARTITION BY event_date
           CLUSTER BY session_id
           OPTIONS(description='''Intermediate incremental events table flattened event parameters.''')
@@ -56,7 +57,7 @@ select incremental_sql;
 SET delete_sql = (
     CASE
       WHEN is_incremental 
-      THEN  FORMAT("""DELETE FROM `${base_tbl}` WHERE event_date between  '%s'  and CURRENT_DATE();""", CAST(date_checkpoint AS STRING))
+      THEN  FORMAT("""DELETE FROM ${base_tbl} WHERE event_date between  '%s'  and CURRENT_DATE();""", CAST(date_checkpoint AS STRING))
       ELSE "SELECT 1=1"
     END);
   
@@ -69,9 +70,16 @@ SET delete_sql = (
     parse_date(%s,event_date) as event_date,
     event_timestamp,
     event_name,
+    -- user info
     user_pseudo_id,
     user_id,
     is_active_user,
+
+    -- event info
+    batch_event_index,
+    batch_ordering_id,
+    batch_page_id,
+
     concat(user_pseudo_id, 
             (select value.int_value from unnest(event_params) where key = 'ga_session_id')
             ) as session_id,
@@ -84,7 +92,7 @@ SET delete_sql = (
     geo,
     privacy_info,
     device,
-    -- batch_event_index,batch_page_id,batch_ordering_id,
+
     ep.key param_name,
     coalesce(ep.value.string_value, CAST(ep.value.int_value AS STRING),
     CAST(ep.value.float_value AS STRING), CAST(ep.value.double_value AS STRING)) as param_value,
@@ -98,7 +106,7 @@ SET delete_sql = (
     items,
     user_properties,
     publisher,
-    if(date_diff(current_date(), cast(event_date as date format 'YYYYMMDD'), day) > 3,true, false) as data_is_final,
+    if(date_diff(current_date(), cast(event_date as date format 'YYYYMMDD'), day) > ${config.DATA_IS_FINAL_DAYS}, true, false) as data_is_final,
     current_timestamp() as _run_timestamp
   from %s, UNNEST(event_params) ep
   where _table_suffix >= FORMAT_DATE(%s, CAST('%s' AS DATE))

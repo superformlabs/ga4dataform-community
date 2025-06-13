@@ -9,14 +9,15 @@
 config {
     type: "operations",
     hasOutput: true,
-    schema: "gmp_base",
+    database: dataform.projectConfig.vars.OUTPUT_PROJECT,
+    schema: "gmp_base_sally",
     name: "base_ga4_items"
 }
 
 js {
     const { helpers } = require("includes/core/helpers");
     const config = helpers.getConfig();
-    const fieldnames_sql = helpers.getEventParamKeysArray(ref("events_2025*"), "item_params");
+    const fieldnames_sql = helpers.getEventParamKeysArray(config, ref("events_2025*"), "item_params");
     const base_tbl = self() ;
 
     // const fieldnames_sql = helpers.getEventParamKeysArray("`pd-strategy.analytics_207462216.events_2025*`", "item_params");
@@ -30,15 +31,15 @@ DECLARE  fieldnames STRING DEFAULT IFNULL((${fieldnames_sql}), "''");   -- Comma
 -- Check if this is a brand new deployment and table must be created first
 DECLARE is_incremental BOOL DEFAULT (
   SELECT  COUNT(1) > 0
-  FROM  `pd-strategy.gmp_base.INFORMATION_SCHEMA.TABLES`
+  FROM  `pd-strategy.gmp_base_sally.INFORMATION_SCHEMA.TABLES`
   WHERE  table_name = 'base_ga4_items' );
 -- select is_incremental;
+
 -- Identify start date
 DECLARE date_checkpoint DATE DEFAULT  (  
     CASE
       WHEN is_incremental 
-      -- THEN ( SELECT COALESCE(MAX(event_date)+1, DATE('${config.GA4_START_DATE}')) FROM ${base_tbl} where data_is_final = true)
-      THEN ( SELECT  DATE('${config.GA4_START_DATE}'))
+      THEN ( SELECT COALESCE(MAX(event_date)+1, DATE('${config.GA4_START_DATE}')) FROM ${base_tbl} where data_is_final = true)
       ELSE ( SELECT  DATE('${config.GA4_START_DATE}'))
     END
     );
@@ -104,7 +105,7 @@ SET delete_sql = (
     
     user_properties,
     -- publisher,
-    if(date_diff(current_date(), cast(event_date as date format 'YYYYMMDD'), day) > 3,true, false) as data_is_final,
+    if(date_diff(current_date(), cast(event_date as date format 'YYYYMMDD'), day) > ${config.DATA_IS_FINAL_DAYS},true, false) as data_is_final,
     current_timestamp() as _run_timestamp
   from %s, UNNEST(items) items, UNNEST(items.item_params) params
   where 1=1 --_table_suffix >= FORMAT_DATE(%s, CAST('%s' AS DATE))

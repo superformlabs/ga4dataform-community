@@ -41,7 +41,7 @@ const lowerSQL = helpers.lowerSQL;
 const customConfig = {
   // on a new or full build, this start date will be picked
 
-  GA4_START_DATE: "2025-05-01",
+  GA4_START_DATE: "2025-06-01",
 
   // custom definitions
   // a very complete list of all recommended and standard event parameters is
@@ -61,7 +61,8 @@ const customConfig = {
   // options:
   // - "renameTo" -> name the output column to this name. Default: "paramname" will be used
   // cleaningMethod: lowerSQL -> transform the output (of strings) to lower case
- 
+
+  CUSTOM_EVENT_PARAMS_TO_EXCLUDE: ['batch_event_index','batch_ordering_id','batch_page_id'], // by default,  all custom arams are unnested except thse listed here
   // event dimensions and metrics
   // example:
   // CUSTOM_EVENT_PARAMS_ARRAY: [
@@ -77,6 +78,8 @@ const customConfig = {
   // ],
   CUSTOM_USER_PROPERTIES_ARRAY: [],
 
+
+ CUSTOM_ITEM_PARAMS_TO_EXCLUDE: [], // by default,  all custom arams are unnested except thse listed here
   // item custom dimensions and metrics
   // these will appear in `items.item_params_custom.*`
   // example:

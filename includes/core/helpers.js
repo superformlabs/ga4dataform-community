@@ -33,20 +33,20 @@ const getConfig = () => {
  * for the past year(?), to be used in PIVOT statment 
  * @returns {string} 
  */
-const getEventParamKeysArray = (tbl, param_array = "event_params") => {
+const getEventParamKeysArray = (config, tbl, param_array = "event_params") => {
      let value = "";
     // value = config.cleaningMethod ? config.cleaningMethod(value) : value;
 
   if (param_array == 'item_params') {
         // value = "'alina', 'alina'";
-      value = `SELECT  IFNULL(CONCAT("'", STRING_AGG(DISTINCT params.key, "', '" ORDER BY key ), "'"), "''") FROM ${tbl}, UNNEST(items) items, UNNEST(items.item_params)  params`;
+      value = `SELECT IFNULL(CONCAT("'", STRING_AGG(DISTINCT params.key, "', '" ORDER BY key ), "'"), "''") FROM ${tbl}, UNNEST(items) items, UNNEST(items.item_params)  params
+              WHERE NOT REGEXP_CONTAINS(params.key, "${config.CUSTOM_ITEM_PARAMS_TO_EXCLUDE.join("|")}")`;
   } else {
-      value = `SELECT  IFNULL(CONCAT("'", STRING_AGG(DISTINCT params.key, "', '" ORDER BY key ), "'"), "''") FROM ${tbl}, UNNEST(event_params)  params`;
+      value = `SELECT IFNULL(CONCAT("'", STRING_AGG(DISTINCT params.key, "', '" ORDER BY key ), "'"), "''") FROM ${tbl}, UNNEST(event_params) params 
+                WHERE NOT REGEXP_CONTAINS(params.key, "${config.CUSTOM_EVENT_PARAMS_TO_EXCLUDE.join("|")}")`; //exclude these as Google moved them to separate columns
 
   }
     return `${value}`;
-
-
 }
 
 
