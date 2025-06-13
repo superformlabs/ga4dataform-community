@@ -10,7 +10,7 @@ config {
     type: "operations",
     hasOutput: true,
     database: dataform.projectConfig.vars.OUTPUT_PROJECT,
-    schema: "gmp_base_sally",
+    schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
     name: "base_ga4_items"
 }
 
@@ -20,19 +20,16 @@ js {
     const fieldnames_sql = helpers.getEventParamKeysArray(config, ref("events_2025*"), "item_params");
     const base_tbl = self() ;
 
-    // const fieldnames_sql = helpers.getEventParamKeysArray("`pd-strategy.analytics_207462216.events_2025*`", "item_params");
-    //[dataform.projectConfig.vars.OUTPUT_PROJECT, dataform.projectConfig.vars.TRANSFORMATIONS_DATASET, ].join(".");
 }
 
 DECLARE insert_sql, delete_sql, incremental_sql STRING DEFAULT "" ;
 DECLARE  fieldnames STRING DEFAULT IFNULL((${fieldnames_sql}), "''");   -- Comma-separated array of custom and standard event parameters to pivot
--- DECLARE  fieldnames STRING DEFAULT "${fieldnames_sql}";
 
 -- Check if this is a brand new deployment and table must be created first
 DECLARE is_incremental BOOL DEFAULT (
   SELECT  COUNT(1) > 0
-  FROM  `pd-strategy.gmp_base_sally.INFORMATION_SCHEMA.TABLES`
-  WHERE  table_name = 'base_ga4_items' );
+  FROM  `${database()}.${schema()}.INFORMATION_SCHEMA.TABLES`
+  WHERE  table_name = '${name()}' );
 -- select is_incremental;
 
 -- Identify start date

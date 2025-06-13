@@ -3,3 +3,5 @@ node_modules/
 unittests.config.json
 includes/unit_tests/tmp/*
 .DS_Store
+workflow_settings.yaml
+includes/custom/config.js
