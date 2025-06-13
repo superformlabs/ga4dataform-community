@@ -5,8 +5,8 @@ vars:
   OUTPUT_PROJECT: pd-strategy
   GA4_DATASET: analytics_320983557
   LOCAL_TIMEZONE: America/New_York
-  QUALITY_DATASET: gmp_quality_Sally
-  TRANSFORMATIONS_DATASET: gmp_base_Sally
-  OUTPUTS_DATASET: gmp_outputs_Sally
-  REPORTING_DATASET: gmp_reporting_Sally
+  QUALITY_DATASET: gmp_quality_sally
+  TRANSFORMATIONS_DATASET: gmp_base_sally
+  OUTPUTS_DATASET: gmp_outputs_sally
+  REPORTING_DATASET: gmp_reporting_sally
 

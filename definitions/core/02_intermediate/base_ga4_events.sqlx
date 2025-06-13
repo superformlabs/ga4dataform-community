@@ -10,7 +10,7 @@ config {
     type: "operations",
     hasOutput: true,
     database: dataform.projectConfig.vars.OUTPUT_PROJECT,
-    schema: "gmp_base_sally",
+    schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
     name: "base_ga4_events"
 }
 js {
@@ -27,15 +27,16 @@ DECLARE  fieldnames STRING DEFAULT (${fieldnames_sql});   -- Comma-separated arr
 -- Check if this is a brand new deployment and table must be created first
 DECLARE is_incremental BOOL DEFAULT (
   SELECT  COUNT(1) > 0
-  FROM  `pd-strategy.gmp_base_sally.INFORMATION_SCHEMA.TABLES`
-  WHERE  table_name = 'base_ga4_events' );
+  FROM  `${database()}.${schema()}.INFORMATION_SCHEMA.TABLES`
+  WHERE  table_name = '${name()}' );
 -- select is_incremental;
+
 -- Identify start date
 DECLARE date_checkpoint DATE DEFAULT  (  
     CASE
       WHEN is_incremental 
       -- THEN ( SELECT COALESCE(MAX(event_date)+1, DATE('${config.GA4_START_DATE}')) FROM `${base_tbl}` where data_is_final = true)
-      THEN ( SELECT  DATE('${config.GA4_START_DATE}'))
+      THEN ( SELECT COALESCE(MAX(event_date)+1, DATE('${config.GA4_START_DATE}')) FROM ${base_tbl} where data_is_final = true)
       ELSE ( SELECT  DATE('${config.GA4_START_DATE}'))
     END
     );
