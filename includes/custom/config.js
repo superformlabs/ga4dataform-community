@@ -109,6 +109,11 @@ const customConfig = {
   HOSTNAME_EXCLUDE: [],
   HOSTNAME_INCLUDE_ONLY: [],
 
+
+// Key events to include as metrics. up to 5
+  KEY_EVENTS_ARRAY: ["select_content","GMP_form_send","form_submit","form_send","file_download","Contact_InfoTrust_form_send"],
+
+
   // Set this to true to enable "Organic AI" (and possible other future channels that
   // are not compatible with GA4)
   EXTRA_CHANNEL_GROUPS: true,

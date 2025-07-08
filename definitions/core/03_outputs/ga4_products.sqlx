@@ -20,13 +20,13 @@
 
 config {
   type: "incremental",
-  uniqueKey: ['session_id'],
+  uniqueKey: ['session_id', "item_id"],
   description: "Intermediate incremental sessions table with modeling helpers implemented. 1 row per unique session_id. Contains only valid sessions.",
   database: dataform.projectConfig.vars.OUTPUT_PROJECT,
   schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
-  tags:[dataform.projectConfig.vars.GA4_DATASET,"sessions","prod"],
+  tags:[dataform.projectConfig.vars.GA4_DATASET,"sessions","dev"],
   bigquery: {
-    partitionBy: "session_date",
+    partitionBy: "event_date",
     clusterBy: [ "session_id" ],
     // labels: require("includes/core/helpers.js").helpers.storageLabels()
   },
@@ -62,8 +62,9 @@ pre_operations {
 with events as (
   select
     '${dataform.projectConfig.vars.GA4_DATASET}' as property_id,
-    min(event_date) as session_date,
+    min(event_date) as event_date,
     session_id,
+    event_id,
     stream_id,
     user_pseudo_id, 
     max(is_active_user) is_active_user,
@@ -82,41 +83,18 @@ with events as (
     -- ${helpers.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')} ,
     ${helpers.generateArrayAggSQL('session_traffic_source_last_click.cross_channel_campaign', 'cross_channel_campaign')} ,
 
-    -- ${helpers.generateArrayAggSQL('page.location','landing_page_location')}  ,
-    -- ${helpers.generateArrayAggSQL('page.location','exit_page', false)} ,
-
-    struct(
-      ${helpers.generateArrayAggSQL('page.location','landing_page_location')},
-      ${helpers.generateArrayAggSQL('page.path','landing_page_path')},
-      ${helpers.generateArrayAggSQL('page.hostname','landing_page_hostname')},
-      ${helpers.generateArrayAggSQL('page.referrer','landing_page_referrer')},
-      ${helpers.generateArrayAggSQL('event_params.content_group','landing_content_group')}
-    ) as landing_page,
-    -- last
-    struct(
-      ${helpers.generateArrayAggSQL('page.location','exit_page_location', false)},
-      ${helpers.generateArrayAggSQL('page.path','exit_page_path', false)},
-      ${helpers.generateArrayAggSQL('page.hostname','exit_page_hostname', false)},
-      ${helpers.generateArrayAggSQL('event_params.content_group','exit_content_group', false)}
-    ) as exit_page,
-
-    -- these will be packaged to a single struct later
-    -- ${helpers.generateTrafficSourceSQL('fixed_traffic_source','first_traffic_source')},
-    -- ${helpers.generateTrafficSourceSQL('fixed_traffic_source','last_traffic_source', false)},
-    -- ${helpers.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'first_click_ids')},
-    -- ${helpers.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'last_click_ids', false)},
-
-        min(event_params.ga_session_number) as ga_session_number, -- could be NULL when hit comes from MP
-        CASE 
-          WHEN min(event_params.ga_session_number) = 1 THEN 'new user'
-          WHEN min(event_params.ga_session_number) > 1 THEN 'returning user'
-          ELSE NULL
-        END AS user_type,
-        
-        logical_or(event_params.session_engaged = 1) as is_engaged_session,
-        min(timestamp_micros(event_timestamp)) as session_start_timestamp_utc,
-        max(timestamp_micros(event_timestamp)) as session_end_timestamp_utc,
-        sum(cast(event_params.engagement_time_msec as int64)) as engagement_time_msec,
+    -- do we need user info in ecomm table? AZ
+        -- min(event_params.ga_session_number) as ga_session_number, -- could be NULL when hit comes from MP
+        -- CASE 
+        --   WHEN min(event_params.ga_session_number) = 1 THEN 'new user'
+        --   WHEN min(event_params.ga_session_number) > 1 THEN 'returning user'
+        --   ELSE NULL
+        -- END AS user_type,
+        -- do we need sesssion info in ecomm table? AZ
+        -- logical_or(event_params.session_engaged = 1) as is_engaged_session,
+        -- min(timestamp_micros(event_timestamp)) as session_start_timestamp_utc,
+        -- max(timestamp_micros(event_timestamp)) as session_end_timestamp_utc,
+        -- sum(cast(event_params.engagement_time_msec as int64)) as engagement_time_msec,
 
         count(event_name) events,
         countif(event_name="page_view") pageviews,
@@ -125,20 +103,14 @@ with events as (
         sum(if(event_name="purchase", ecommerce.unique_items,0)) unique_items, 
         count(distinct if(event_name="purchase", ecommerce.transaction_id, NULL)) transactions,
 
-        -- and key events as metrics
-        ${when(
-          config.KEY_EVENTS_ARRAY.length > 0,
-            `${helpers.getSqlSelectEventsAsMetrics(config.KEY_EVENTS_ARRAY)}  `
-          )} ,
+        -- and key events as metrics - also not needed AZ
+        -- ${when(
+        --   config.KEY_EVENTS_ARRAY.length > 0,
+        --     `${helpers.getSqlSelectEventsAsMetrics(config.KEY_EVENTS_ARRAY)}  `
+        --   )} ,
 
        max(is_final) as is_final --return true if session started on an is_final day
-    -- struct(
-    --   logical_or(event_params.session_engaged = "1") as is_engaged_session,
-    --   logical_or(has_source) as is_with_source,
-    --   not logical_or(has_source) as is_direct_session
-    --   logical_or(url_params.gtm_debug is not null) as is_debug_session,
-    --   logical_or(url_params._gl is not null) as is_cross_domain
-    -- ) as session_info
+
 
   from   ${ref("base_ga4_events")}
   where event_date >= date_checkpoint -1 -- grab 1 extra day, to include sessions starting earlier

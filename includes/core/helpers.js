@@ -18,6 +18,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+
 /**
  * Returns the merged core and custom configuration objects.
  * @returns {Object} Merged configuration object
@@ -27,6 +28,23 @@ const getConfig = () => {
   const { customConfig } = require("../custom/config");
   return { ...coreConfig, ...customConfig };
 };
+
+/* Generates SQL for PIVOT clause */
+const getSqlPivotEventParams = (event_params)=> {
+   let value = "";
+   value = ` PIVOT ( MIN(param_value) FOR param_name IN (${event_params})  ) `
+return `${value}`;
+}
+/** Generates SQL code that counts instances of events 
+ * specified in KEY_EVENT_ARRAY , to be included as a metric
+ */
+const getSqlSelectEventsAsMetrics = (config) => {
+  return Object.entries(config)
+    .map(([key, value]) => {
+       return `countif(lower(event_name)='${value.toLowerCase()}') AS ${value.toLowerCase()}`;
+    })
+    .join(", ");
+}
 
 /**
  * Generates array of all event parameter keys in a comma-separated string
@@ -97,7 +115,13 @@ const generateParamSQL = (config, column = "event_params") => {
  * @param {string} [column='event_params'] - Column name containing the parameters
  * @returns {string} SQL fragment for multiple parameters unnest
  */
+const generateParamsSQL_fake  = (config_array, column = "event_params") => {
+  return 
+      `${config_array}`;
+
+  };
 const generateParamsSQL = (config_array, column = "event_params") => {
+  console.log("alina");
   return `
       ${config_array
         .map((config) => {
@@ -693,7 +717,10 @@ const helpers = {
   storageLabels,
   executionLabels,
   storageUpdateLabels,
-  generateAlterTableStatements
+  generateAlterTableStatements,
+  getSqlSelectEventsAsMetrics,
+  getSqlPivotEventParams,
+  generateParamsSQL_fake
 };
 
 module.exports = {

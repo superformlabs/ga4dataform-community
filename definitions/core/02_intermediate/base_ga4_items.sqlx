@@ -1,162 +1,457 @@
-
   /*
   This file is part of "GMP Clearview" package.
   Copyright (C)  2025 Infotrust 
   Alina Zilbergerts, Trish Dothkar,
   -- */
 
-
 config {
-    type: "operations",
-    hasOutput: true,
-    database: dataform.projectConfig.vars.OUTPUT_PROJECT,
-    schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
-    name: "base_ga4_items"
+  type: "incremental",
+  tags: [dataform.projectConfig.vars.GA4_DATASET,"base_items","prod"],
+  description: "Output events table: unnested, cleaned, clustered data with several fixes",
+  database: dataform.projectConfig.vars.OUTPUT_PROJECT,
+  schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
+  name: "base_ga4_items",
+  bigquery: {
+    partitionBy: "event_date",
+    clusterBy: ["event_name", "session_id"]
+  }
 }
+
+
 
 js {
-    const { helpers } = require("includes/core/helpers");
-    const config = helpers.getConfig();
-    const fieldnames_sql = helpers.getEventParamKeysArray(config, ref("events_2025*"), "item_params");
-    const base_tbl = self() ;
+  const { helpers } = require("includes/core/helpers");
+  const config = helpers.getConfig();
+  /* check if there's invalid columns or dupe columns in the custom column definitions */
+  helpers.checkColumnNames(config);
+  const fieldnames_sql = helpers.getEventParamKeysArray(config, ref( 'events' || dataform.projectConfig.vars.TABLE_SUFFIX || "_*"), "event_params");
+  const base_tbl = self();
 
 }
 
-DECLARE insert_sql, delete_sql, incremental_sql STRING DEFAULT "" ;
-DECLARE  fieldnames STRING DEFAULT IFNULL((${fieldnames_sql}), "''");   -- Comma-separated array of custom and standard event parameters to pivot
 
--- Check if this is a brand new deployment and table must be created first
-DECLARE is_incremental BOOL DEFAULT (
-  SELECT  COUNT(1) > 0
-  FROM  `${database()}.${schema()}.INFORMATION_SCHEMA.TABLES`
-  WHERE  table_name = '${name()}' );
--- select is_incremental;
-
--- Identify start date
-DECLARE date_checkpoint DATE DEFAULT  (  
-    CASE
-      WHEN is_incremental 
-      THEN ( SELECT COALESCE(MAX(event_date)+1, DATE('${config.GA4_START_DATE}')) FROM ${base_tbl} where data_is_final = true)
-      ELSE ( SELECT  DATE('${config.GA4_START_DATE}'))
-    END
-    );
-
--- Compile SQL respectively
-SET incremental_sql = (
-    CASE
-      WHEN is_incremental 
-      THEN """INSERT INTO ${base_tbl}  """
-      ELSE """CREATE OR REPLACE TABLE ${base_tbl}
-          PARTITION BY event_date
-          CLUSTER BY session_id
-          OPTIONS(description='''Intermediate incremental events table flattened event parameters.''')
-          AS """
-    END
+/* incrementality */
+pre_operations {
+  -- declare params string default (${json_custom_params}); 
+  declare date_checkpoint DATE;
+  -- set @@query_label = "${helpers.executionLabels()}";
+  set date_checkpoint = (
+    ${when(incremental(),
+      `select
+        coalesce(max(event_date)+1, date('${config.GA4_START_DATE}'))
+      from ${self()}
+      where is_final = true`,
+    `select date('${config.GA4_START_DATE}')`)}   /* the default, when it's not incremental */
   );
-select date_checkpoint;
-select incremental_sql;
-SET delete_sql = (
-    CASE
-      WHEN is_incremental 
-      THEN  FORMAT("""DELETE FROM ${base_tbl} WHERE event_date between  '%s'  and CURRENT_DATE();""", CAST(date_checkpoint AS STRING))
-      ELSE "SELECT 1=1"
-    END);
-  
-  -- ==============================
-  --            QUERY
-  -- ==============================
+    -- delete some older data, since this may be updated later by GA4
+  ${
+    when(incremental(),
+      `delete from ${self()} where event_date >= date_checkpoint`
+      )
+  }
+}
 
-  SET insert_sql = FORMAT(incremental_sql || """
-  select * from (
+with query_source as (
+
+    select
+      _table_suffix as table_suffix,
+      *
+    from ${ref( 'events' || dataform.projectConfig.vars.TABLE_SUFFIX || "_*")}
+    where true
+
+    -- incrementality clause
+    -- and parse_date('%Y%m%d', regexp_extract(event_date,'[0-9]+')) >= date_checkpoint -- have to use event_date instead of _table_suffix if we referer to events_2025* tables
+    and parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint
+    -- filters go here
+
+    -- intraday filter: exclude
+    and contains_substr(_table_suffix, 'intraday') is false
+    -- fresh filter: exclude
+    and contains_substr(_table_suffix, 'fresh') is false
+
+    -- filters from config:
+    -- discard unwanted events
+    and ${helpers.generateFilterTypeFromListSQL("exclude", "event_name", config.EVENTS_TO_EXCLUDE)}
+    -- discard unwanted hostnames
+    and ${helpers.generateFilterTypeFromListSQL("exclude", "device.web_info.hostname", config.HOSTNAME_EXCLUDE)}
+    -- only include wanted hostnames
+    and ${helpers.generateFilterTypeFromListSQL("include", "device.web_info.hostname", config.HOSTNAME_INCLUDE_ONLY)}
+
+    -- leave cookieless pings in - those will be in the events table and  do not have a session
+    -- and user_pseudo_id is not null
+
+),
+
+step1 as (
+
   select
-    parse_date(%s,event_date) as event_date,
+    -- first chunk: the basics
+    table_suffix,
     event_timestamp,
+
     event_name,
+    parse_date('%Y%m%d', event_date) as event_date, -- partition column
+    date(datetime(timestamp_micros(event_timestamp), '${dataform.projectConfig.vars.LOCAL_TIMEZONE}')) as event_date_local,
+    date_diff(current_date(), cast(event_date as date format 'YYYYMMDD'), day) > ${config.DATA_IS_FINAL_DAYS} as is_final, -- used for incrementality
+    stream_id,
+    platform,
+    struct(
+      -- timestamps
+      event_timestamp,
+      timestamp_micros(event_timestamp) as event_timestamp_utc,
+      user_first_touch_timestamp as user_first_touch_timestamp,
+      timestamp_micros(user_first_touch_timestamp) as user_first_touch_timestamp_utc    
+    ) as time,
+    
+    -- user info
     user_pseudo_id,
     user_id,
     is_active_user,
-    concat(user_pseudo_id, 
-            (select value.int_value from unnest(event_params) where key = 'ga_session_id')
-            ) as session_id,
-    concat( event_name , event_timestamp, user_pseudo_id, 
-            (select value.int_value from unnest(event_params) where key = 'ga_session_id'),
-            batch_page_id, batch_ordering_id, batch_event_index
-            ) as event_id,
-    stream_id,
-    platform,
-    geo,
-    privacy_info,
-    device,
-    -- batch_event_index,batch_page_id,batch_ordering_id,
-    params.key param_name,
-    coalesce(params.value.string_value, CAST(params.value.int_value AS STRING),
-    CAST(params.value.float_value AS STRING), CAST(params.value.double_value AS STRING)) as param_value,
-    session_traffic_source_last_click.cross_channel_campaign as cross_channel_campaign,
-    session_traffic_source_last_click.SA360_campaign as sa360_campaign,
-    session_traffic_source_last_click.DV360_campaign as dv360_campaign,
-    session_traffic_source_last_click.CM360_campaign as cm360_campaign,
-    session_traffic_source_last_click.google_ads_campaign as google_ads_campaign,
-    session_traffic_source_last_click.manual_campaign as manual_campaign,
-    ecommerce.*,
-    items.* EXCEPT(item_params),
+
+    -- event info
+    batch_event_index,
+    batch_ordering_id,
+    batch_page_id,
+
+    -- now the structs - we will need to explicitly name ALL fields herein, as to not break incremental builds when Google adds a column in a struct
+    -- privacy info
+    -- struct(
+    --   privacy_info.analytics_storage as analytics_storage,
+    --   privacy_info.ads_storage as ads_storage,
+    --   privacy_info.uses_transient_token as uses_transient_token
+    -- ) as privacy_info,
     
-    user_properties,
-    -- publisher,
-    if(date_diff(current_date(), cast(event_date as date format 'YYYYMMDD'), day) > ${config.DATA_IS_FINAL_DAYS},true, false) as data_is_final,
-    current_timestamp() as _run_timestamp
-  from %s, UNNEST(items) items, UNNEST(items.item_params) params
-  where 1=1 --_table_suffix >= FORMAT_DATE(%s, CAST('%s' AS DATE))
-	and user_pseudo_id is not null
-    and ${helpers.generateFilterTypeFromListSQL("exclude", "event_name", config.EVENTS_TO_EXCLUDE)}
-	-- discard unwanted hostnames
-	and ${helpers.generateFilterTypeFromListSQL("exclude", "device.web_info.hostname", config.HOSTNAME_EXCLUDE)}
-	-- only include wanted hostnames
-	and ${helpers.generateFilterTypeFromListSQL("include", "device.web_info.hostname", config.HOSTNAME_INCLUDE_ONLY)}
+    -- struct(
+    --   collected_traffic_source.manual_campaign_id,
+    --   collected_traffic_source.manual_campaign_name,
+    --   collected_traffic_source.manual_source,
+    --   collected_traffic_source.manual_medium,
+    --   collected_traffic_source.manual_term,
+    --   collected_traffic_source.manual_content,
+    --   collected_traffic_source.manual_source_platform,
+    --   collected_traffic_source.manual_creative_format,
+    --   collected_traffic_source.manual_marketing_tactic,
+    --   collected_traffic_source.gclid,
+    --   collected_traffic_source.dclid,
+    --   collected_traffic_source.srsltid
+    -- ) as collected_traffic_source, -- as is. This will be fixed in the next step
 
-    )
-      PIVOT (
-      MIN(param_value)
-      FOR param_name IN (%s)  
-    ) pivoted_params
-  """, "'%Y%m%d'",  "${ref('events_2025*')}" , "'%m%d'" ,  CAST("2025-05-01" AS STRING) ,  fieldnames );
--- `sallybeauty-us-ga4.analytics_320983557.events_20250501`
+    struct(
+      struct(
+        session_traffic_source_last_click.manual_campaign.campaign_id,
+        session_traffic_source_last_click.manual_campaign.campaign_name,
+        session_traffic_source_last_click.manual_campaign.source,
+        session_traffic_source_last_click.manual_campaign.medium,
+        session_traffic_source_last_click.manual_campaign.term,
+        session_traffic_source_last_click.manual_campaign.content,
+        session_traffic_source_last_click.manual_campaign.source_platform,
+        session_traffic_source_last_click.manual_campaign.creative_format,
+        session_traffic_source_last_click.manual_campaign.marketing_tactic
+      ) as manual_campaign,
+      struct(
+        session_traffic_source_last_click.google_ads_campaign.customer_id,
+        session_traffic_source_last_click.google_ads_campaign.account_name,
+        session_traffic_source_last_click.google_ads_campaign.campaign_id,
+        session_traffic_source_last_click.google_ads_campaign.campaign_name,
+        session_traffic_source_last_click.google_ads_campaign.ad_group_id,
+        session_traffic_source_last_click.google_ads_campaign.ad_group_name       
+      ) as google_ads_campaign,
+      struct(
+        session_traffic_source_last_click.cross_channel_campaign.campaign_name,
+        session_traffic_source_last_click.cross_channel_campaign.campaign_id,
+        session_traffic_source_last_click.cross_channel_campaign.source,
+        session_traffic_source_last_click.cross_channel_campaign.medium,
+        session_traffic_source_last_click.cross_channel_campaign.source_platform,
+        session_traffic_source_last_click.cross_channel_campaign.default_channel_group,
+        session_traffic_source_last_click.cross_channel_campaign.primary_channel_group
+      ) as cross_channel_campaign,
+      struct(
+        session_traffic_source_last_click.sa360_campaign.campaign_id,
+        session_traffic_source_last_click.sa360_campaign.campaign_name,
+        session_traffic_source_last_click.sa360_campaign.source,
+        session_traffic_source_last_click.sa360_campaign.medium,
+        session_traffic_source_last_click.sa360_campaign.ad_group_id,
+        session_traffic_source_last_click.sa360_campaign.ad_group_name,
+        session_traffic_source_last_click.sa360_campaign.creative_format,
+        session_traffic_source_last_click.sa360_campaign.engine_account_name,
+        session_traffic_source_last_click.sa360_campaign.engine_account_type,
+        session_traffic_source_last_click.sa360_campaign.manager_account_name
+      ) as sa360_campaign,
+      struct(
+        session_traffic_source_last_click.cm360_campaign.campaign_id,
+        session_traffic_source_last_click.cm360_campaign.campaign_name,
+        session_traffic_source_last_click.cm360_campaign.source,
+        session_traffic_source_last_click.cm360_campaign.medium,
+        session_traffic_source_last_click.cm360_campaign.account_id,
+        session_traffic_source_last_click.cm360_campaign.account_name,
+        session_traffic_source_last_click.cm360_campaign.advertiser_id,
+        session_traffic_source_last_click.cm360_campaign.advertiser_name,
+        session_traffic_source_last_click.cm360_campaign.creative_id,
+        session_traffic_source_last_click.cm360_campaign.creative_format,
+        session_traffic_source_last_click.cm360_campaign.creative_name,
+        session_traffic_source_last_click.cm360_campaign.creative_type,
+        session_traffic_source_last_click.cm360_campaign.creative_type_id,
+        session_traffic_source_last_click.cm360_campaign.creative_version,
+        session_traffic_source_last_click.cm360_campaign.placement_id,
+        session_traffic_source_last_click.cm360_campaign.placement_cost_structure,
+        session_traffic_source_last_click.cm360_campaign.placement_name,
+        session_traffic_source_last_click.cm360_campaign.rendering_id,
+        session_traffic_source_last_click.cm360_campaign.site_id,
+        session_traffic_source_last_click.cm360_campaign.site_name
+      ) as cm360_campaign,
+      struct(
+        session_traffic_source_last_click.dv360_campaign.campaign_id,
+        session_traffic_source_last_click.dv360_campaign.campaign_name,
+        session_traffic_source_last_click.dv360_campaign.source,
+        session_traffic_source_last_click.dv360_campaign.medium,
+        session_traffic_source_last_click.dv360_campaign.advertiser_id,
+        session_traffic_source_last_click.dv360_campaign.advertiser_name,
+        session_traffic_source_last_click.dv360_campaign.creative_id,
+        session_traffic_source_last_click.dv360_campaign.creative_format,
+        session_traffic_source_last_click.dv360_campaign.creative_name,
+        session_traffic_source_last_click.dv360_campaign.exchange_id,
+        session_traffic_source_last_click.dv360_campaign.exchange_name,
+        session_traffic_source_last_click.dv360_campaign.insertion_order_id,
+        session_traffic_source_last_click.dv360_campaign.insertion_order_name,
+        session_traffic_source_last_click.dv360_campaign.line_item_id,
+        session_traffic_source_last_click.dv360_campaign.line_item_name,
+        session_traffic_source_last_click.dv360_campaign.partner_id,
+        session_traffic_source_last_click.dv360_campaign.partner_name
+      ) as dv360_campaign
+    ) 
+    as session_traffic_source_last_click,
 
--- select fieldnames;
--- select insert_sql;
+    
+    ecommerce, -- for now. Will be repacked and cleaned below in step 2
 
 
-  EXECUTE IMMEDIATE delete_sql;
-  EXECUTE IMMEDIATE insert_sql;
+    -- repack the items array struct
+    -- array(
+    --   (
+    --     select
+          -- struct(
+            items.item_id,
+            items.item_name,
+            items.item_brand,
+            items.item_variant,
+            items.item_category,
+            items.item_category2,
+            items.item_category3,
+            items.item_category4,
+            items.item_category5,
+            items.price_in_usd,
+            items.price,
+            items.quantity,
+            items.item_revenue_in_usd,
+            items.item_revenue,
+            items.item_refund_in_usd,
+            items.item_refund,
+            items.coupon,
+            items.affiliation,
+            items.location_id,
+            items.item_list_id,
+            items.item_list_name,
+            items.item_list_index,
+            items.promotion_id,
+            items.promotion_name,
+            items.creative_name,
+            items.creative_slot
+            -- ${when(config.CUSTOM_ITEM_PARAMS_ARRAY.length > 0,
+            --     `, ${helpers.generateStructSQL(
+            --     helpers.generateParamsSQL(
+            --         config.CUSTOM_ITEM_PARAMS_ARRAY, 
+            --         "items.item_params"
+            --     )
+            -- )
+            -- } as item_params_custom`)}
+          
+           ${when(config.CUSTOM_ITEM_PARAMS_ARRAY.length > 0,
+          `, ${helpers.generateStructSQL(
+          helpers.generateParamsSQL(
+              config.CUSTOM_ITEM_PARAMS_ARRAY, 
+              "items.item_params"
+          )
+      )
+      } as item_params_custom`)},
 
--- BEGIN
 
---   BEGIN TRANSACTION;
---   EXECUTE IMMEDIATE delete_sql; -- need to figure out what this statement should be when creating brand new table, as SELECT 1=1 doesnot work
---   EXECUTE IMMEDIATE insert_sql;
---   COMMIT TRANSACTION;
+    -- the programatically added SQL:
+    -- grab all core event parameters
+    -- ${helpers.generateStructSQL(helpers.generateParamsSQL(config.CORE_PARAMS_ARRAY))} as event_params,
 
--- EXCEPTION WHEN ERROR THEN
---   -- Roll back the transaction inside the exception handler.
---   SELECT @@error.message;
---   ROLLBACK TRANSACTION;
--- END;
+ -- add some event parameters
+        STRUCT (
+       -- ga_session_id
+      (select value.int_value  from unnest(event_params) where key = 'batch_ordering_id')  as batch_ordering_id,
+      (select value.int_value  from unnest(event_params) where key = 'batch_page_id')  as batch_page_id,
+      (select value.int_value  from unnest(event_params) where key = 'batch_event_index')  as batch_event_index,
+      (select value.int_value  from unnest(event_params) where key = 'ga_session_id')  as ga_session_id,
+      (select value.string_value  from unnest(event_params) where key = 'page_location')  as page_location,
+      (select value.string_value  from unnest(event_params) where key = 'page_referrer')  as page_referrer, 
+      (select value.string_value  from unnest(event_params) where key = 'page_title')  as page_title
+
+      ) event_params,
+
+    -- and the custom ones
+    -- ${when(
+    --   config.CUSTOM_EVENT_PARAMS_ARRAY.length > 0,
+    --     `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_EVENT_PARAMS_ARRAY))} as event_params_custom,`
+    --   )} 
+
+    -- add user_properties
+    ${when(
+      config.CUSTOM_USER_PROPERTIES_ARRAY.length > 0,      
+        `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} as user_properties,`
+      )}
+
+
+  from query_source, unnest(items) items
+
+),
+
+step2 as (
+  -- small cleanups
+  -- in July 2024, the batch_* event parameters were moved to a column. This is for backwards compatibility, let's move this too.
+  select
+    * except(
+      ecommerce,
+      batch_event_index,
+      batch_ordering_id,
+      batch_page_id
+    ),
+    
+    struct(
+      batch_event_index,
+      coalesce(batch_ordering_id, event_params.batch_ordering_id) as batch_ordering_id,
+      coalesce(batch_page_id, event_params.batch_page_id) as batch_page_id
+    ) as batch,
+
+    -- repack ecommerce struct
+    -- fix transaction_id, change to NULL if "(not set)"
+    -- also remove NANs in ecommerce struct
+    struct(
+        ecommerce.total_item_quantity,
+        if(is_nan(ecommerce.purchase_revenue_in_usd), 0,ecommerce.purchase_revenue_in_usd) as purchase_revenue_in_usd,
+        if(is_nan(ecommerce.purchase_revenue), 0,ecommerce.purchase_revenue) as purchase_revenue,
+        if(is_nan(ecommerce.refund_value_in_usd), 0,ecommerce.refund_value_in_usd) as refund_value_in_usd,
+        if(is_nan(ecommerce.refund_value), 0,ecommerce.refund_value) as refund_value,
+        if(is_nan(ecommerce.shipping_value_in_usd), 0,ecommerce.shipping_value_in_usd) as shipping_value_in_usd,
+        if(is_nan(ecommerce.shipping_value), 0,ecommerce.shipping_value) as shipping_value,
+        if(is_nan(ecommerce.tax_value_in_usd), 0,ecommerce.tax_value_in_usd) as tax_value_in_usd,
+        if(is_nan(ecommerce.tax_value), 0,ecommerce.tax_value) as tax_value,
+        ecommerce.unique_items,
+        if(ecommerce.transaction_id = '(not set)', null, ecommerce.transaction_id) as transaction_id
+    ) as ecommerce
+
+  from step1
+),
+
+add_meta_info as (
+  select
+         '${dataform.projectConfig.vars.GA4_DATASET}' as property_id,
+       -- make session_id - can be NULL (if anonymous ping or MP hit without session_id)
+    -- farm_fingerprint(
+    --   user_pseudo_id || event_params.ga_session_id
+    --  ) as session_id,
+  -- coalesce(  -- AZ THIS IS A BUG - cannot coalesce user_pseudo_id and ga_session_id
+  concat(
+      user_pseudo_id , CAST(event_params.ga_session_id AS STRING)
+     ) as session_id,
+     
+
+       -- create event ID
+    farm_fingerprint(
+      event_name ||
+      time.event_timestamp ||
+      coalesce(user_pseudo_id, 'no') ||
+      coalesce(event_params.ga_session_id, 0) ||
+      coalesce(batch.batch_page_id, 0) ||
+      coalesce( batch.batch_ordering_id,0) ||
+      coalesce( batch.batch_event_index,0) 
+      -- coalesce(event_params.engagement_time_msec, 0)
+    ) as event_id,
+     -- create event item ID
+    farm_fingerprint(
+      event_name ||
+      time.event_timestamp ||
+      coalesce(user_pseudo_id, 'no') ||
+      coalesce(event_params.ga_session_id, 0) ||
+      coalesce(batch.batch_page_id, 0) ||
+      coalesce( batch.batch_ordering_id,0) ||
+      coalesce( batch.batch_event_index,0) 
+    ) || "_" || 
+    REGEXP_REPLACE(item_variant , r'(not set)', 'no_item') as event_item_id,
+
+ 
+   * except(
+        time
+      ),
+
+    -- all page information in a page struct
+    struct (
+       lower(net.host(event_params.page_location)) as hostname,
+       event_params.page_location as location,
+       -- strip and leave only path - https://www.rfc-editor.org/rfc/rfc3986#appendix-B - not lowering, urls are case sensitive
+       regexp_extract(event_params.page_location, r'^(?:(?:[^:\/?#]+):)?(?:\/\/(?:[^\/?#]*))?([^?#]*)(?:\?(?:[^#]*))?(?:#(?:.*))?') as path,
+       event_params.page_referrer as referrer,
+       event_params.page_title as title
+      ) as page,
+    (
+        select as struct
+          time.*,
+          datetime(time.event_timestamp_utc, '${dataform.projectConfig.vars.LOCAL_TIMEZONE}') as timestamp_local,
+          date(datetime(time.event_timestamp_utc, '${dataform.projectConfig.vars.LOCAL_TIMEZONE}')) as date_local
+    ) time
+
+  from  step2
+),
+
+-- dedupe based on event_id and remove redundant event_params
+deduped as (
+  select
+    * replace ((select as struct event_params.* except (
+                  batch_ordering_id,
+                  batch_page_id,
+                  page_location,
+                  page_referrer,
+                  page_title
+                  )) as event_params),
+  from add_meta_info
+  qualify row_number() over ( partition by event_item_id ) = 1
+)
+
+-- ,add_row_numbers as (
+--   select
+--     *,
+--     struct(
+--     -- calculate hit numbers per session (now is the time)
+--     if(user_pseudo_id is not null and event_params.ga_session_id is not null,
+--         row_number() over (
+--           partition by user_pseudo_id, event_params.ga_session_id
+--           order by time.event_timestamp asc
+--         ),
+--         null
+--      ) as hit_number,
+
+--     -- and page number
+--     if(user_pseudo_id is not null and event_params.ga_session_id is not null and batch.batch_page_id is not null,
+--         dense_rank() over (
+--           partition by user_pseudo_id, event_params.ga_session_id
+--           order by batch.batch_page_id asc
+--         ),
+--         null
+--      ) as page_number
+--     ) as session_info
+
+--   from deduped
+-- )
+
+
+select
+  current_timestamp() as _run_timestamp, -- indicates when the row was last run
+  *
+from add_meta_info --deduped --add_row_numbers
+where true
 
 
 
---   /* incrementality */
---   -- pre_operations {
---   --   declare ff STRING default (${fieldnames});
---   --   declare date_checkpoint DATE DEFAULT
---   --   (
---   --     ${when(incremental(),
---   --       `select coalesce(max(event_date)+1, date('${config.GA4_START_DATE}'))
---   --       from ${self()} where is_final = true`,
---   --     `select date('${config.GA4_START_DATE}')`)}   /* the default, when it's not incremental */
---   --   );
---   --     -- delete some older data, since this may be updated later by GA4
---   --   ${
---   --     when(incremental(),
---   --       `delete from ${self()} where event_date >= date_checkpoint`
---   --       ,"")
---   --   }
---   -- }

@@ -9,4 +9,5 @@ vars:
   TRANSFORMATIONS_DATASET: gmp_base 
   OUTPUTS_DATASET: gmp_outputs 
   REPORTING_DATASET: gmp_reporting 
+  TABLE_SUFFIX: ""
 

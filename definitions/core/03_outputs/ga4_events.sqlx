@@ -20,7 +20,7 @@
 
 config {
   type: "incremental",
-  tags: [dataform.projectConfig.vars.GA4_DATASET,"events","outputs"],
+  tags: [dataform.projectConfig.vars.GA4_DATASET,"events","dev"],
   schema: dataform.projectConfig.vars.OUTPUTS_DATASET,
   description: "Output events table: unnested, cleaned, clustered data with several fixes",
   bigquery: {
@@ -67,7 +67,7 @@ with query_source as (
     select
       _table_suffix as table_suffix,
       *
-    from ${ref("events_2025*")}
+    from ${ref( 'events' || dataform.projectConfig.vars.TABLE_SUFFIX || "_*")}
     where true
 
     -- incrementality clause
