@@ -22,7 +22,8 @@ js {
   const config = helpers.getConfig();
   /* check if there's invalid columns or dupe columns in the custom column definitions */
   helpers.checkColumnNames(config);
-  const fieldnames_sql = helpers.getEventParamKeysArray(config, ref( 'events' || dataform.projectConfig.vars.TABLE_SUFFIX || "_*"), "event_params");
+  // const fieldnames_sql = helpers.getEventParamKeysArray(config,'events_*', "event_params");
+  const fieldnames_sql = helpers.getEventParamKeysArray(config, "events" , "event_params");
   const base_tbl = self();
 
 }
@@ -53,7 +54,8 @@ with query_source as (
     select
       _table_suffix as table_suffix,
       *
-    from ${ref ('events' || dataform.projectConfig.vars.TABLE_SUFFIX || "_*")}
+    --from ${ref ('events' || dataform.projectConfig.vars.TABLE_SUFFIX || "_*")}
+    from ${ref("events_*")}
     where true
 
     -- incrementality clause
@@ -275,54 +277,6 @@ step1 as (
         traffic_source.medium
     ) as first_user_traffic_source,
 
-
-    -- repack the items array struct
-    -- AZ Items will move to base_ga4_items table
-    -- array(
-    --   (
-    --     select
-    --       struct(
-    --         items.item_id,
-    --         items.item_name,
-    --         items.item_brand,
-    --         items.item_variant,
-    --         items.item_category,
-    --         items.item_category2,
-    --         items.item_category3,
-    --         items.item_category4,
-    --         items.item_category5,
-    --         items.price_in_usd,
-    --         items.price,
-    --         items.quantity,
-    --         items.item_revenue_in_usd,
-    --         items.item_revenue,
-    --         items.item_refund_in_usd,
-    --         items.item_refund,
-    --         items.coupon,
-    --         items.affiliation,
-    --         items.location_id,
-    --         items.item_list_id,
-    --         items.item_list_name,
-    --         items.item_list_index,
-    --         items.promotion_id,
-    --         items.promotion_name,
-    --         items.creative_name,
-    --         items.creative_slot
-    --         ${when(config.CUSTOM_ITEM_PARAMS_ARRAY.length > 0,
-    --             `, ${helpers.generateStructSQL(
-    --             helpers.generateParamsSQL(
-    --                 config.CUSTOM_ITEM_PARAMS_ARRAY, 
-    --                 "items.item_params"
-    --             )
-    --         )
-    --         } as item_params_custom`)}
-    --       )
-    --     from unnest(items) as items
-    --   )
-    -- ) as items,
-
-
-    -- the programatically added SQL:
     -- grab all core event parameters
     ${helpers.generateStructSQL(helpers.generateParamsSQL(config.CORE_PARAMS_ARRAY))} as event_params,
 

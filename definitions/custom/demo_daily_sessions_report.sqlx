@@ -78,17 +78,7 @@ with sessions_aggregation as (
         sum(e.ecommerce.purchase_revenue) as revenue,
      
     
-    from ${ref("ga4_sessions")} s
-    left join ${ref("ga4_events")} e
-        on s.session_id = e.session_id
-        and e.event_name in (
-        'page_view',
-        'view_item',
-        'add_to_cart',
-        'begin_checkout',
-        'purchase',
-        'view_search_results'
-        )
+    from ${ref("ga4_sessions")} 
     group by all
 
 

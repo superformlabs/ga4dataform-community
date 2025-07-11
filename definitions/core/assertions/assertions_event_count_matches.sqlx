@@ -2,7 +2,7 @@ config {
     type: "table",
     schema: dataform.projectConfig.vars.QUALITY_DATASET,
     description: "event id should be unique",
-    dependencies: ["assertion_logs",{name:"ga4_events"}],
+    dependencies: ["assertion_logs",{name:"base_ga4_events"}],
     tags:[dataform.projectConfig.vars.GA4_DATASET, "assertions"],
 }
 

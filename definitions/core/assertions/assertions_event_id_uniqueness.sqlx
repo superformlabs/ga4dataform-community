@@ -2,7 +2,7 @@ config {
     type: "table",
     schema: dataform.projectConfig.vars.QUALITY_DATASET,
     description: "event id should be unique",
-    dependencies: ["assertion_logs",{name:"ga4_events"}],
+    dependencies: ["assertion_logs",{name:"base_ga4_events"}],
     tags:[dataform.projectConfig.vars.GA4_DATASET, "assertions"],
 }
 
@@ -43,7 +43,7 @@ pre_operations {
       SELECT
         event_id
       FROM
-        ${ref("ga4_events")}
+        ${ref("base_ga4_events")}
       WHERE
         event_date >= DATE_SUB( CURRENT_DATE(), INTERVAL 3 day )
       QUALIFY
@@ -60,7 +60,7 @@ pre_operations {
   INSERT INTO
     ${ref("assertion_logs")}
   VALUES
-    (CURRENT_TIMESTAMP(), assertion, '${ref("ga4_events")}', expectations, check, sample, assertion_status, error_msg);
+    (CURRENT_TIMESTAMP(), assertion, '${ref("base_ga4_events")}', expectations, check, sample, assertion_status, error_msg);
   END IF
 }
 
