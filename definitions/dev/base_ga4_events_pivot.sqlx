@@ -6,7 +6,7 @@
   -- */
 
 
-config {
+/*config {
     type: "operations",
     hasOutput: true,
     database: dataform.projectConfig.vars.OUTPUT_PROJECT,
@@ -145,7 +145,7 @@ SET delete_sql = (
 --   ROLLBACK TRANSACTION;
 -- END;
 
-
+*/
 
 --   /* incrementality */
 --   -- pre_operations {

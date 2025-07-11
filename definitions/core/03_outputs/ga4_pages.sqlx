@@ -85,7 +85,7 @@ END
   ROW_NUMBER() OVER (PARTITION BY event_date, session_code ORDER BY event_timestamp ASC) AS page_rank_asc,
   ROW_NUMBER() OVER (PARTITION BY event_date, session_code ORDER BY event_timestamp DESC) AS page_rank_desc
 FROM
-  ${ref("ga4_events")}
+  ${ref("base_ga4_events")}
 WHERE  session_date >= date_checkpoint 
   -- ${helper_date_range.FilterDate}
   AND event_name = 'page_view'

@@ -6,7 +6,7 @@
   -- */
 
 
-config {
+/*config {
     type: "operations",
     hasOutput: true,
     database: dataform.projectConfig.vars.OUTPUT_PROJECT,
@@ -140,6 +140,7 @@ SET delete_sql = (
 --   SELECT @@error.message;
 --   ROLLBACK TRANSACTION;
 -- END;
+*/
 
 
 

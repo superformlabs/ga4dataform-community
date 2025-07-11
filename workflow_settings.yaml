@@ -9,5 +9,6 @@ vars:
   TRANSFORMATIONS_DATASET: gmp_base 
   OUTPUTS_DATASET: gmp_outputs 
   REPORTING_DATASET: gmp_reporting 
+  INPUT_PROJECT: infotrust-main-ua-834138-7
   TABLE_SUFFIX: ""
 

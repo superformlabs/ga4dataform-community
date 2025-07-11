@@ -123,7 +123,7 @@ with daily_diagnostics as (
         countif(session_id is null) as daily_sessionless_hits,
         count(*) as daily_hits,
     
-    from ${ref("ga4_events")}
+    from ${ref("base_ga4_events")}
     where event_date >= date_sub(
       current_date(),
       interval lookback_days day
@@ -146,7 +146,7 @@ with daily_diagnostics as (
         -- duplicate transactions: transactions minus distinct transactions
         countif(ecommerce.transaction_id is not null) - count(distinct ecommerce.transaction_id) as weekly_duplicate_transactions,
 
-    from ${ref("ga4_events")}
+    from ${ref("base_ga4_events")}
     where event_date >= date_sub(
       current_date(),
       interval lookback_days day
