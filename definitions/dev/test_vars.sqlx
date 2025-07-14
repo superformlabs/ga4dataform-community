@@ -1,0 +1,10 @@
+js {
+    const { helpers } = require("includes/core/helpers");
+    const config = helpers.getConfig();
+    const tst = ["a", "n", "d"];
+    const tst_exported = ["a", "n", "d"];
+     module.exports = {
+      tst_exported
+  };
+}
+

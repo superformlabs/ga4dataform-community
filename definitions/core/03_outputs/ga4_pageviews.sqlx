@@ -1,0 +1,146 @@
+config {
+    type: "incremental",
+    tags: [dataform.projectConfig.vars.GA4_DATASET, "pages", "prod"],
+    schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
+    description: "Table containing all captured page views",
+    bigquery: {
+        partitionBy: "event_date", // To improve query performance and control costs. You can only partition based on one dimension.
+        clusterBy: ["event_date", "session_id"]
+    }
+}
+
+js {
+    const {
+        helpers
+    } = require("includes/core/helpers");
+    const config = helpers.getConfig();
+    /* check if there's invalid columns or dupe columns in the custom column definitions */
+    helpers.checkColumnNames(config);
+}
+
+  -- ==============================
+  --        PRE-OPERATIONS
+  -- ==============================
+  -- Note that pre_operations blocks will only work via the "Start Execution" button and not via the "Run" button
+
+pre_operations {
+  declare date_checkpoint DATE
+  ---
+  set date_checkpoint = (
+    ${when(incremental(),
+      `select
+        coalesce(max(event_date)+1, date('${config.GA4_START_DATE}'))
+      from ${self()}
+      where is_final = true`,
+    `select date('${config.GA4_START_DATE}')`)}   /* the default, when it's not incremental */
+  );
+    -- delete some older data, since this may be updated later by GA4
+  ${
+    when(incremental(),
+      `delete from ${self()} where event_date >= date_checkpoint`
+      )
+  }
+}
+
+  -- ==============================
+  --            QUERY
+  -- ==============================
+with query_source as (
+SELECT
+  property_id,
+  stream_id,
+  event_date,
+  event_timestamp,
+  -- create page ID
+--   farm_fingerprint(
+--     time.event_timestamp ||
+--     coalesce(user_pseudo_id, 'no') ||
+--     coalesce(event_params.ga_session_id, 0) ||
+--     coalesce(batch.batch_page_id, 0) ||
+--     coalesce(batch.batch_ordering_id,0) ||
+--     coalesce(batch.batch_event_index,0) ||
+--     coalesce(page.location, "")
+-- ) as page_id,
+  event_id,
+  session_id,
+  user_pseudo_id,
+  user_id,
+  device,
+  geo,
+  app_info,
+  platform,
+  -- ${helpers.generateArrayAggSQL('user_id', false, false)},
+  -- ${helpers.generateArrayAggSQL('device')},
+  -- ${helpers.generateArrayAggSQL('geo')},
+  -- ${helpers.generateArrayAggSQL('app_info')},
+  -- ${helpers.generateArrayAggSQL('platform')},
+
+  session_traffic_source_last_click,
+
+   STRUCT(
+    page.location,
+    page.path,
+    page.title,
+    page.hostname,
+    page.referrer,
+    event_params.content_group,
+    event_params.content_id,
+    event_params.content_type) 
+  as page,
+  -- CASE
+  --   WHEN REGEXP_CONTAINS(page.path, r'\/da\/|\/de\/|\/en\/|\/es\/|\/fi\/|\/fr\/|\/it\/|\/nl\/|\/no\/|\/pt\/|\/sv\/') THEN RIGHT(REGEXP_REPLACE(regexp_replace(page.path, r'^https?://[^/]+', ''),r'[\?#].*',''), LENGTH(REGEXP_REPLACE(regexp_replace(page.path, r'^https?://[^/]+', ''),r'[\?#].*',''))-3)
+  --   ELSE REGEXP_REPLACE(regexp_replace(page.path,
+  --     r'^https?://[^/]+',
+  --     ''),r'[\?#].*','')
+  --   END
+  -- AS page_path_cleaned,
+  -- STRUCT( ${helpers.generateArrayAggSQL('page.location', 'page_location')},
+  --   ${helpers.generateArrayAggSQL('page.path', 'page_path')},
+  --   ${helpers.generateArrayAggSQL('page.hostname', 'page_hostname')},
+  --   ${helpers.generateArrayAggSQL('page.referrer', 'page_referrer')},
+  --   ${helpers.generateArrayAggSQL('event_params.content_group', 'content_group')},
+  --   ${helpers.generateArrayAggSQL('event_params.content_id', 'content_id')},
+  --   ${helpers.generateArrayAggSQL('event_params.content_type', 'content_type')}
+  --    ) 
+  --   AS page,
+
+  -- ${helpers.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')},
+
+
+  -- METRICS
+
+  -- Interaction metrics
+  event_params.entrances,
+  IF(LEAD(TIMESTAMP_MICROS(event_timestamp)) OVER (   
+      PARTITION BY user_pseudo_id, session_id
+      ORDER BY  event_timestamp
+    ) IS NULL, 1, NULL) exits,
+  event_params.session_engaged,
+  event_params.engagement_time_msec,
+
+    -- User engagment metrics
+  TIMESTAMP_DIFF(LEAD(TIMESTAMP_MICROS(event_timestamp)) OVER (   
+      PARTITION BY user_pseudo_id, session_id
+      ORDER BY  event_timestamp
+    ) , TIMESTAMP_MICROS(event_timestamp) , SECOND) AS time_on_page_seconds,
+  batch,  
+  ROW_NUMBER() OVER 
+      (PARTITION BY event_date, session_id ORDER BY event_timestamp ASC) AS page_rank_asc,
+  ROW_NUMBER() OVER 
+      (PARTITION BY event_date, session_id ORDER BY event_timestamp DESC) AS page_rank_desc,
+
+  is_final 
+FROM
+  ${ref("base_ga4_events")}
+WHERE  event_date >= date_checkpoint 
+  AND event_name = 'page_view'
+-- only hits with user_pseudo_id and session_id
+  -- and user_pseudo_id is not null
+  -- and session_id is not null
+
+)
+
+select *  
+from query_source
+
+

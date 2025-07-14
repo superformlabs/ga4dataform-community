@@ -540,7 +540,6 @@ add_meta_info as (
     ) as is_measurement_protocol_hit,
 
 
-
     -- all page information in a page struct
     struct (
        lower(net.host(event_params.page_location)) as hostname,
