@@ -1,6 +1,6 @@
 config {
     type: "incremental",
-    tags: [dataform.projectConfig.vars.GA4_DATASET, "pages", "dev"],
+    tags: [dataform.projectConfig.vars.GA4_DATASET, "pages", "prod"],
     schema: dataform.projectConfig.vars.OUTPUTS_DATASET,
     description: "Table containing all captured page views",
     bigquery: {
