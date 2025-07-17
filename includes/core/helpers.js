@@ -720,7 +720,7 @@ const helpers = {
   generateAlterTableStatements,
   getSqlSelectEventsAsMetrics,
   getSqlPivotEventParams,
-  generateParamsSQL_fake
+  generateParamSQL
 };
 
 module.exports = {

@@ -291,6 +291,8 @@ step1 as (
         `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} as user_properties,`
       )}
 
+        -- recast
+    ${helpers.generateParamSQL(   {type: "int",  name: "session_engaged" })}
 
   from query_source
 

@@ -1,6 +1,7 @@
 config {
     type: "incremental",
     tags: [dataform.projectConfig.vars.GA4_DATASET, "pages", "prod"],
+    database: dataform.projectConfig.vars.OUTPUT_PROJECT,
     schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
     description: "Table containing all captured page views",
     bigquery: {
@@ -60,16 +61,6 @@ SELECT
     -- coalesce(batch.batch_event_index,0) ||
     coalesce(page.location, "")
 ) as page_id,
-  -- session_id,
-  user_pseudo_id,
-  -- last
-  ${helpers.generateArrayAggSQL('user_id', false, false)},
-
-  -- to account for potentially multiple
-  --   MIN(event_params.ga_session_number) AS ga_session_number, -- for later
-  -- could be NULL when hit comes from MP
-
-  MIN(is_final) AS is_final,            --return false if even 1 event is not final
 
   -- first
   ${helpers.generateArrayAggSQL('device')},
@@ -78,7 +69,6 @@ SELECT
   ${helpers.generateArrayAggSQL('platform')},
   ${helpers.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')},
 
-  page.title,
   CASE
     WHEN REGEXP_CONTAINS(page.path, r'\/da\/|\/de\/|\/en\/|\/es\/|\/fi\/|\/fr\/|\/it\/|\/nl\/|\/no\/|\/pt\/|\/sv\/') THEN RIGHT(REGEXP_REPLACE(regexp_replace(page.path, r'^https?://[^/]+', ''),r'[\?#].*',''), LENGTH(REGEXP_REPLACE(regexp_replace(page.path, r'^https?://[^/]+', ''),r'[\?#].*',''))-3)
     ELSE REGEXP_REPLACE(regexp_replace(page.path,
@@ -88,6 +78,7 @@ SELECT
   AS page_path_cleaned,
   STRUCT( ${helpers.generateArrayAggSQL('page.location', 'page_location')},
     ${helpers.generateArrayAggSQL('page.path', 'page_path')},
+    ${helpers.generateArrayAggSQL('page.title', 'page_title')},
     ${helpers.generateArrayAggSQL('page.hostname', 'page_hostname')},
     ${helpers.generateArrayAggSQL('page.referrer', 'page_referrer')},
     ${helpers.generateArrayAggSQL('page.content_group', 'content_group')},
@@ -100,24 +91,29 @@ SELECT
   -- METRICS
 
   COUNT(DISTINCT session_id) sessions,
-  COUNT(DISTINCT IF(session_engaged="1", session_id, NULL)) engaged_sessions,
-  COUNT(DISTINCT user_pseudo_id) users,
+  COUNT(DISTINCT engaged_session_id) engaged_sessions,
   COUNT(*) pageviews,
   SUM(entrances) entrances,
   SUM(exits) exits,
+  COUNT(DISTINCT user.user_pseudo_id) users,
+  COUNT(DISTINCT IF(user.user_type="new user", user.user_pseudo_id, NULL)) as new_users,
+  COUNT(DISTINCT IF(user.user_type="returning user", user.user_pseudo_id, NULL)) as returning_users,
+  COUNT(DISTINCT IF(user.is_active_user , user.user_pseudo_id, NULL)) as active_users,
   ROUND(SUM(time_on_page_seconds), 2) AS total_time_on_page_sec,
   ROUND(AVG(time_on_page_seconds), 2) AS avg_time_on_page_sec,
   ROUND(SUM(engagement_time_msec)/1000, 2) AS total_engagement_time_sec,
-  ROUND(AVG(engagement_time_msec)/1000, 2) AS avg_engagement_time_sec
+  ROUND(AVG(engagement_time_msec)/1000, 2) AS avg_engagement_time_sec,
 
+  MIN(is_final) AS is_final,            --return false if even 1 event is not final
 FROM
   ${ref("ga4_pageviews")}
 WHERE  event_date >= date_checkpoint 
 -- only hits with user_pseudo_id and session_id
-  and user_pseudo_id is not null
-  and session_id is not null
+  -- and user.user_pseudo_id is not null
+  -- and session_id is not null
   group by all
 )
+
 
 select * 
 from query_source
