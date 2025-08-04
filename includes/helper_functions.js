@@ -1,52 +1,16 @@
-/*
-	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
-	Artem Korneev, Jules Stuifbergen,
-	Johan van de Werken, Krisztián Korpa,
-	Simon Breton
-
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, version 3 of the License.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License in the LICENSE.txt file for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
 
 /**
  * Returns the merged core and custom configuration objects.
  * @returns {Object} Merged configuration object
  */
 const getConfig = () => {
-  const { coreConfig } = require("./default_config");
-  const { customConfig } = require("../custom/config");
+  const { coreConfig } = require("./config");
+  const { customConfig } = require("./config");
   return { ...coreConfig, ...customConfig };
 };
 
-/* Generates SQL for PIVOT clause */
-const getSqlPivotEventParams = (event_params)=> {
-   let value = "";
-   value = ` PIVOT ( MIN(param_value) FOR param_name IN (${event_params})  ) `
-return `${value}`;
-}
-/** Generates SQL code that counts instances of events 
- * specified in KEY_EVENT_ARRAY , to be included as a metric
- */
-const getSqlSelectEventsAsMetrics = (config) => {
-  return Object.entries(config)
-    .map(([key, value]) => {
-       return `countif(lower(event_name)='${value.toLowerCase()}') AS ${value.toLowerCase()}`;
-    })
-    .join(", ");
-}
-
 /**
+ * Fucntion #1
  * Generates array of all event parameter keys in a comma-separated string
  * for the past year(?), to be used in PIVOT statment 
  * @returns {string} 
@@ -56,77 +20,17 @@ const getEventParamKeysArray = (config, tbl, param_array = "event_params") => {
     // value = config.cleaningMethod ? config.cleaningMethod(value) : value;
 
   if (param_array == 'item_params') {
-        // value = "'alina', 'alina'";
       value = `SELECT IFNULL(CONCAT("'", STRING_AGG(DISTINCT params.key, "', '" ORDER BY key ), "'"), "''") FROM ${tbl}, UNNEST(items) items, UNNEST(items.item_params)  params
               WHERE NOT REGEXP_CONTAINS(params.key, "${config.CUSTOM_ITEM_PARAMS_TO_EXCLUDE.join("|")}")`;
   } else {
       value = `SELECT IFNULL(CONCAT("'", STRING_AGG(DISTINCT params.key, "', '" ORDER BY key ), "'"), "''") FROM ${tbl}, UNNEST(event_params) params 
                 WHERE NOT REGEXP_CONTAINS(params.key, "${config.CUSTOM_EVENT_PARAMS_TO_EXCLUDE.join("|")}")`; //exclude these as Google moved them to separate columns
-
   }
     return `${value}`;
 }
 
-
 /**
- * Generates SQL for the qualify statement in the transactions table
- * @param {boolean} tf - true or false, true: output, false: no output
- * @returns {string} SQL fragment for qualify statement to dedupe transactions
- */
-const generateTransactionsDedupeSQL = (tf) => {
-  if(tf) {
-        return `qualify duplicate_count = 1`
-  } else {
-     return ``
-  }
-}
-
-/*
- * Extracts the page path from a full URL, given the hostname.
- *
- * @param {string} hostname - The hostname of the website (e.g., 'www.example.com').
- * @param {string} fullUrl - The full URL of the page (e.g., 'https://www.example.com/blog/post-title?utm_source=google').
- * @returns {string} The page path (e.g., '/blog/post-title').
- */
-function getPagePath(hostname, fullUrl) {
-  // Check for null or empty inputs to prevent errors.
-  if (!hostname || !fullUrl) {
-    return null;
-  }
-
-  // Ensure the hostname doesn't have a trailing slash, as it's not part of the standard format.
-  const cleanHostname = hostname.endsWith('/') ? hostname.slice(0, -1) : hostname;
-
-  // The base URL we need to remove is the protocol + hostname.
-  // We handle both 'http://' and 'https://' cases.
-  const baseUrlHttp = `http://${cleanHostname}`;
-  const baseUrlHttps = `https://${cleanHostname}`;
-
-  let pagePath = fullUrl;
-
-  // Remove the base URL from the full URL.
-  if (pagePath.startsWith(baseUrlHttps)) {
-    pagePath = pagePath.substring(baseUrlHttps.length);
-  } else if (pagePath.startsWith(baseUrlHttp)) {
-    pagePath = pagePath.substring(baseUrlHttp.length);
-  }
-
-  // Find the position of the query string '?' to remove it.
-  const queryIndex = pagePath.indexOf('?');
-  if (queryIndex !== -1) {
-    pagePath = pagePath.substring(0, queryIndex);
-  }
-
-  // If the result is an empty string, it means the URL was just the base URL.
-  // In that case, the page path is '/'.
-  if (pagePath === '') {
-    return '/';
-  }
-
-  return pagePath;
-}
-
-/**
+ * Function #2
  * Generates SQL for a single parameter unnest based on its configuration. By default, it will unnest from event_params column, but you cold change it to user_properties or items.item_params.
  * @param {Object} config - Parameter configuration object
  * @param {string} config.type - Data type ('decimal', 'string', 'integer, 'float, 'double')
@@ -153,6 +57,65 @@ const generateParamSQL = (config, column = "event_params") => {
   value = config.cleaningMethod ? config.cleaningMethod(value) : value;
   return `${value} as ${config.renameTo ? config.renameTo : config.name}`;
 };
+
+/**
+ * Fucntion #3
+ * Generates SQL to return the first or last value of an array aggregation. Used in sensitization.
+ * @param {string} paramName - Parameter name
+ * @param {string} [columnName] - Optional column name for alias
+ * @param {boolean} [orderTypeAsc=true] - Optional order type, default is ascending
+ * @param {string} [orderBy='time.event_timestamp_utc'] - Optional order by clause
+ * @returns {string} SQL fragment for array aggregation
+ */
+const generateArrayAggSQL = (
+  paramName,
+  columnName = false,
+  orderTypeAsc = true,
+//   orderBy = "time.event_timestamp_utc"
+  orderBy = "event_timestamp"
+) => {
+  const alias =
+    columnName === null ? "" : `AS ${columnName ? columnName : paramName} `;
+  return `ARRAY_AGG(${paramName} IGNORE NULLS ORDER BY ${orderBy} ${
+    orderTypeAsc ? "ASC" : "DESC"
+  } LIMIT 1)[SAFE_OFFSET(0)] ${alias}`;
+};
+
+/* Generates SQL for PIVOT clause */
+const getSqlPivotEventParams = (event_params)=> {
+   let value = "";
+   value = ` PIVOT ( MIN(param_value) FOR param_name IN (${event_params})  ) `
+return `${value}`;
+}
+
+/** Generates SQL code that counts instances of events 
+ * specified in KEY_EVENT_ARRAY , to be included as a metric
+ */
+const getSqlSelectEventsAsMetrics = (config) => {
+  return Object.entries(config)
+    .map(([key, value]) => {
+       return `countif(lower(event_name)='${value.toLowerCase()}') AS ${value.toLowerCase()}`;
+    })
+    .join(", ");
+}
+
+
+
+
+/**
+ * Generates SQL for the qualify statement in the transactions table
+ * @param {boolean} tf - true or false, true: output, false: no output
+ * @returns {string} SQL fragment for qualify statement to dedupe transactions
+ */
+const generateTransactionsDedupeSQL = (tf) => {
+  if(tf) {
+        return `qualify duplicate_count = 1`
+  } else {
+     return ``
+  }
+}
+
+
 
 /**
  * Generates SQL for multiple parameters unnest based on their configuration.
@@ -244,27 +207,7 @@ const generateFilterTypeFromListSQL = (type = "exclude", columm, list) => {
   return `coalesce(${columm},"") ${filterType}  ${generateListSQL(list)}`;
 };
 
-/**
- * Generates SQL to return the first or last value of an array aggregation. Used in sensitization.
- * @param {string} paramName - Parameter name
- * @param {string} [columnName] - Optional column name for alias
- * @param {boolean} [orderTypeAsc=true] - Optional order type, default is ascending
- * @param {string} [orderBy='time.event_timestamp_utc'] - Optional order by clause
- * @returns {string} SQL fragment for array aggregation
- */
-const generateArrayAggSQL = (
-  paramName,
-  columnName = false,
-  orderTypeAsc = true,
-//   orderBy = "time.event_timestamp_utc"
-  orderBy = "event_timestamp"
-) => {
-  const alias =
-    columnName === null ? "" : `AS ${columnName ? columnName : paramName} `;
-  return `ARRAY_AGG(${paramName} IGNORE NULLS ORDER BY ${orderBy} ${
-    orderTypeAsc ? "ASC" : "DESC"
-  } LIMIT 1)[SAFE_OFFSET(0)] ${alias}`;
-};
+
 
 /**
  * Generates SQL to return the first or last value of an array aggregation. Special case for traffic_source structs. Used in sensitization.
@@ -765,8 +708,7 @@ const helpers = {
   generateAlterTableStatements,
   getSqlSelectEventsAsMetrics,
   getSqlPivotEventParams,
-  generateParamsSQL_fake,
-  getPagePath
+  generateParamsSQL_fake
 };
 
 module.exports = {
