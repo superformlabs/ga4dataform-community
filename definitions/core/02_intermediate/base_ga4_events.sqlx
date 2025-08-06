@@ -54,8 +54,7 @@ with query_source as (
     select
       _table_suffix as table_suffix,
       *
-    from ${ref ('events' || dataform.projectConfig.vars.TABLE_SUFFIX || "_*")}
-    -- from ${ref("events_*")}
+    from ${ref ('events_*')}
     where true
 
     -- incrementality clause
