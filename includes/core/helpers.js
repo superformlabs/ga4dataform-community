@@ -1,21 +1,10 @@
 /*
-	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
-	Artem Korneev, Jules Stuifbergen,
-	Johan van de Werken, Krisztián Korpa,
-	Simon Breton
+This file inlcudes for helper functions, After each function is defined in the section below, include it in the module.export section below 
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, version 3 of the License.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License in the LICENSE.txt file for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+This file helps to:
+1. Centralize and manage configurations.
+2. Automate repetitive SQL coding tasks.
+3. Streamline data transformation workflows, especially for nested or event-based data structures common in web analytics (like GA4).
 */
 
 

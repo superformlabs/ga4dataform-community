@@ -87,7 +87,7 @@ SELECT
   -- ${helpers.generateArrayAggSQL('app_info')},
   -- ${helpers.generateArrayAggSQL('platform')},
 
-  session_traffic_source_last_click,
+  session_traffic_source_last_click.cross_channel_campaign,
 
    STRUCT(
     page.location,
