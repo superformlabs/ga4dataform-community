@@ -54,11 +54,7 @@ with query_source as (
     select
       _table_suffix as table_suffix,
       *
-<<<<<<< HEAD
     from ${ref("events_*")}
-=======
-    from ${ref ('events_*')}
->>>>>>> refs/heads/main
     where true
 
     -- incrementality clause
