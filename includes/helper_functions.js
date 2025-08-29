@@ -1,41 +1,17 @@
-/*
-This file inlcudes for helper functions, After each function is defined in the section below, include it in the module.export section below 
-
-This file helps to:
-1. Centralize and manage configurations.
-2. Automate repetitive SQL coding tasks.
-3. Streamline data transformation workflows, especially for nested or event-based data structures common in web analytics (like GA4).
-*/
-
 
 /**
  * Returns the merged core and custom configuration objects.
  * @returns {Object} Merged configuration object
  */
 const getConfig = () => {
-  const { coreConfig } = require("./default_config");
-  const { customConfig } = require("../custom/config");
+  const { coreConfig } = require("./core/config");
+  const { customConfig } = require("./core/config");
   return { ...coreConfig, ...customConfig };
 };
 
-/* Generates SQL for PIVOT clause */
-const getSqlPivotEventParams = (event_params)=> {
-   let value = "";
-   value = ` PIVOT ( MIN(param_value) FOR param_name IN (${event_params})  ) `
-return `${value}`;
-}
-/** Generates SQL code that counts instances of events 
- * specified in KEY_EVENT_ARRAY , to be included as a metric
- */
-const getSqlSelectEventsAsMetrics = (config) => {
-  return Object.entries(config)
-    .map(([key, value]) => {
-       return `countif(lower(event_name)='${value.toLowerCase()}') AS ${value.toLowerCase()}`;
-    })
-    .join(", ");
-}
-
+/**=======================================================*/
 /**
+ * Function #1
  * Generates array of all event parameter keys in a comma-separated string
  * for the past year(?), to be used in PIVOT statment 
  * @returns {string} 
@@ -45,77 +21,18 @@ const getEventParamKeysArray = (config, tbl, param_array = "event_params") => {
     // value = config.cleaningMethod ? config.cleaningMethod(value) : value;
 
   if (param_array == 'item_params') {
-        // value = "'alina', 'alina'";
       value = `SELECT IFNULL(CONCAT("'", STRING_AGG(DISTINCT params.key, "', '" ORDER BY key ), "'"), "''") FROM ${tbl}, UNNEST(items) items, UNNEST(items.item_params)  params
               WHERE NOT REGEXP_CONTAINS(params.key, "${config.CUSTOM_ITEM_PARAMS_TO_EXCLUDE.join("|")}")`;
   } else {
       value = `SELECT IFNULL(CONCAT("'", STRING_AGG(DISTINCT params.key, "', '" ORDER BY key ), "'"), "''") FROM ${tbl}, UNNEST(event_params) params 
                 WHERE NOT REGEXP_CONTAINS(params.key, "${config.CUSTOM_EVENT_PARAMS_TO_EXCLUDE.join("|")}")`; //exclude these as Google moved them to separate columns
-
   }
     return `${value}`;
 }
 
-
+/**=======================================================*/
 /**
- * Generates SQL for the qualify statement in the transactions table
- * @param {boolean} tf - true or false, true: output, false: no output
- * @returns {string} SQL fragment for qualify statement to dedupe transactions
- */
-const generateTransactionsDedupeSQL = (tf) => {
-  if(tf) {
-        return `qualify duplicate_count = 1`
-  } else {
-     return ``
-  }
-}
-
-/*
- * Extracts the page path from a full URL, given the hostname.
- *
- * @param {string} hostname - The hostname of the website (e.g., 'www.example.com').
- * @param {string} fullUrl - The full URL of the page (e.g., 'https://www.example.com/blog/post-title?utm_source=google').
- * @returns {string} The page path (e.g., '/blog/post-title').
- */
-function getPagePath(hostname, fullUrl) {
-  // Check for null or empty inputs to prevent errors.
-  if (!hostname || !fullUrl) {
-    return null;
-  }
-
-  // Ensure the hostname doesn't have a trailing slash, as it's not part of the standard format.
-  const cleanHostname = hostname.endsWith('/') ? hostname.slice(0, -1) : hostname;
-
-  // The base URL we need to remove is the protocol + hostname.
-  // We handle both 'http://' and 'https://' cases.
-  const baseUrlHttp = `http://${cleanHostname}`;
-  const baseUrlHttps = `https://${cleanHostname}`;
-
-  let pagePath = fullUrl;
-
-  // Remove the base URL from the full URL.
-  if (pagePath.startsWith(baseUrlHttps)) {
-    pagePath = pagePath.substring(baseUrlHttps.length);
-  } else if (pagePath.startsWith(baseUrlHttp)) {
-    pagePath = pagePath.substring(baseUrlHttp.length);
-  }
-
-  // Find the position of the query string '?' to remove it.
-  const queryIndex = pagePath.indexOf('?');
-  if (queryIndex !== -1) {
-    pagePath = pagePath.substring(0, queryIndex);
-  }
-
-  // If the result is an empty string, it means the URL was just the base URL.
-  // In that case, the page path is '/'.
-  if (pagePath === '') {
-    return '/';
-  }
-
-  return pagePath;
-}
-
-/**
+ * Function #2
  * Generates SQL for a single parameter unnest based on its configuration. By default, it will unnest from event_params column, but you cold change it to user_properties or items.item_params.
  * @param {Object} config - Parameter configuration object
  * @param {string} config.type - Data type ('decimal', 'string', 'integer, 'float, 'double')
@@ -143,97 +60,9 @@ const generateParamSQL = (config, column = "event_params") => {
   return `${value} as ${config.renameTo ? config.renameTo : config.name}`;
 };
 
+/**=======================================================*/
 /**
- * Generates SQL for multiple parameters unnest based on their configuration.
- * @param {Array} config_array - Array of parameter configuration objects
- * @param {string} [column='event_params'] - Column name containing the parameters
- * @returns {string} SQL fragment for multiple parameters unnest
- */
-const generateParamsSQL_fake  = (config_array, column = "event_params") => {
-  return 
-      `${config_array}`;
-
-  };
-const generateParamsSQL = (config_array, column = "event_params") => {
-  console.log("alina");
-  return `
-      ${config_array
-        .map((config) => {
-          return generateParamSQL(config, column);
-        })
-        .join(",\n")}
-    `;
-};
-
-/**
- * Generates SQL for a single URL parameter extraction based on its configuration.
- * @param {string} columnName - Column name containing the URL parameters, usually 'event_params.page_location'
- * @param {Object} urlParam - URL parameter configuration object
- * @param {string} urlParam.name - Parameter name
- * @param {string} [urlParam.renameTo] - Optional alias for the parameter
- * @param {Function} [urlParam.cleaningMethod] - Optional function to clean the value
- * @param {boolean} [urlDecode=true] - Whether to URL decode the extracted value, default is true
- * @returns {string} SQL fragment for URL parameter extraction
- */
-const generateURLParamSQL = (columnName, urlParam, urlDecode = true) => {
-  let value = `regexp_extract(${columnName}, r"^[^#]+[?&]${urlParam.name}=([^&#]+)")`;
-  value = urlParam.cleaningMethod ? urlParam.cleaningMethod(value) : value;
-  value = urlDecode ? urlDecodeSQL(value) : value;
-  return `${value} as ${urlParam.renameTo ? urlParam.renameTo : urlParam.name}`;
-};
-
-/**
- * Generates SQL for multiple URL parameters extraction based on their configuration.
- * @param {string} columnName - Column name containing the URL parameters, usually 'event_params.page_location'
- * @param {Array} urlParamsArray - Array of URL parameter configuration objects
- * @param {boolean} [urlDecode=true] - Whether to URL decode the extracted values, default is true
- * @returns {string} SQL fragment for multiple URL parameters extraction
- */
-const generateURLParamsSQL = (columnName, urlParamsArray, urlDecode = true) => {
-  // generate the SQL:
-  return `
-        ${urlParamsArray
-          .map((urlParam) =>
-            generateURLParamSQL(columnName, urlParam, urlDecode)
-          )
-          .join(",\n")}
-      `;
-};
-
-/**
- * Generates SQL for a struct creation based on provided SQL.
- * @param {string} SQL - SQL fragment
- * @returns {string} SQL fragment for struct creation
- */
-const generateStructSQL = (SQL) => {
-  return `
-    STRUCT (${SQL})
-  `;
-};
-
-/**
- * Generates SQL for a list creation based on provided list.
- * @param {Array} list - JavaScript array of values
- * @returns {string} SQL fragment for list creation
- */
-const generateListSQL = (list) => {
-  return `('${list.join("','")}')`;
-};
-
-/**
- * Generates SQL for a WHERE clause based on provided list.
- * @param {string} type - Filter type ('exclude' or 'include')
- * @param {string} columm - Column name
- * @param {Array} list - JavaScript array of values
- * @returns {string} SQL fragment for WHERE clause creation
- */
-const generateFilterTypeFromListSQL = (type = "exclude", columm, list) => {
-  if (list.length == 0) return `true`;
-  const filterType = type === "exclude" ? "not in" : "in";
-  return `coalesce(${columm},"") ${filterType}  ${generateListSQL(list)}`;
-};
-
-/**
+ * Function #3
  * Generates SQL to return the first or last value of an array aggregation. Used in sensitization.
  * @param {string} paramName - Parameter name
  * @param {string} [columnName] - Optional column name for alias
@@ -255,7 +84,156 @@ const generateArrayAggSQL = (
   } LIMIT 1)[SAFE_OFFSET(0)] ${alias}`;
 };
 
+/**=======================================================*/
+
+/* 
+ * Function #4
+ * Generates SQL for PIVOT clause */
+const getSqlPivotEventParams = (event_params)=> {
+   let value = "";
+   value = ` PIVOT ( MIN(param_value) FOR param_name IN (${event_params})  ) `
+return `${value}`;
+}
+
+/**=======================================================*/
+
+
+/** 
+ * Function #5
+ * Generates SQL code that counts instances of events 
+ * specified in KEY_EVENT_ARRAY , to be included as a metric
+ */
+const getSqlSelectEventsAsMetrics = (config) => {
+  return Object.entries(config)
+    .map(([key, value]) => {
+       return `countif(lower(event_name)='${value.toLowerCase()}') AS ${value.toLowerCase()}`;
+    })
+    .join(", ");
+}
+
+/**=======================================================*/
+
 /**
+ * Function #6
+ * Generates SQL for the qualify statement in the transactions table
+ * @param {boolean} tf - true or false, true: output, false: no output
+ * @returns {string} SQL fragment for qualify statement to dedupe transactions
+ */
+const generateTransactionsDedupeSQL = (tf) => {
+  if(tf) {
+        return `qualify duplicate_count = 1`
+  } else {
+     return ``
+  }
+}
+
+/**=======================================================*/
+
+/**
+ * Function #7
+ * Generates SQL for multiple parameters unnest based on their configuration.
+ * @param {Array} config_array - Array of parameter configuration objects
+ * @param {string} [column='event_params'] - Column name containing the parameters
+ * @returns {string} SQL fragment for multiple parameters unnest
+ */
+const generateParamsSQL_fake  = (config_array, column = "event_params") => {
+  return 
+      `${config_array}`;
+
+  };
+const generateParamsSQL = (config_array, column = "event_params") => {
+  console.log("alina");
+  return `
+      ${config_array
+        .map((config) => {
+          return generateParamSQL(config, column);
+        })
+        .join(",\n")}
+    `;
+};
+
+/**=======================================================*/
+
+/**
+ * Function #8
+ * Generates SQL for a single URL parameter extraction based on its configuration.
+ * @param {string} columnName - Column name containing the URL parameters, usually 'event_params.page_location'
+ * @param {Object} urlParam - URL parameter configuration object
+ * @param {string} urlParam.name - Parameter name
+ * @param {string} [urlParam.renameTo] - Optional alias for the parameter
+ * @param {Function} [urlParam.cleaningMethod] - Optional function to clean the value
+ * @param {boolean} [urlDecode=true] - Whether to URL decode the extracted value, default is true
+ * @returns {string} SQL fragment for URL parameter extraction
+ */
+const generateURLParamSQL = (columnName, urlParam, urlDecode = true) => {
+  let value = `regexp_extract(${columnName}, r"^[^#]+[?&]${urlParam.name}=([^&#]+)")`;
+  value = urlParam.cleaningMethod ? urlParam.cleaningMethod(value) : value;
+  value = urlDecode ? urlDecodeSQL(value) : value;
+  return `${value} as ${urlParam.renameTo ? urlParam.renameTo : urlParam.name}`;
+};
+
+/**=======================================================*/
+
+/**
+ * Function #9
+ * Generates SQL for multiple URL parameters extraction based on their configuration.
+ * @param {string} columnName - Column name containing the URL parameters, usually 'event_params.page_location'
+ * @param {Array} urlParamsArray - Array of URL parameter configuration objects
+ * @param {boolean} [urlDecode=true] - Whether to URL decode the extracted values, default is true
+ * @returns {string} SQL fragment for multiple URL parameters extraction
+ */
+const generateURLParamsSQL = (columnName, urlParamsArray, urlDecode = true) => {
+  // generate the SQL:
+  return `
+        ${urlParamsArray
+          .map((urlParam) =>
+            generateURLParamSQL(columnName, urlParam, urlDecode)
+          )
+          .join(",\n")}
+      `;
+};
+
+/**=======================================================*/
+/**
+ * Function #10
+ * Generates SQL for a struct creation based on provided SQL.
+ * @param {string} SQL - SQL fragment
+ * @returns {string} SQL fragment for struct creation
+ */
+const generateStructSQL = (SQL) => {
+  return `
+    STRUCT (${SQL})
+  `;
+};
+/**=======================================================*/
+/**
+ * Function #11
+ * Generates SQL for a list creation based on provided list.
+ * @param {Array} list - JavaScript array of values
+ * @returns {string} SQL fragment for list creation
+ */
+const generateListSQL = (list) => {
+  return `('${list.join("','")}')`;
+};
+/**=======================================================*/
+/**
+ * Function #12
+ * Generates SQL for a WHERE clause based on provided list.
+ * @param {string} type - Filter type ('exclude' or 'include')
+ * @param {string} columm - Column name
+ * @param {Array} list - JavaScript array of values
+ * @returns {string} SQL fragment for WHERE clause creation
+ */
+const generateFilterTypeFromListSQL = (type = "exclude", columm, list) => {
+  if (list.length == 0) return `true`;
+  const filterType = type === "exclude" ? "not in" : "in";
+  return `coalesce(${columm},"") ${filterType}  ${generateListSQL(list)}`;
+};
+
+/**=======================================================*/
+
+/**
+ * Function #13
  * Generates SQL to return the first or last value of an array aggregation. Special case for traffic_source structs. Used in sensitization.
  * @param {string} fixedTrafficSourceTable - Table name containing the traffic source data
  * @param {string} [columnName] - Optional column name for alias
@@ -293,7 +271,10 @@ const generateTrafficSourceSQL = (
         )[safe_offset(0)] ${alias}`;
 };
 
+/**=======================================================*/
+
 /**
+ * Function #14
  * Generates SQL to return the first or last value of an array aggregation. Special case for click_ids structs. Used in sensitization.
  * @param {string} clickIdStruct - Table name containing the click_ids data
  * @param {Array} clickIdsArray - Array of click_id configuration objects
@@ -331,7 +312,11 @@ const generateClickIdTrafficSourceSQL = (
         )[safe_offset(0)] ${alias}`;
 };
 
+
+/**=======================================================*/
+
 /**
+ * Function #15
  * Generates SQL to generate SELECT statements for a single object.
  * @param {Object} config - Data object
  * @returns {string} SQL fragment for SELECT statement creation
@@ -369,7 +354,11 @@ const getSqlSelectFromRowSQL = (config) => {
     .join(", ");
 };
 
+
+/**=======================================================*/
+
 /**
+ * Function #16
  * Generates SQL to generate SELECT statements for list of objects and concatenate them with UNION ALL. Needed to create list of source_categories based on JSON config.
  * @param {Array} rows - Array of data objects
  * @returns {string} SQL fragment for UNION ALL concatenation
@@ -385,7 +374,11 @@ const getSqlUnionAllFromRowsSQL = (rows) => {
   }
 };
 
+
+/**=======================================================*/
+
 /**
+ * Function #17
  * Generates SQL for a CASE statement to determine the channel grouping based on provided parameters. This logic represents the default channel grouping logic in GA4.
  * @param {Object} config - Custom configuration object
  * @param {string} source - Source column name
@@ -489,7 +482,11 @@ const getDefaultChannelGroupingSQL = (
   `;
 };
 
+
+/**=======================================================*/
+
 /**
+ * Function #18
  * Generates SQL to URL decode a column. Used to clean up URL parameters, like utm_source e.
  * @param {string} urlColumnName - Column name containing the URL
  * @returns {string} SQL fragment for URL decoding
@@ -505,7 +502,11 @@ const urlDecodeSQL = (urlColumnName) => {
   )`;
 };
 
+
+/**=======================================================*/
+
 /**
+ * Function #19
  * Generates SQL to concatenate click_ids column names.
  * @param {Array} clickIds - Array of click_id configuration objects
  * @param {string} prefix - Prefix for the click_id column names
@@ -515,16 +516,24 @@ const getClickIdsDimensionsSQL = (clickIds, prefix) => {
   return clickIds.map((id) => `${prefix}.${id.name}`).join(",\n");
 };
 
+
+/**=======================================================*/
+
 /**
+ * Function 20
  * Generates SQL to safely cast a column to a specified type. This method is used as cleaningMethod in generateParamSQL method.
  * @param {string} columnName - Column name to be cast
  * @param {string} [type='INT64'] - Optional type, default is INT64
  * @returns {string} SQL fragment for safe casting
  */
+
 const safeCastSQL = (columnName, type = "INT64") =>
   `safe_cast(${columnName} as ${type})`;
 
+/**=======================================================*/
+
 /**
+ * Function 21
  * Generates SQL to clear URL parameters. This method is used as cleaningMethod in generateParamSQL method.
  * @param {string} columnName - Column name containing the URL
  * @returns {string} SQL fragment for URL clearing
@@ -532,14 +541,20 @@ const safeCastSQL = (columnName, type = "INT64") =>
 const clearURLSQL = (columnName) =>
   `REGEXP_REPLACE(${columnName}, r'(?i)&amp(;|=)', '&')`;
 
+/**=======================================================*/
+
 /**
+ * Function 22
  * Generates SQL to convert a column to lowercase. This method is used as cleaningMethod in generateParamSQL method.
  * @param {string} columnName - Column name to be converted
  * @returns {string} SQL fragment for lowercase conversion
  */
 const lowerSQL = (columnName) => `lower(${columnName})`;
 
+/**=======================================================*/
+
 /**
+ * Function 23
  * Generates SQL to coalesce click_ids from different sources to return the first non-null value.
  * @param {Object} clickId - Click_id configuration object
  * @param {string} clickId.name - Name of the click_id
@@ -552,7 +567,10 @@ const generateClickIdCoalesceSQL = (clickId) => {
   return `click_ids.${clickId.name} as ${clickId.name}`;
 };
 
+/**=======================================================*/
+
 /**
+ * Function 24
  * Generates SQL to create a CASE statement for click_ids based on configuration CLICK_IDS_ARRAY. it return one of source/medium/campaign if click_id is not null.
  * @param {string} parameterName - Name of the parameter to be used in the CASE statement
  * @param {Array<{name: string, source: string, medium: string, campaign: string, sources: string[]}>>} clickIdsArray - Array of click_id configuration objects. Containd click_id name, and values that should be set if click_id is not null.
@@ -567,9 +585,11 @@ const generateClickIdCasesSQL = (parameterName, clickIdsArray) => {
     .join("\n");
 };
 
+/**=======================================================*/
 // Generic helper functions
 
 /**
+ * Function 25
  * Checks if a string can be safely converted to an integer. Helper function for getSqlSelectFromRowSQL
  * @param {string} str - String to be checked
  * @returns {boolean} True if the string can be safely converted to an integer, false otherwise
@@ -579,7 +599,10 @@ const isStringInteger = (str) => {
   return Number.isInteger(num);
 };
 
+/**=======================================================*/
+
 /**
+ * Function 26
  * Checks for duplicate column names and invalid column names in the configuration. To make a sanity check before using the config in models.
  * @param {Object} config - Configuration object
  * @returns {boolean} True if the configuration is valid, false otherwise
@@ -623,10 +646,12 @@ const checkColumnNames = (config) => {
   return true;
 };
 
+/**=======================================================*/
 
-
+/**Function 27
 // Returns a comma-separated string of execution labels in the format "key:value"
 // Used for dynamically tagging BigQuery jobs with labels
+*/
 const executionLabels = () => {
   const vars = dataform.projectConfig.vars;
 
@@ -647,16 +672,17 @@ const executionLabels = () => {
     .join(", ");
 };
 
+/**=======================================================*/
+/**Function 28
 // Returns an object of key-value pairs for storage labels
 // Used to apply table-level labeling
+*/
 const storageLabels = () => {
   const vars = dataform.projectConfig.vars;
-
   // Select only generic labels that are not storage-specific
   const keys = Object.keys(vars).filter(
     key => key.includes("GENERIC") && !key.includes("STORAGE")
   );
-
   // Return an object where each key is a cleaned label name and value is from vars
   return Object.fromEntries(
     keys.map(key => {
@@ -666,10 +692,12 @@ const storageLabels = () => {
   );
 };
 
-
+/**=======================================================*/
+/**Function 29
 // Returns a comma-separated list of labels formatted as SQL-compatible tuples
 // Example output: ('department', 'analytics'), ('cost_center', 'growth')
 // Intended for use in BigQuery SET QUERIES clause to label tables
+*/
 const storageUpdateLabels = () => {
   const vars = dataform.projectConfig.vars;
 
@@ -687,8 +715,9 @@ const storageUpdateLabels = () => {
     .join(", ");
 };
 
-
+/**=======================================================*/
 /**
+ * Function 30
  * Generates a series of ALTER TABLE statements to apply storage labels
  * to a list of BigQuery tables, based on naming conventions.
  *
@@ -724,9 +753,85 @@ function generateAlterTableStatements(tables) {
     .join("\n\n");
 }
 
+/**=======================================================*/
+/**
+ * Function #21
+ * Converts a given date into its ISO week number and year.
+ * Uses ISO 8601 standard: weeks start on Monday, and the first week of the year
+ * is the one that contains January 4th.
+ * @param {Date|string} date - The date to convert (can be a Date object or a date string)
+ * @returns {{week: number, year: number}} - An object containing the ISO week number and year
+ */
+const getWeekAndYear = (date) => {
+  const d = new Date(date);
+  const target = new Date(d.valueOf());
 
+  // Set to nearest Thursday
+  const dayNr = (d.getDay() + 6) % 7; // Monday=0, Sunday=6
+  target.setDate(target.getDate() - dayNr + 3);
 
-const helpers = {
+  // January 4th is always in week 1
+  const jan4 = new Date(target.getFullYear(), 0, 4);
+  const dayDiff = (target - jan4) / (1000 * 60 * 60 * 24);
+
+  const week = 1 + Math.floor(dayDiff / 7);
+  const year = target.getFullYear();
+
+  return { week, year };
+};
+//console.log(getWeekAndYear('2025-08-21')); // { week: 34, year: 2025 }
+
+/**=======================================================*/
+/**
+ * Function #32
+ * Converts a given date into its month and year.
+ * Month is returned as a number (1 = January, 12 = December)
+ * @param {Date|string} date - The date to convert (can be a Date object or a date string)
+ * @returns {{month: number, year: number}} - An object containing the month and year
+ * @example
+ * getMonthAndYear('2025-08-21'); // { month: 8, year: 2025 }
+ */
+const getMonthAndYear = (date) => {
+  const d = new Date(date);
+  const month = d.getMonth() + 1; // getMonth() returns 0-11
+  const year = d.getFullYear();
+  return { month, year };
+};
+
+//console.log(getMonthAndYear('2025-08-21')); // { month: 8, year: 2025 }
+/**=======================================================*/ 
+
+/**
+ * Function #33
+ * Extracts the pathname (page path) from a full or relative URL.
+ *
+ * @param {string} fullUrl - The full or relative URL string.
+ * @param {string} hostname - The hostname to use as base when `fullUrl` is relative.
+ * @returns {string} The pathname portion of the URL (e.g., "/about"), or an empty string if invalid.
+ */
+const getPagePathFromFullUrl = (fullUrl, hostname) => {
+  if (!fullUrl) {
+    return '';
+  }
+
+  try {
+    let workingUrl = fullUrl.trim();
+
+    // If it’s relative (doesn't start with http/https), prepend hostname
+    if (!/^https?:\/\//i.test(workingUrl)) {
+      workingUrl = `http://${hostname}${workingUrl.startsWith('/') ? '' : '/'}${workingUrl}`;
+    }
+
+    // Extract path with regex (everything after hostname and before ? or #)
+    const match = workingUrl.match(/^https?:\/\/[^/]+(\/[^?#]*)?/i);
+    return match && match[1] ? match[1] : '/';
+  } catch (e) {
+    return '';
+  }
+};
+
+module.exports = {
+ // helpers
   checkColumnNames,
   generateParamsSQL,
   generateURLParamsSQL,
@@ -755,10 +860,7 @@ const helpers = {
   getSqlSelectEventsAsMetrics,
   getSqlPivotEventParams,
   generateParamsSQL_fake,
-  getPagePath,
-  generateParamSQL
-};
-
-module.exports = {
-  helpers
+  getWeekAndYear,
+  getMonthAndYear,
+  getPagePathFromFullUrl
 };

@@ -10,6 +10,10 @@ config {
     }
 }
 
+  -- ==============================
+  --        JS BLOCK
+  -- ==============================
+
 js {
     const {
         helpers
@@ -44,7 +48,7 @@ pre_operations {
 }
 
   -- ==============================
-  --            QUERY
+  --            QUERY BLOCK
   -- ==============================
 with query_source as (
 SELECT

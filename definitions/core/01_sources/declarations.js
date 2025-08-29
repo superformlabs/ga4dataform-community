@@ -4,11 +4,6 @@
   Alina Zilbergerts, Trish Dothkar,
   -- */
 
-// declare({
-//     database: dataform.projectConfig.vars.INPUT_PROJECT,
-//     schema: dataform.projectConfig.vars.GA4_DATASET,
-//     name: 'events_2025*',
-// });
 declare({
     database: dataform.projectConfig.vars.INPUT_PROJECT,
     schema: dataform.projectConfig.vars.GA4_DATASET,
