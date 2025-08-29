@@ -54,7 +54,7 @@ with query_source as (
     select
       _table_suffix as table_suffix,
       *
-    from ${ref ('events_*')}
+    from ${ref("events_*")}
     where true
 
     -- incrementality clause
@@ -291,6 +291,8 @@ step1 as (
         `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} as user_properties,`
       )}
 
+        -- recast
+    ${helpers.generateParamSQL(   {type: "int",  name: "session_engaged" })}
 
   from query_source
 
@@ -583,7 +585,8 @@ add_row_numbers as (
           order by batch.batch_page_id asc
         ),
         null
-     ) as page_number
+     ) as page_number,
+     if( MAX(session_engaged) OVER (PARTITION BY event_date, session_id )  = 1, session_id, NULL) as engaged_session_id 
     ) as session_info
 
   from deduped

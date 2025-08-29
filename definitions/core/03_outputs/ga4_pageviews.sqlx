@@ -1,6 +1,7 @@
 config {
     type: "incremental",
     tags: [dataform.projectConfig.vars.GA4_DATASET, "pages", "prod"],
+    database: dataform.projectConfig.vars.OUTPUT_PROJECT,
     schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
     description: "Table containing all captured page views",
     bigquery: {
@@ -63,8 +64,19 @@ SELECT
 -- ) as page_id,
   event_id,
   session_id,
-  user_pseudo_id,
-  user_id,
+  
+
+  -- pack user info
+  STRUCT (
+    user_pseudo_id,
+    user_id,
+    CASE 
+      WHEN event_params.ga_session_number = 1 THEN 'new user'
+      WHEN event_params.ga_session_number > 1 THEN 'returning user'
+      ELSE NULL
+    END AS user_type,
+    is_active_user
+  ) as user,
   device,
   geo,
   app_info,
@@ -75,7 +87,7 @@ SELECT
   -- ${helpers.generateArrayAggSQL('app_info')},
   -- ${helpers.generateArrayAggSQL('platform')},
 
-  session_traffic_source_last_click,
+  session_traffic_source_last_click.cross_channel_campaign,
 
    STRUCT(
     page.location,
@@ -115,7 +127,9 @@ SELECT
       PARTITION BY user_pseudo_id, session_id
       ORDER BY  event_timestamp
     ) IS NULL, 1, NULL) exits,
-  event_params.session_engaged,
+
+  -- logical_or(event_params.session_engaged = 1) OVER (PARTITION BY user_pseudo_id, session_id) as is_engaged_session,
+  session_info.engaged_session_id,
   event_params.engagement_time_msec,
 
     -- User engagment metrics
