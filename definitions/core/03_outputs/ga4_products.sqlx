@@ -100,7 +100,7 @@ with events as (
        max(is_final) as is_final --return true if session started on an is_final day
 
 
-  from   ${ref("base_ga4_events")}
+  from   ${ref("base_ga4_items")}
   where event_date >= date_checkpoint -1 -- grab 1 extra day, to include sessions starting earlier
 
   -- only hits with user_pseudo_id and session_id
