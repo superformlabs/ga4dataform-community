@@ -1,3 +1,4 @@
+
 config {
   type: "incremental",
   uniqueKey: ['session_id'],
@@ -167,10 +168,10 @@ add_meta_info as (
 )
 
 select
-  *  --except(is_multiday_session)
+  *  except(is_multiday_session)
 from add_meta_info
 where (
   session_date >= date_checkpoint -- new sessions
---   or is_multiday_session -- or older sessions from yesterday
+  or is_multiday_session -- or older sessions from yesterday
 )
 -- could be some incremental duplicates, these will be discarded downstream

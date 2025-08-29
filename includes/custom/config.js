@@ -1,38 +1,11 @@
-/*
-	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
-	Artem Korneev, Jules Stuifbergen,
-	Johan van de Werken, Krisztián Korpa,
-	Simon Breton
-
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, version 3 of the License.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License in the LICENSE.txt file for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
 
 // do not remove this line
 const { helpers } = require("../core/helpers");
 const lowerSQL = helpers.lowerSQL;
 
 /*
-    ga4dataform runs the core model with SQL that can be tweaked with
+    This file is core model with SQL that can be tweaked with
     configuration settings in this file.
-
-    Below, you will find a sample config file that you can tweak to
-    your likings.
-
-    See the documentation for all details.
-
-    There are more configuration settings than in this sample file.
-    See core/config.js for all config parameters
 */
 
 // config object should be a valid javascript object
@@ -62,7 +35,7 @@ const customConfig = {
   // - "renameTo" -> name the output column to this name. Default: "paramname" will be used
   // cleaningMethod: lowerSQL -> transform the output (of strings) to lower case
 
-  CUSTOM_EVENT_PARAMS_TO_EXCLUDE: ['batch_event_index','batch_ordering_id','batch_page_id'], // by default,  all custom arams are unnested except thse listed here
+  CUSTOM_EVENT_PARAMS_TO_EXCLUDE: ['batch_event_index','batch_ordering_id','batch_page_id'], // by default,  all custom params are unnested except thse listed here
   // event dimensions and metrics
   // example:
   // CUSTOM_EVENT_PARAMS_ARRAY: [
@@ -150,8 +123,6 @@ const customConfig = {
   ASSERTIONS_USER_PSEUDO_ID_COMPLETENESS: false
 
 }
-
-
 
 module.exports = {
     customConfig

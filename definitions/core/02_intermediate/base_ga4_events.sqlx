@@ -60,6 +60,7 @@ with query_source as (
       *
     from ${ref ('events_*')}
     where
+
     -- incrementality clause
     parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint
     -- filters go here
@@ -294,6 +295,8 @@ step1 as (
         `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} as user_properties,`
       )}
 
+        -- recast
+    ${helpers.generateParamSQL(   {type: "int",  name: "session_engaged" })}
 
   from query_source
 
@@ -411,6 +414,7 @@ step5 as (
 ),
 
 ---========================== Step 6 ================================
+
 add_meta_info as (
   select
       '${dataform.projectConfig.vars.GA4_DATASET}' as property_id,
@@ -483,7 +487,8 @@ add_row_numbers as (
           order by batch.batch_page_id asc
         ),
         null
-     ) as page_number
+     ) as page_number,
+     if( MAX(session_engaged) OVER (PARTITION BY event_date, session_id )  = 1, session_id, NULL) as engaged_session_id 
     ) as session_info
 
   from deduped
