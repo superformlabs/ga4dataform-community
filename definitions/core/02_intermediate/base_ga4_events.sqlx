@@ -502,11 +502,7 @@ fixed as (
       fixed_traffic_source.creative_format,
       fixed_traffic_source.marketing_tactic
     ) as fixed_traffic_source,
-
-    -- recast
-    -- safe_cast(session_engaged as INT64) as session_engaged
-
-
+    
   from step5
 ),
 
@@ -514,11 +510,6 @@ fixed as (
 add_meta_info as (
   select
       '${dataform.projectConfig.vars.GA4_DATASET}' as property_id,
-      -- make session_id - can be NULL (if anonymous ping or MP hit without session_id)
-    -- farm_fingerprint(
-    --   user_pseudo_id || event_params.ga_session_id
-    --  ) as session_id,
-  -- coalesce(  -- AZ THIS IS A BUG - cannot coalesce user_pseudo_id and ga_session_id
   concat(
       user_pseudo_id , CAST(event_params.ga_session_id AS STRING)
      ) as session_id,
