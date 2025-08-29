@@ -9,6 +9,10 @@ config {
     }
 }
 
+  -- ==============================
+  --       JS BLOCK
+  -- ==============================
+
 js {
     const {
         helpers
@@ -21,7 +25,7 @@ js {
   -- ==============================
   --        PRE-OPERATIONS
   -- ==============================
-  -- Note that pre_operations blocks will only work via the "Start Execution" button and not via the "Run" button
+-- Note that pre_operations blocks will only work via the "Start Execution" button and not via the "Run" button
 
 pre_operations {
   declare date_checkpoint DATE
@@ -43,7 +47,7 @@ pre_operations {
 }
 
   -- ==============================
-  --            QUERY
+  --            QUERY BLOCK
   -- ==============================
 with query_source as (
 SELECT

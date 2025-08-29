@@ -17,7 +17,9 @@ config {
   }
 }
 
-
+  -- ==============================
+  --        JS BLOCK
+  -- ==============================
 
 js {
   const { helpers } = require("includes/core/helpers");
@@ -31,7 +33,9 @@ js {
 }
 
 
-/* incrementality */
+  -- ==============================
+  --        PRE-OPERATIONS
+  -- ==============================
 pre_operations {
   -- declare params string default (${json_custom_params}); 
   declare date_checkpoint DATE;
@@ -52,13 +56,16 @@ pre_operations {
   }
 }
 
+  -- ==============================
+  --        QUERY BLOCK
+  -- ==============================
+
 with query_source as (
 
     select
       _table_suffix as table_suffix,
       *
-    from ${ref( 'events' || dataform.projectConfig.vars.TABLE_SUFFIX || "_*")}
-    -- from ${ref('events_*')}
+    from ${ref( 'events_*')}
     where true
 
     -- incrementality clause

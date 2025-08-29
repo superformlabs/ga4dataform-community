@@ -1,6 +1,6 @@
-defaultAssertionDataset:  gmp_quality
 defaultLocation: US
 defaultProject: pd-strategy
+defaultAssertionDataset: gmp_quality
 vars:
   OUTPUT_PROJECT: pd-strategy
   GA4_DATASET: analytics_207462216
@@ -10,5 +10,4 @@ vars:
   OUTPUTS_DATASET: gmp_outputs 
   REPORTING_DATASET: gmp_reporting 
   INPUT_PROJECT: infotrust-main-ua-834138-7
-  TABLE_SUFFIX: ""
 
