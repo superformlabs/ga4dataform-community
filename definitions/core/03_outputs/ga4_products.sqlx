@@ -12,12 +12,18 @@ config {
   },
 }
 
+  -- ==============================
+  --        JS BLOCK
+  -- ==============================
 js {
     const { helpers } = require("includes/core/helpers");
     const config = helpers.getConfig();
 }
 
-/* incrementality */
+  -- ==============================
+  --        PRE-OPERATIONS
+  -- ==============================
+
 pre_operations {
   declare date_checkpoint DATE;
 --   set @@query_label = "${helpers.executionLabels()}";
@@ -37,7 +43,9 @@ pre_operations {
   }
 }
 
--- simple sessions: referrers as is, no Last Non Direct - 1 source per session (the first no null)
+  -- ==============================
+  --        QUERY BLOCK
+  -- ==============================
 
 with events as (
   select

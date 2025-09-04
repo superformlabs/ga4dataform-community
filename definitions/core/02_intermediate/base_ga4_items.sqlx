@@ -17,21 +17,22 @@ config {
   }
 }
 
-
+  -- ==============================
+  --        JS BLOCK
+  -- ==============================
 
 js {
   const { helpers } = require("includes/core/helpers");
   const config = helpers.getConfig();
   /* check if there's invalid columns or dupe columns in the custom column definitions */
   helpers.checkColumnNames(config);
-  //const fieldnames_sql = helpers.getEventParamKeysArray(config, ref( 'events' || dataform.projectConfig.vars.TABLE_SUFFIX || "_*"), "event_params");
-  const fieldnames_sql = helpers.getEventParamKeysArray(config, 'events_*', "event_params");
-  const base_tbl = self();
 
 }
 
 
-/* incrementality */
+  -- ==============================
+  --        PRE-OPERATIONS
+  -- ==============================
 pre_operations {
   -- declare params string default (${json_custom_params}); 
   declare date_checkpoint DATE;
@@ -52,16 +53,16 @@ pre_operations {
   }
 }
 
+  -- ==============================
+  --        QUERY BLOCK
+  -- ==============================
+
 with query_source as (
 
     select
       _table_suffix as table_suffix,
       *
-<<<<<<< HEAD
     from ${ref( 'events_*')}
-=======
-     from ${ref ('events_*')}
->>>>>>> refs/heads/main
     where true
 
     -- incrementality clause

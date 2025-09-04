@@ -1,95 +1,58 @@
 config {
-  type: "incremental",
+  type: "table",
   tags: [dataform.projectConfig.vars.GA4_DATASET,"base_events","prod"],
   description: "Output events table: unnested, cleaned, clustered data with several fixes",
-  database: dataform.projectConfig.vars.OUTPUT_PROJECT,
-  schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
-  name: "base_ga4_events",
-  bigquery: {
-    partitionBy: "event_date",
-    clusterBy: ["event_name", "session_id"]
+  database: dataform.projectConfig.vars.OUTPUT_PROJECT
   }
-}
-
 
   -- ==============================
   --        JS BLOCK
   -- ==============================
 
 js {
-  const { helpers } = require("includes/core/helpers");
-  const config = helpers.getConfig();
-  /* check if there's invalid columns or dupe columns in the custom column definitions */
-  helpers.checkColumnNames(config);
-  const fieldnames_sql = helpers.getEventParamKeysArray(config, "events" , "event_params");
-  const base_tbl = self();
+  // Require your helper functions.
+  const helperFunctions = require("includes/helper_functions");
+  const default_config = helperFunctions.getConfig();
+
+  // Explicitly require the merged config from your config file.
+  // This is the source of truth for your configuration.
+  const { mergedConfig } = require("includes/config");
+
+
+  // Perform an internal check to ensure the required config properties exist.
+  // This is a highly defensive pattern.
+  const config = {
+    ...mergedConfig,
+    // Add defaults for critical arrays to prevent errors in helper functions.
+    // This is the key part that prevents the 'undefined' error.
+    CUSTOM_EVENT_PARAMS_TO_EXCLUDE: mergedConfig.CUSTOM_EVENT_PARAMS_TO_EXCLUDE || [],
+    CUSTOM_EVENT_PARAMS_ARRAY: mergedConfig.CUSTOM_EVENT_PARAMS_ARRAY || [],
+    CUSTOM_USER_PROPERTIES_ARRAY: mergedConfig.CUSTOM_USER_PROPERTIES_ARRAY || [],
+    CUSTOM_ITEM_PARAMS_TO_EXCLUDE: mergedConfig.CUSTOM_ITEM_PARAMS_TO_EXCLUDE || [],
+    CORE_PARAMS_ARRAY: mergedConfig.CORE_PARAMS_ARRAY || [],
+    EVENTS_TO_EXCLUDE: mergedConfig.EVENTS_TO_EXCLUDE || [],
+    HOSTNAME_EXCLUDE: mergedConfig.HOSTNAME_EXCLUDE || [],
+    HOSTNAME_INCLUDE_ONLY: mergedConfig.HOSTNAME_INCLUDE_ONLY || [],
+    KEY_EVENTS_ARRAY: mergedConfig.KEY_EVENTS_ARRAY || [],
+  };
+
+  // Now, all of your helper functions and SQL can rely on `myConfig`.
+   helperFunctions.checkColumnNames(config);
+  
 }
 
   -- ==============================
   --        PRE-OPERATIONS
   -- ==============================
-
-pre_operations {
-  -- declare params string default (${json_custom_params}); 
-  declare date_checkpoint DATE;
-  -- set @@query_label = "${helpers.executionLabels()}";
-  set date_checkpoint = (
-    ${when(incremental(),
-      `select
-        coalesce(max(event_date)+1, date('${config.GA4_START_DATE}'))
-      from ${self()}
-      where is_final = true`,
-    `select date('${config.GA4_START_DATE}')`)}   /* the default, when it's not incremental */
-  );
-    -- delete some older data, since this may be updated later by GA4
-  ${
-    when(incremental(),
-      `delete from ${self()} where event_date >= date_checkpoint`
-      )
-  }
-}
-
+ pre_operations {
+  declare start_date string default '20240716';
+  declare end_date string default '20241009';
+ }
   -- ==============================
-  --       QUERY BLOCK
+  --        QUERY BLOCK
   -- ==============================
-
-with query_source as (
-
-    select
-      _table_suffix as table_suffix,
-      *
-    from ${ref ('events_*')}
-    where
-
-    -- incrementality clause
-<<<<<<< HEAD
-    -- and parse_date('%Y%m%d', regexp_extract(event_date,'[0-9]+')) >= date_checkpoint -- have to use event_date instead of _table_suffix if we referer to events_2025* tables
-    and parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint
-    -- where ${helper_date_range.FilterSuffix}
-=======
-    parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint
->>>>>>> refs/heads/main
-    -- filters go here
-
-    -- intraday filter: exclude
-    and contains_substr(_table_suffix, 'intraday') is false
-    -- fresh filter: exclude
-    and contains_substr(_table_suffix, 'fresh') is false
-
-    -- filters from config:
-    -- discard unwanted events
-    and ${helpers.generateFilterTypeFromListSQL("exclude", "event_name", config.EVENTS_TO_EXCLUDE)}
-    -- discard unwanted hostnames
-    and ${helpers.generateFilterTypeFromListSQL("exclude", "device.web_info.hostname", config.HOSTNAME_EXCLUDE)}
-    -- only include wanted hostnames
-    and ${helpers.generateFilterTypeFromListSQL("include", "device.web_info.hostname", config.HOSTNAME_INCLUDE_ONLY)}
-
-    -- leave cookieless pings in - those will be in the events table and do not have a session
-    -- and user_pseudo_id is not null
-
-),
-
 ---========================== Step 1 ================================
+with 
 
 step1 as (
 
@@ -97,7 +60,6 @@ step1 as (
     -- first chunk: the basics
     event_timestamp,
     event_name,
-    table_suffix,
     parse_date('%Y%m%d', event_date) as event_date, -- partition column
     date_diff(current_date(), cast(event_date as date format 'YYYYMMDD'), day) > ${config.DATA_IS_FINAL_DAYS} as is_final, -- used for incrementality
     stream_id,
@@ -107,7 +69,7 @@ step1 as (
       event_timestamp,
       timestamp_micros(event_timestamp) as event_timestamp_utc,
       user_first_touch_timestamp as user_first_touch_timestamp,
-      timestamp_micros(user_first_touch_timestamp) as user_first_touch_timestamp_utc    
+      timestamp_micros(user_first_touch_timestamp) as user_first_touch_timestamp_utc  
     ) as time,
     
     -- user info
@@ -142,7 +104,6 @@ step1 as (
       collected_traffic_source.srsltid
     ) as collected_traffic_source, -- as is. This will be fixed in the next step
 
-    -- CASE WHEN date_checkpoint >='2025-05-01' THEN
     struct(
       struct(
         session_traffic_source_last_click.manual_campaign.campaign_id,
@@ -236,7 +197,20 @@ step1 as (
         publisher.ad_unit_id
     ) as publisher,
     
-    ecommerce, -- for now. Will be repacked and cleaned below in step 2
+    --ecommerce, -- for now. Will be repacked and cleaned below in step 2
+    struct(
+        ecommerce.total_item_quantity,
+        if(is_nan(ecommerce.purchase_revenue_in_usd), 0,ecommerce.purchase_revenue_in_usd) as purchase_revenue_in_usd,
+        if(is_nan(ecommerce.purchase_revenue), 0,ecommerce.purchase_revenue) as purchase_revenue,
+        if(is_nan(ecommerce.refund_value_in_usd), 0,ecommerce.refund_value_in_usd) as refund_value_in_usd,
+        if(is_nan(ecommerce.refund_value), 0,ecommerce.refund_value) as refund_value,
+        if(is_nan(ecommerce.shipping_value_in_usd), 0,ecommerce.shipping_value_in_usd) as shipping_value_in_usd,
+        if(is_nan(ecommerce.shipping_value), 0,ecommerce.shipping_value) as shipping_value,
+        if(is_nan(ecommerce.tax_value_in_usd), 0,ecommerce.tax_value_in_usd) as tax_value_in_usd,
+        if(is_nan(ecommerce.tax_value), 0,ecommerce.tax_value) as tax_value,
+        ecommerce.unique_items,
+        if(ecommerce.transaction_id = '(not set)', null, ecommerce.transaction_id) as transaction_id
+    ) as ecommerce,
 
     struct(
         user_ltv.revenue,
@@ -286,72 +260,51 @@ step1 as (
         traffic_source.medium
     ) as first_user_traffic_source,
 
+    struct(
+      batch_event_index,
+      batch_ordering_id,
+      batch_page_id
+    ) as batch,
+
     -- grab all core event parameters
-    ${helpers.generateStructSQL(helpers.generateParamsSQL(config.CORE_PARAMS_ARRAY))} as event_params,
+    ${helper_functions.generateStructSQL(helper_functions.generateParamsSQL(config.CORE_PARAMS_ARRAY))} as event_params,
 
     -- and the custom ones
     ${when(
       config.CUSTOM_EVENT_PARAMS_ARRAY.length > 0,
-        `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_EVENT_PARAMS_ARRAY))} as event_params_custom,`
+        `${helper_functions.generateStructSQL(helper_functions.generateParamsSQL(config.CUSTOM_EVENT_PARAMS_ARRAY))} as event_params_custom,`
       )} 
 
     -- add user_properties
     ${when(
       config.CUSTOM_USER_PROPERTIES_ARRAY.length > 0,      
-        `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} as user_properties,`
+        `${helper_functions.generateStructSQL(helper_functions.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} as user_properties,`
       )}
 
-        -- recast
-    ${helpers.generateParamSQL(   {type: "int",  name: "session_engaged" })}
+ from ${ref("events_*")}
+    where
 
-  from query_source
+    _table_suffix between start_date and end_date
+   
+    -- filters go here
+    -- intraday filter: exclude
+    and contains_substr(_table_suffix, 'intraday') is false
+    -- fresh filter: exclude
+    and contains_substr(_table_suffix, 'fresh') is false
+
+    -- filters from config:
+    -- discard unwanted events
+    and ${helper_functions.generateFilterTypeFromListSQL("exclude", "event_name", config.EVENTS_TO_EXCLUDE)}
+    -- discard unwanted hostnames
+    and ${helper_functions.generateFilterTypeFromListSQL("exclude", "device.web_info.hostname", config.HOSTNAME_EXCLUDE)}
+    -- only include wanted hostnames
+    and ${helper_functions.generateFilterTypeFromListSQL("include", "device.web_info.hostname", config.HOSTNAME_INCLUDE_ONLY)}
 
 ),
 
 ---========================== Step 2 ================================
- -- small cleanups
-  -- in July 2024, the batch_* event parameters were moved to a column. This is for backwards compatibility, let's move this too.
+ -- create event_id & session_id, Add property_id
 step2 as (
- 
-  select
-    * except(
-      ecommerce,
-      batch_event_index,
-      batch_ordering_id,
-      batch_page_id
-    ),
-    
-    struct(
-      batch_event_index,
-      coalesce(batch_ordering_id, event_params.batch_ordering_id) as batch_ordering_id,
-      coalesce(batch_page_id, event_params.batch_page_id) as batch_page_id
-    ) as batch,
-
-    -- repack ecommerce struct
-    -- fix transaction_id, change to NULL if "(not set)"
-    -- also remove NANs in ecommerce struct
-    struct(
-        ecommerce.total_item_quantity,
-        if(is_nan(ecommerce.purchase_revenue_in_usd), 0,ecommerce.purchase_revenue_in_usd) as purchase_revenue_in_usd,
-        if(is_nan(ecommerce.purchase_revenue), 0,ecommerce.purchase_revenue) as purchase_revenue,
-        if(is_nan(ecommerce.refund_value_in_usd), 0,ecommerce.refund_value_in_usd) as refund_value_in_usd,
-        if(is_nan(ecommerce.refund_value), 0,ecommerce.refund_value) as refund_value,
-        if(is_nan(ecommerce.shipping_value_in_usd), 0,ecommerce.shipping_value_in_usd) as shipping_value_in_usd,
-        if(is_nan(ecommerce.shipping_value), 0,ecommerce.shipping_value) as shipping_value,
-        if(is_nan(ecommerce.tax_value_in_usd), 0,ecommerce.tax_value_in_usd) as tax_value_in_usd,
-        if(is_nan(ecommerce.tax_value), 0,ecommerce.tax_value) as tax_value,
-        ecommerce.unique_items,
-        if(ecommerce.transaction_id = '(not set)', null, ecommerce.transaction_id) as transaction_id
-    ) as ecommerce
-
-  from step1
-),
-
----========================== Step 3 ================================
-
-step3 as (
-  -- repack extracted parameters to cleaner structs, and create event_id
-
   select
      -- create event ID
     farm_fingerprint(
@@ -364,79 +317,18 @@ step3 as (
       coalesce(batch.batch_event_index,0) ||
       coalesce(event_params.engagement_time_msec, 0)
     ) as event_id,
-    *,
-    -- standard url parameters from config
-    ${helpers.generateStructSQL(helpers.generateURLParamsSQL(
-      'event_params.page_location',
-      config.URL_PARAMS_ARRAY
-    ))} as url_params,
-
-    -- custom url parameters from config
-    ${when(
-      config.CUSTOM_URL_PARAMS_ARRAY.length > 0,      
-        `${helpers.generateStructSQL(helpers.generateURLParamsSQL(
-        'event_params.page_location',
-        config.CUSTOM_URL_PARAMS_ARRAY
-        ))} as url_params_custom,`
-      )}
-
-    -- click IDs from config
-    ${helpers.generateStructSQL(helpers.generateURLParamsSQL(
-      'event_params.page_location',
-      config.CLICK_IDS_ARRAY,
-      false
-    ))} as click_ids
- 
-  from step2
-),
-
----========================== Step 4 ================================
-
-step4 as (
-select
-  * 
-from step3
-where true
--- final filter: discard audience events
-and (event_params.synthetic_bundle is null or event_params.synthetic_bundle != 1)
-),
-
----========================== Step 5 ================================
-
-step5 as (
-
-  select
-    * except (
-        click_ids
-       ),
-    -- put all the click ids (from config) in a seperate struct
-    struct(
-      ${config.CLICK_IDS_ARRAY.map(id =>helpers.generateClickIdCoalesceSQL(id)).join(", ")}
-    ) as click_ids
-
-  from step4
-  where event_date >= date_checkpoint
-
-),
-
----========================== Step 6 ================================
-
-add_meta_info as (
-  select
-      '${dataform.projectConfig.vars.GA4_DATASET}' as property_id,
-  concat(
+    '${dataform.projectConfig.vars.GA4_DATASET}' as property_id,
+     ${helper_channel_groupings.getdefaultChannelGroupingSQL("session_traffic_source_last_click")} as default_channel_group,
+     concat(
       user_pseudo_id , CAST(event_params.ga_session_id AS STRING)
      ) as session_id,
      
-   * except(
-        time
-      ),
-    (
-        select as struct
-          time.*,
-          datetime(time.event_timestamp_utc, '${dataform.projectConfig.vars.LOCAL_TIMEZONE}') as timestamp_local,
-          date(datetime(time.event_timestamp_utc, '${dataform.projectConfig.vars.LOCAL_TIMEZONE}')) as date_local
-    ) time,
+     *
+  from step1
+),
+---========================== Step 3 ================================
+add_meta_info as (
+  select     
     -- try to guess if this is a MP hit
     if(device.language is null and device.operating_system is null and device.category = 'desktop',
        true,
@@ -445,34 +337,27 @@ add_meta_info as (
 
     -- all page information in a page struct
     struct (
-       lower(net.host(event_params.page_location)) as hostname,
-       event_params.page_location as location,
-       -- strip and leave only path - https://www.rfc-editor.org/rfc/rfc3986#appendix-B - not lowering, urls are case sensitive
-       regexp_extract(event_params.page_location, r'^(?:(?:[^:\/?#]+):)?(?:\/\/(?:[^\/?#]*))?([^?#]*)(?:\?(?:[^#]*))?(?:#(?:.*))?') as path, ---Change this to reference getPagePath
+        device.web_info.hostname as hostname,
+       regexp_extract(event_params.page_location, r'^(?:(?:[^:\/?#]+):)?(?:\/\/(?:[^\/?#]*))?([^?#]*)(?:\?(?:[^#]*))?(?:#(?:.*))?') as path, ---Change this to reference getPagePath helper function
+      -- ${helper_functions.getPagePathFromFullUrl("event_params.page_location","device.web_info.hostname")} as page_path,
+        event_params.page_location ,     -- this is temporary until we fix error in the above line AZ
        event_params.page_referrer as referrer,
        event_params.page_title as title
       ) as page,
-
-  from step5
+    *
+   except(
+        time
+      ),
+    (
+        select as struct
+          time.*,
+          datetime(time.event_timestamp_utc, '${dataform.projectConfig.vars.LOCAL_TIMEZONE}') as timestamp_local,
+          date(datetime(time.event_timestamp_utc, '${dataform.projectConfig.vars.LOCAL_TIMEZONE}')) as date_local
+    ) time,
+  from step2
 ),
 
----========================== Step 7 ================================
-
--- dedupe based on event_id and remove redundant event_params
-deduped as (
-  select
-    * replace ((select as struct event_params.* except (
-                  batch_ordering_id,
-                  batch_page_id,
-                  page_location,
-                  page_referrer,
-                  page_title
-                  )) as event_params),
-  from add_meta_info
-  qualify row_number() over ( partition by event_id ) = 1
-),
-
----========================== Step 8 ================================
+---========================== Step 4 ================================
 add_row_numbers as (
   select
     *,
@@ -493,11 +378,10 @@ add_row_numbers as (
           order by batch.batch_page_id asc
         ),
         null
-     ) as page_number,
-     if( MAX(session_engaged) OVER (PARTITION BY event_date, session_id )  = 1, session_id, NULL) as engaged_session_id 
+     ) as page_number
     ) as session_info
 
-  from deduped
+  from add_meta_info
 )
 
 

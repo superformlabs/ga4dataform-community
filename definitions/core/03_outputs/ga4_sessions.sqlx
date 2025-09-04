@@ -13,12 +13,18 @@ config {
   },
 }
 
+  -- ==============================
+  --        JS BLOCK
+  -- ==============================
+
 js {
     const { helpers } = require("includes/core/helpers");
     const config = helpers.getConfig();
 }
 
-/* incrementality */
+  -- ==============================
+  --        PRE-OPERATIONS
+  -- ==============================
 pre_operations {
   declare date_checkpoint DATE;
 --   set @@query_label = "${helpers.executionLabels()}";
@@ -37,8 +43,9 @@ pre_operations {
       )
   }
 }
-
--- simple sessions: referrers as is, no Last Non Direct - 1 source per session (the first no null)
+  -- ==============================
+  --        QUERY BLOCK
+  -- ==============================
 
 with events as (
   select
@@ -62,9 +69,6 @@ with events as (
     --  traffic info
     -- ${helpers.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')} ,
     ${helpers.generateArrayAggSQL('session_traffic_source_last_click.cross_channel_campaign', 'cross_channel_campaign')} ,
-
-    -- ${helpers.generateArrayAggSQL('page.location','landing_page_location')}  ,
-    -- ${helpers.generateArrayAggSQL('page.location','exit_page', false)} ,
 
     struct(
       ${helpers.generateArrayAggSQL('page.location','landing_page_location')},
@@ -160,61 +164,6 @@ add_meta_info as (
     -- cross_channel_campaign.*
   from events
 )
-
--- add_meta_info as (
---   select
---     * except (
---         source,
---         source_category,
---         session_start_timestamp_utc,
---         session_end_timestamp_utc,
---         engagement_time_msec,
---         first_traffic_source,
---         last_traffic_source,
---         first_click_ids,
---         last_click_ids
---         ),
---     struct(
---       session_start_timestamp_utc,
---       session_end_timestamp_utc,
---       engagement_time_msec,
---       timestamp_diff(session_end_timestamp_utc, session_start_timestamp_utc, second) as session_duration_s
---     ) as time,
---     (
---      select as struct
---       (
---         select as struct
---         first_traffic_source.*,
---         first_click_ids.*,
---         ${helpers.getDefaultChannelGroupingSQL(config,
---                                             'first_traffic_source.source',
---                                             'first_traffic_source.medium',
---                                             'first_traffic_source.campaign',
---                                             'join_first.source_category',
---                                             'first_traffic_source.term',
---                                             'first_traffic_source.content',
---                                             'first_traffic_source.campaign_id'
---                                             )} as default_channel_grouping,
---         ) first,
---       (
---         select as struct
---         last_traffic_source.*,
---         last_click_ids.*,
---         ${helpers.getDefaultChannelGroupingSQL(config,
---                                             'last_traffic_source.source',
---                                             'last_traffic_source.medium',
---                                             'last_traffic_source.campaign',
---                                             'join_last.source_category',
---                                             'last_traffic_source.term',
---                                             'last_traffic_source.content',
---                                             'last_traffic_source.campaign_id'
---                                             )} as default_channel_grouping
---       ) last
---     ) session_source,
-
---     cross_channel_campaign.*
---   from events
--- )
 
 select
   *  except(is_multiday_session)
