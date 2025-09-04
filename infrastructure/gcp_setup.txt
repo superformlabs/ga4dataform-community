@@ -40,7 +40,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 
 
 #Create a secret
-echo -n "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" | gcloud secrets create gmp-clearview-token \
+#echo -n "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" | gcloud secrets create gmp-clearview-token \#
   --replication-policy="automatic" \
   --data-file=-
   --project=$PROJECT_ID
