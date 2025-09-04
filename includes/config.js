@@ -1,7 +1,5 @@
 // core and custom config file
-const { helpers } = require("includes/core/helpers");
-const lowerSQL = helpers.lowerSQL;
-const safeCastSQL = helpers.safeCastSQL;
+const { safeCastSQL, lowerSQL } = require("./helper_functions");
 
 // -----------------------------------------------------------------------------
 // Core Configuration: This section defines the standard, default settings.

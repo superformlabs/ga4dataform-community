@@ -3,16 +3,8 @@
  * @returns {Object} Merged configuration object
  */
 const getConfig = () => {
-    const {
-        coreConfig
-    } = require("./config");
-    const {
-        customConfig
-    } = require("./config");
-    return {
-        ...coreConfig,
-        ...customConfig
-    };
+  const { config } = require("includes/config");
+  return { ...config };
 };
 
 /* Function #1

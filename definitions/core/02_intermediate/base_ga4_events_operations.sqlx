@@ -2,9 +2,7 @@ config {
   type: "table",
   tags: [dataform.projectConfig.vars.GA4_DATASET,"base_events","prod"],
   description: "Output events table: unnested, cleaned, clustered data with several fixes",
-  database: dataform.projectConfig.vars.OUTPUT_PROJECT,
-  schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
-  //name: "base_ga4_events"
+  database: dataform.projectConfig.vars.OUTPUT_PROJECT
   }
 
   -- ==============================
@@ -12,20 +10,43 @@ config {
   -- ==============================
 
 js {
-  const { helpers } = require("includes/core/helpers");
-  const config = helpers.getConfig();
-  /* check if there's invalid columns or dupe columns in the custom column definitions */
-  helpers.checkColumnNames(config);
-  const fieldnames_sql = helpers.getEventParamKeysArray(config, "events" , "event_params");
-  const base_tbl = self();
+  // Require your helper functions.
+  const helperFunctions = require("includes/helper_functions");
+  const default_config = helperFunctions.getConfig();
+
+  // Explicitly require the merged config from your config file.
+  // This is the source of truth for your configuration.
+  const { mergedConfig } = require("includes/config");
+
+
+  // Perform an internal check to ensure the required config properties exist.
+  // This is a highly defensive pattern.
+  const config = {
+    ...mergedConfig,
+    // Add defaults for critical arrays to prevent errors in helper functions.
+    // This is the key part that prevents the 'undefined' error.
+    CUSTOM_EVENT_PARAMS_TO_EXCLUDE: mergedConfig.CUSTOM_EVENT_PARAMS_TO_EXCLUDE || [],
+    CUSTOM_EVENT_PARAMS_ARRAY: mergedConfig.CUSTOM_EVENT_PARAMS_ARRAY || [],
+    CUSTOM_USER_PROPERTIES_ARRAY: mergedConfig.CUSTOM_USER_PROPERTIES_ARRAY || [],
+    CUSTOM_ITEM_PARAMS_TO_EXCLUDE: mergedConfig.CUSTOM_ITEM_PARAMS_TO_EXCLUDE || [],
+    CORE_PARAMS_ARRAY: mergedConfig.CORE_PARAMS_ARRAY || [],
+    EVENTS_TO_EXCLUDE: mergedConfig.EVENTS_TO_EXCLUDE || [],
+    HOSTNAME_EXCLUDE: mergedConfig.HOSTNAME_EXCLUDE || [],
+    HOSTNAME_INCLUDE_ONLY: mergedConfig.HOSTNAME_INCLUDE_ONLY || [],
+    KEY_EVENTS_ARRAY: mergedConfig.KEY_EVENTS_ARRAY || [],
+  };
+
+  // Now, all of your helper functions and SQL can rely on `myConfig`.
+   helperFunctions.checkColumnNames(config);
+  
 }
 
   -- ==============================
   --        PRE-OPERATIONS
   -- ==============================
  pre_operations {
-  declare start_date DATE default '20240716';
-  declare end_date DATE default '20241009';
+  declare start_date string default '20240716';
+  declare end_date string default '20241009';
  }
   -- ==============================
   --        QUERY BLOCK
@@ -246,18 +267,18 @@ step1 as (
     ) as batch,
 
     -- grab all core event parameters
-    ${helpers.generateStructSQL(helpers.generateParamsSQL(config.CORE_PARAMS_ARRAY))} as event_params,
+    ${helper_functions.generateStructSQL(helper_functions.generateParamsSQL(config.CORE_PARAMS_ARRAY))} as event_params,
 
     -- and the custom ones
     ${when(
       config.CUSTOM_EVENT_PARAMS_ARRAY.length > 0,
-        `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_EVENT_PARAMS_ARRAY))} as event_params_custom,`
+        `${helper_functions.generateStructSQL(helper_functions.generateParamsSQL(config.CUSTOM_EVENT_PARAMS_ARRAY))} as event_params_custom,`
       )} 
 
     -- add user_properties
     ${when(
       config.CUSTOM_USER_PROPERTIES_ARRAY.length > 0,      
-        `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} as user_properties,`
+        `${helper_functions.generateStructSQL(helper_functions.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} as user_properties,`
       )}
 
  from ${ref("events_*")}
@@ -273,11 +294,11 @@ step1 as (
 
     -- filters from config:
     -- discard unwanted events
-    and ${helpers.generateFilterTypeFromListSQL("exclude", "event_name", config.EVENTS_TO_EXCLUDE)}
+    and ${helper_functions.generateFilterTypeFromListSQL("exclude", "event_name", config.EVENTS_TO_EXCLUDE)}
     -- discard unwanted hostnames
-    and ${helpers.generateFilterTypeFromListSQL("exclude", "device.web_info.hostname", config.HOSTNAME_EXCLUDE)}
+    and ${helper_functions.generateFilterTypeFromListSQL("exclude", "device.web_info.hostname", config.HOSTNAME_EXCLUDE)}
     -- only include wanted hostnames
-    and ${helpers.generateFilterTypeFromListSQL("include", "device.web_info.hostname", config.HOSTNAME_INCLUDE_ONLY)}
+    and ${helper_functions.generateFilterTypeFromListSQL("include", "device.web_info.hostname", config.HOSTNAME_INCLUDE_ONLY)}
 
 ),
 
@@ -297,8 +318,8 @@ step2 as (
       coalesce(event_params.engagement_time_msec, 0)
     ) as event_id,
     '${dataform.projectConfig.vars.GA4_DATASET}' as property_id,
-   ${helper_channel_groupings.getdefaultChannelGroupingSQL("session_traffic_source_last_click")} as default_channel_group,
-  concat(
+     ${helper_channel_groupings.getdefaultChannelGroupingSQL("session_traffic_source_last_click")} as default_channel_group,
+     concat(
       user_pseudo_id , CAST(event_params.ga_session_id AS STRING)
      ) as session_id,
      
@@ -318,7 +339,8 @@ add_meta_info as (
     struct (
         device.web_info.hostname as hostname,
        regexp_extract(event_params.page_location, r'^(?:(?:[^:\/?#]+):)?(?:\/\/(?:[^\/?#]*))?([^?#]*)(?:\?(?:[^#]*))?(?:#(?:.*))?') as path, ---Change this to reference getPagePath helper function
-      ${helper_functions.getPagePathFromFullUrl("event_params.page_location","device.web_info.hostname")} as page_path,
+      -- ${helper_functions.getPagePathFromFullUrl("event_params.page_location","device.web_info.hostname")} as page_path,
+        event_params.page_location ,     -- this is temporary until we fix error in the above line AZ
        event_params.page_referrer as referrer,
        event_params.page_title as title
       ) as page,
