@@ -62,13 +62,10 @@ with query_source as (
     where
 
     -- incrementality clause
-<<<<<<< HEAD
     -- and parse_date('%Y%m%d', regexp_extract(event_date,'[0-9]+')) >= date_checkpoint -- have to use event_date instead of _table_suffix if we referer to events_2025* tables
     and parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint
     -- where ${helper_date_range.FilterSuffix}
-=======
-    parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint
->>>>>>> refs/heads/main
+
     -- filters go here
 
     -- intraday filter: exclude
