@@ -17,9 +17,7 @@ config {
   }
 }
 
-  -- ==============================
-  --        JS BLOCK
-  -- ==============================
+
 
 js {
   const { helpers } = require("includes/core/helpers");
@@ -27,47 +25,91 @@ js {
   /* check if there's invalid columns or dupe columns in the custom column definitions */
   helpers.checkColumnNames(config);
 
-}
+  var dateFilter = "" ;
+  if (dataform.projectConfig.vars.RUN_FOR_DATE != "") {
+    dateFilter = `parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) = date_checkpoint `;
+  } else { 
+    dateFilter = `parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint `;
+  }
 
+}
 
   -- ==============================
   --        PRE-OPERATIONS
   -- ==============================
 pre_operations {
-  -- declare params string default (${json_custom_params}); 
   declare date_checkpoint DATE;
-  -- set @@query_label = "${helpers.executionLabels()}";
-  set date_checkpoint = (
+    ---  // this triple dash means something in dataform?
+
+  -- this is for when we need to refill for certain date
+  IF '${dataform.projectConfig.vars.RUN_FOR_DATE}' <> 'undefined' THEN 
+    set date_checkpoint = (
+      ${when(incremental(), 
+          `select date('${dataform.projectConfig.vars.RUN_FOR_DATE}')`, 
+          `select date('${config.GA4_START_DATE}')`
+           )
+      });
+      -- delete some older data, since this may be updated later by GA4
+      ${
+        when(incremental(),
+          `delete from ${self()} where event_date = date_checkpoint;`
+          )
+      }
+  ELSE
+      set date_checkpoint = (
+        ${when(incremental(),
+        `select coalesce(max(event_date)+1, date('${config.GA4_START_DATE}'))
+            from ${self()} 
+            where is_final is True`,
+        `select date('${config.GA4_START_DATE}')`)} 
+      );
+      -- delete some older data, since this may be updated later by GA4
+      ${
+        when(incremental(),
+          `delete from ${self()} where event_date >= date_checkpoint;`
+          )
+      }
+    END IF;
+
+   
+}
+ -- ==============================
+  --        POST-OPERATIONS
+  -- ==============================
+post_operations {
     ${when(incremental(),
-      `select
-        coalesce(max(event_date)+1, date('${config.GA4_START_DATE}'))
-      from ${self()}
-      where is_final = true`,
-    `select date('${config.GA4_START_DATE}')`)}   /* the default, when it's not incremental */
-  );
-    -- delete some older data, since this may be updated later by GA4
-  ${
-    when(incremental(),
-      `delete from ${self()} where event_date >= date_checkpoint`
-      )
-  }
+    `EXPORT DATA OPTIONS(
+        uri=(CONCAT('gs://${config.GCS_BUCKET}/${dataform.projectConfig.vars.TRANSFORMATIONS_DATASET}/',  FORMAT_DATE('%Y%m%d' , date_checkpoint), '_gcp_', '${name()}', '_*.parquet')), 
+        format='PARQUET',
+        overwrite=true
+       ) AS
+
+          SELECT DISTINCT * FROM (        -- Overhead SELECT DISTINCT and LIMIT are aded to fix the issue with producting multiple export files insteand of one
+          SELECT * FROM ${self()} WHERE event_date = date_checkpoint
+          )
+          ORDER BY _run_timestamp LIMIT 1000000000000000000; `
+    )}
 }
 
   -- ==============================
-  --        QUERY BLOCK
+  --        QUERY
   -- ==============================
+
 
 with query_source as (
 
     select
       _table_suffix as table_suffix,
       *
-    from ${ref( 'events_*')}
+    from ${ref("events_*")}
+
     where true
 
     -- incrementality clause
-    -- and parse_date('%Y%m%d', regexp_extract(event_date,'[0-9]+')) >= date_checkpoint -- have to use event_date instead of _table_suffix if we referer to events_2025* tables
-    and parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint
+    --  and parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint 
+    --  and parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) <= '2025-09-02' 
+    and ${dateFilter}
+
     -- filters go here
 
     -- intraday filter: exclude
@@ -121,26 +163,26 @@ step1 as (
 
     -- now the structs - we will need to explicitly name ALL fields herein, as to not break incremental builds when Google adds a column in a struct
     -- privacy info
-    -- struct(
-    --   privacy_info.analytics_storage as analytics_storage,
-    --   privacy_info.ads_storage as ads_storage,
-    --   privacy_info.uses_transient_token as uses_transient_token
-    -- ) as privacy_info,
+    struct(
+      privacy_info.analytics_storage as analytics_storage,
+      privacy_info.ads_storage as ads_storage,
+      privacy_info.uses_transient_token as uses_transient_token
+    ) as privacy_info,
     
-    -- struct(
-    --   collected_traffic_source.manual_campaign_id,
-    --   collected_traffic_source.manual_campaign_name,
-    --   collected_traffic_source.manual_source,
-    --   collected_traffic_source.manual_medium,
-    --   collected_traffic_source.manual_term,
-    --   collected_traffic_source.manual_content,
-    --   collected_traffic_source.manual_source_platform,
-    --   collected_traffic_source.manual_creative_format,
-    --   collected_traffic_source.manual_marketing_tactic,
-    --   collected_traffic_source.gclid,
-    --   collected_traffic_source.dclid,
-    --   collected_traffic_source.srsltid
-    -- ) as collected_traffic_source, -- as is. This will be fixed in the next step
+    struct(
+      collected_traffic_source.manual_campaign_id,
+      collected_traffic_source.manual_campaign_name,
+      collected_traffic_source.manual_source,
+      collected_traffic_source.manual_medium,
+      collected_traffic_source.manual_term,
+      collected_traffic_source.manual_content,
+      collected_traffic_source.manual_source_platform,
+      collected_traffic_source.manual_creative_format,
+      collected_traffic_source.manual_marketing_tactic,
+      collected_traffic_source.gclid,
+      collected_traffic_source.dclid,
+      collected_traffic_source.srsltid
+    ) as collected_traffic_source, -- as is. This will be fixed in the next step
 
     struct(
       struct(
@@ -235,7 +277,7 @@ step1 as (
     -- array(
     --   (
     --     select
-          -- struct(
+    --       struct(
             items.item_id,
             items.item_name,
             items.item_brand,
@@ -262,36 +304,28 @@ step1 as (
             items.promotion_name,
             items.creative_name,
             items.creative_slot
-            -- ${when(config.CUSTOM_ITEM_PARAMS_ARRAY.length > 0,
-            --     `, ${helpers.generateStructSQL(
-            --     helpers.generateParamsSQL(
-            --         config.CUSTOM_ITEM_PARAMS_ARRAY, 
-            --         "items.item_params"
-            --     )
+            ${when(config.CUSTOM_ITEM_PARAMS_ARRAY.length > 0,
+                `, ${helpers.generateStructSQL(
+                          helpers.generateParamsSQL(config.CUSTOM_ITEM_PARAMS_ARRAY, "items.item_params"  )
+                    )
+                  }  as item_params_custom`)
+            }
             -- )
-            -- } as item_params_custom`)}
-          
-           ${when(config.CUSTOM_ITEM_PARAMS_ARRAY.length > 0,
-          `, ${helpers.generateStructSQL(
-          helpers.generateParamsSQL(
-              config.CUSTOM_ITEM_PARAMS_ARRAY, 
-              "items.item_params"
-          )
-      )
-      } as item_params_custom`)},
-
-
+    --     from unnest(items) as items
+    --   )
+    -- ) as items
+      ,
     -- the programatically added SQL:
-    -- grab all core event parameters
+    -- grab all core event parameters - maybe we don;t need all event parameters in this table
     -- ${helpers.generateStructSQL(helpers.generateParamsSQL(config.CORE_PARAMS_ARRAY))} as event_params,
 
  -- add some event parameters
         STRUCT (
-       -- ga_session_id
       (select value.int_value  from unnest(event_params) where key = 'batch_ordering_id')  as batch_ordering_id,
       (select value.int_value  from unnest(event_params) where key = 'batch_page_id')  as batch_page_id,
       (select value.int_value  from unnest(event_params) where key = 'batch_event_index')  as batch_event_index,
       (select value.int_value  from unnest(event_params) where key = 'ga_session_id')  as ga_session_id,
+      (select value.int_value  from unnest(event_params) where key = 'session_engaged')  as session_engaged,
       (select value.string_value  from unnest(event_params) where key = 'page_location')  as page_location,
       (select value.string_value  from unnest(event_params) where key = 'page_referrer')  as page_referrer, 
       (select value.string_value  from unnest(event_params) where key = 'page_title')  as page_title
@@ -384,9 +418,11 @@ add_meta_info as (
       coalesce(event_params.ga_session_id, 0) ||
       coalesce(batch.batch_page_id, 0) ||
       coalesce( batch.batch_ordering_id,0) ||
-      coalesce( batch.batch_event_index,0) 
-    ) || "_" || 
-    REGEXP_REPLACE(item_variant , r'(not set)', 'no_item') as event_item_id,
+      coalesce( batch.batch_event_index,0) ||
+      coalesce(item_id, "") ||
+      "_" || 
+      REGEXP_REPLACE(item_variant , r'(not set)', 'no_item')
+    ) as event_item_id,
 
  
    * except(
@@ -426,37 +462,42 @@ deduped as (
   qualify row_number() over ( partition by event_item_id ) = 1
 )
 
--- ,add_row_numbers as (
---   select
---     *,
---     struct(
---     -- calculate hit numbers per session (now is the time)
---     if(user_pseudo_id is not null and event_params.ga_session_id is not null,
---         row_number() over (
---           partition by user_pseudo_id, event_params.ga_session_id
---           order by time.event_timestamp asc
---         ),
---         null
---      ) as hit_number,
+,add_row_numbers as (
+  select
+    *,
+    struct(
+    -- calculate hit numbers per session (now is the time)
+    if(user_pseudo_id is not null and event_params.ga_session_id is not null,
+        row_number() over (
+          partition by user_pseudo_id, event_params.ga_session_id
+          order by time.event_timestamp asc
+        ),
+        null
+     ) as hit_number,
 
---     -- and page number
---     if(user_pseudo_id is not null and event_params.ga_session_id is not null and batch.batch_page_id is not null,
---         dense_rank() over (
---           partition by user_pseudo_id, event_params.ga_session_id
---           order by batch.batch_page_id asc
---         ),
---         null
---      ) as page_number
---     ) as session_info
+    -- and page number
+    if(user_pseudo_id is not null and event_params.ga_session_id is not null and batch.batch_page_id is not null,
+        dense_rank() over (
+          partition by user_pseudo_id, event_params.ga_session_id
+          order by batch.batch_page_id asc
+        ),
+        null
+     ) as page_number,
 
---   from deduped
--- )
+      if( MAX(event_params.session_engaged) OVER 
+        (PARTITION BY event_date, session_id )  = 1, session_id, NULL) 
+      as engaged_session_id 
+      
+    ) as session_info
+
+  from deduped
+)
 
 
 select
   current_timestamp() as _run_timestamp, -- indicates when the row was last run
   *
-from add_meta_info --deduped --add_row_numbers
+from  add_row_numbers
 where true
 
 

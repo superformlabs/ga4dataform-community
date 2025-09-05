@@ -4,8 +4,9 @@
  * @returns {Object} Merged configuration object
  */
 const getConfig = () => {
-  const { config } = require("includes/config");
-  return { ...config };
+  // const { config } = require("includes/config");
+  const { mergedConfig } = require("./config");
+  return { ...mergedConfig };
 };
 
 /**=======================================================*/

@@ -1,3 +1,9 @@
+  /*
+  This file is part of "GMP Clearview" package.
+  Copyright (C)  2025 Infotrust 
+  Alina Zilbergerts, Trish Dothkar,
+  -- */
+
 config {
   type: "incremental",
   tags: [dataform.projectConfig.vars.GA4_DATASET,"base_events","prod"],
@@ -10,47 +16,88 @@ config {
     clusterBy: ["event_name", "session_id"]
   }
 }
-
-
   -- ==============================
   --        JS BLOCK
   -- ==============================
-
 js {
   const { helpers } = require("includes/core/helpers");
   const config = helpers.getConfig();
+
+  // MERGED Config implementation
+  //const  helper_functions  = require("includes/helper_functions");` `
+  //const mergedConfig = helper_functions.getConfig();
+
   /* check if there's invalid columns or dupe columns in the custom column definitions */
   helpers.checkColumnNames(config);
-  const fieldnames_sql = helpers.getEventParamKeysArray(config, "events" , "event_params");
-  const base_tbl = self();
+
+  var dateFilter = "" ;
+  if (dataform.projectConfig.vars.RUN_FOR_DATE != "") {
+    dateFilter = `parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) = date_checkpoint `;
+  } else { 
+    dateFilter = `parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint `;
+  }
 }
 
   -- ==============================
   --        PRE-OPERATIONS
   -- ==============================
-
 pre_operations {
-  -- declare params string default (${json_custom_params}); 
   declare date_checkpoint DATE;
-  -- set @@query_label = "${helpers.executionLabels()}";
-  set date_checkpoint = (
-    ${when(incremental(),
-      `select
-        coalesce(max(event_date)+1, date('${config.GA4_START_DATE}'))
-      from ${self()}
-      where is_final = true`,
-    `select date('${config.GA4_START_DATE}')`)}   /* the default, when it's not incremental */
-  );
-    -- delete some older data, since this may be updated later by GA4
-  ${
-    when(incremental(),
-      `delete from ${self()} where event_date >= date_checkpoint`
-      )
-  }
+    ---  // this triple dash means something in dataform?
+
+  -- this is for when we need to refill for certain date
+  IF '${dataform.projectConfig.vars.RUN_FOR_DATE}' <> 'undefined' THEN 
+    set date_checkpoint = (
+      ${when(incremental(), 
+          `select date('${dataform.projectConfig.vars.RUN_FOR_DATE}')`, 
+          `select date('${config.GA4_START_DATE}')`
+           )
+      });
+      -- delete some older data, since this may be updated later by GA4
+      ${
+        when(incremental(),
+          `delete from ${self()} where event_date = date_checkpoint;`
+          )
+      }
+  ELSE
+      set date_checkpoint = (
+        ${when(incremental(),
+        `select coalesce(max(event_date)+1, date('${config.GA4_START_DATE}'))
+            from ${self()} 
+            where is_final is True`,
+        `select date('${config.GA4_START_DATE}')`)} 
+      );
+      -- delete some older data, since this may be updated later by GA4
+      ${
+        when(incremental(),
+          `delete from ${self()} where event_date >= date_checkpoint;`
+          )
+      }
+    END IF;
+
+   
 }
 
   -- ==============================
-  --       QUERY BLOCK
+  --        POST-OPERATIONS
+  -- ==============================
+post_operations {
+    ${when(incremental(),
+    `EXPORT DATA OPTIONS(
+        uri=(CONCAT('gs://${config.GCS_BUCKET}/${dataform.projectConfig.vars.TRANSFORMATIONS_DATASET}/',  FORMAT_DATE('%Y%m%d' , date_checkpoint), '_gcp_', '${name()}', '_*.parquet')), 
+        format='PARQUET',
+        overwrite=true
+       ) AS
+
+          SELECT DISTINCT * FROM (        -- Overhead SELECT DISTINCT and LIMIT are aded to fix the issue with producting multiple export files insteand of one
+          SELECT * FROM ${self()} WHERE event_date = date_checkpoint
+          )
+          ORDER BY _run_timestamp LIMIT 1000000000000000000; `
+    )}
+}
+
+  -- ==============================
+  --        QUERY
   -- ==============================
 
 with query_source as (
@@ -58,13 +105,14 @@ with query_source as (
     select
       _table_suffix as table_suffix,
       *
-    from ${ref ('events_*')}
-    where
+    from ${ref("events_*")}
+
+    where true
 
     -- incrementality clause
-    -- and parse_date('%Y%m%d', regexp_extract(event_date,'[0-9]+')) >= date_checkpoint -- have to use event_date instead of _table_suffix if we referer to events_2025* tables
-    and parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint
-    -- where ${helper_date_range.FilterSuffix}
+    -- and parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint
+    and ${dateFilter}
+
 
     -- filters go here
 
@@ -81,12 +129,10 @@ with query_source as (
     -- only include wanted hostnames
     and ${helpers.generateFilterTypeFromListSQL("include", "device.web_info.hostname", config.HOSTNAME_INCLUDE_ONLY)}
 
-    -- leave cookieless pings in - those will be in the events table and do not have a session
+    -- leave cookieless pings in - those will be in the events table and  do not have a session
     -- and user_pseudo_id is not null
 
 ),
-
----========================== Step 1 ================================
 
 step1 as (
 
@@ -121,7 +167,8 @@ step1 as (
     -- privacy info
     struct(
       privacy_info.analytics_storage as analytics_storage,
-      privacy_info.ads_storage as ads_storage
+      privacy_info.ads_storage as ads_storage,
+      privacy_info.uses_transient_token as uses_transient_token
     ) as privacy_info,
     
     struct(
@@ -283,6 +330,8 @@ step1 as (
         traffic_source.medium
     ) as first_user_traffic_source,
 
+
+    -- the programatically added SQL:
     -- grab all core event parameters
     ${helpers.generateStructSQL(helpers.generateParamsSQL(config.CORE_PARAMS_ARRAY))} as event_params,
 
@@ -305,11 +354,9 @@ step1 as (
 
 ),
 
----========================== Step 2 ================================
- -- small cleanups
-  -- in July 2024, the batch_* event parameters were moved to a column. This is for backwards compatibility, let's move this too.
 step2 as (
- 
+  -- small cleanups
+  -- in July 2024, the batch_* event parameters were moved to a column. This is for backwards compatibility, let's move this too.
   select
     * except(
       ecommerce,
@@ -343,8 +390,6 @@ step2 as (
 
   from step1
 ),
-
----========================== Step 3 ================================
 
 step3 as (
   -- repack extracted parameters to cleaner structs, and create event_id
@@ -387,8 +432,6 @@ step3 as (
   from step2
 ),
 
----========================== Step 4 ================================
-
 step4 as (
 select
   * 
@@ -398,29 +441,142 @@ where true
 and (event_params.synthetic_bundle is null or event_params.synthetic_bundle != 1)
 ),
 
----========================== Step 5 ================================
-
 step5 as (
 
   select
     * except (
         click_ids
        ),
+    -- create a traffic source struct with
+    -- 1. the manual params
+    -- 2. if not present: for backwards compatibility: use event params
+    -- 3. if not present: use the utm params - but not on later batches, since collected_traffic_source is always null on those hits.
+    -- (and yes, that is annoying).
+    -- PS: in the pre-batch_ordering_id era, this will work too, since if(NULL, NULL, use params) uses params
+    struct(
+        lower(coalesce(collected_traffic_source.manual_campaign_id,     if(batch.batch_ordering_id >1, NULL, url_params.utm_id))) as campaign_id,
+        lower(coalesce(collected_traffic_source.manual_campaign_name,   if(batch.batch_ordering_id >1, NULL, coalesce(event_params.campaign, url_params.utm_campaign)))) as campaign,
+        lower(coalesce(collected_traffic_source.manual_source,          if(batch.batch_ordering_id >1, NULL, coalesce(event_params.source, url_params.utm_source)))) as source,
+        lower(coalesce(collected_traffic_source.manual_medium,          if(batch.batch_ordering_id >1, NULL, coalesce(event_params.medium, url_params.utm_medium)))) as medium,
+        lower(coalesce(collected_traffic_source.manual_term,            if(batch.batch_ordering_id >1, NULL, coalesce(event_params.term, url_params.utm_term)))) as term,
+        lower(coalesce(collected_traffic_source.manual_content,         if(batch.batch_ordering_id >1, NULL, coalesce(event_params.content, url_params.utm_content)))) as content,
+        lower(coalesce(collected_traffic_source.manual_source_platform, if(batch.batch_ordering_id >1, NULL, url_params.utm_source_platform))) as source_platform,
+        lower(coalesce(collected_traffic_source.manual_creative_format, if(batch.batch_ordering_id >1, NULL, url_params.utm_creative_format))) as creative_format,
+        lower(coalesce(collected_traffic_source.manual_marketing_tactic,if(batch.batch_ordering_id >1, NULL, url_params.utm_marketing_tactic))) as marketing_tactic
+      ) as fixed_traffic_source,
     -- put all the click ids (from config) in a seperate struct
     struct(
       ${config.CLICK_IDS_ARRAY.map(id =>helpers.generateClickIdCoalesceSQL(id)).join(", ")}
     ) as click_ids
 
   from step4
-  where event_date >= date_checkpoint
+  -- where event_date >= date_checkpoint
 
 ),
 
----========================== Step 6 ================================
+-- remove brackets from source/medium for organic and referral
+
+fixed as (
+
+  select
+    * except (
+      fixed_traffic_source
+    ),
+
+    -- fix misattribution issues
+    struct(
+      fixed_traffic_source.campaign_id,
+    -- only rewrite campaign if it is organic or referral
+      case
+          when (
+            (coalesce(fixed_traffic_source.campaign, "") in ("(organic)", "(referral)", ""))
+            or fixed_traffic_source.campaign is null
+          ) 
+          then 
+            case
+              ${helpers.generateClickIdCasesSQL("campaign",config.CLICK_IDS_ARRAY)}
+            else fixed_traffic_source.campaign
+        end
+      else fixed_traffic_source.campaign  
+      end as campaign,
+
+
+      case    
+        -- page_referrer contains "android-app://com.google" then 'google'
+        when fixed_traffic_source.source is null and event_params.page_referrer like '%android-app://com.google%'
+        then 'google'
+        
+        -- use the domain name if the referrer is non-google android
+        when fixed_traffic_source.source is null and event_params.page_referrer like '%android-app%'
+        then net.host(event_params.page_referrer)
+
+        when fixed_traffic_source.source is null and event_params.ignore_referrer != 'true' and event_params.page_referrer is not null
+        then net.host(event_params.page_referrer)
+
+        when (
+            (fixed_traffic_source.source is not null and coalesce(fixed_traffic_source.campaign, "") in ("(organic)", "(referral)", ""))
+            or (fixed_traffic_source.source is null and fixed_traffic_source.campaign is null)
+          ) 
+          then 
+            case
+              ${helpers.generateClickIdCasesSQL("source",config.CLICK_IDS_ARRAY)}
+            else fixed_traffic_source.source
+          end
+        else fixed_traffic_source.source
+      end as source,
+
+      case
+        when (
+            (fixed_traffic_source.medium is not null and coalesce(fixed_traffic_source.campaign, "") in ("(organic)", "(referral)", ""))
+            or (fixed_traffic_source.medium is null and fixed_traffic_source.campaign is null)
+          ) 
+          then 
+            case
+              ${helpers.generateClickIdCasesSQL("medium",config.CLICK_IDS_ARRAY)}
+            else fixed_traffic_source.medium
+          end
+
+        -- page_referrer contains "android-app" then 'organic' (cpc is handled above)
+        when fixed_traffic_source.medium is null and event_params.page_referrer like '%android-app://com.google%'
+        then 'organic'
+        
+        -- page_referrer contains "android-app" and is one of social platforms then 'social'
+        when fixed_traffic_source.medium is null and regexp_contains(event_params.page_referrer, r'^android-app.*(${config.SOCIAL_PLATFORMS_REGEX}).*')
+        then 'social'
+        
+        -- page_referrer contains "android-app", fall back to "android-app"
+        when fixed_traffic_source.medium is null and event_params.page_referrer like '%android-app%'
+        then 'android-app'
+
+        when fixed_traffic_source.medium is null and event_params.ignore_referrer != 'true' and event_params.page_referrer is not null
+        then 'referral'
+
+        else fixed_traffic_source.medium
+
+      end as medium,
+      fixed_traffic_source.term,
+      fixed_traffic_source.content,
+      fixed_traffic_source.source_platform,
+      fixed_traffic_source.creative_format,
+      fixed_traffic_source.marketing_tactic
+    ) as fixed_traffic_source,
+
+    -- recast
+    -- safe_cast(session_engaged as INT64) as session_engaged
+
+
+  from step5
+),
+
 
 add_meta_info as (
   select
       '${dataform.projectConfig.vars.GA4_DATASET}' as property_id,
+      -- make session_id - can be NULL (if anonymous ping or MP hit without session_id)
+    -- farm_fingerprint(
+    --   user_pseudo_id || event_params.ga_session_id
+    --  ) as session_id,
+  -- coalesce(  -- AZ THIS IS A BUG - cannot coalesce user_pseudo_id and ga_session_id
   concat(
       user_pseudo_id , CAST(event_params.ga_session_id AS STRING)
      ) as session_id,
@@ -440,20 +596,29 @@ add_meta_info as (
        false
     ) as is_measurement_protocol_hit,
 
+
+
     -- all page information in a page struct
     struct (
        lower(net.host(event_params.page_location)) as hostname,
        event_params.page_location as location,
        -- strip and leave only path - https://www.rfc-editor.org/rfc/rfc3986#appendix-B - not lowering, urls are case sensitive
-       regexp_extract(event_params.page_location, r'^(?:(?:[^:\/?#]+):)?(?:\/\/(?:[^\/?#]*))?([^?#]*)(?:\?(?:[^#]*))?(?:#(?:.*))?') as path, ---Change this to reference getPagePath
+       regexp_extract(event_params.page_location, r'^(?:(?:[^:\/?#]+):)?(?:\/\/(?:[^\/?#]*))?([^?#]*)(?:\?(?:[^#]*))?(?:#(?:.*))?') as path,
        event_params.page_referrer as referrer,
        event_params.page_title as title
+      --  event_params.content_type as content_type,
+      --  event_params.content_id as content_id,
+      --  event_params.content_group as content_group
       ) as page,
 
-  from step5
-),
+    -- is this a hit with source? Or: not direct/none or when we have a source or medium
+    case
+        when (fixed_traffic_source.source != 'direct' and fixed_traffic_source.medium != 'none') then true
+        when (coalesce(fixed_traffic_source.source, fixed_traffic_source.medium) is not null) then true
+    else false end as has_source,
 
----========================== Step 7 ================================
+  from fixed
+),
 
 -- dedupe based on event_id and remove redundant event_params
 deduped as (
@@ -469,7 +634,6 @@ deduped as (
   qualify row_number() over ( partition by event_id ) = 1
 ),
 
----========================== Step 8 ================================
 add_row_numbers as (
   select
     *,
@@ -491,20 +655,19 @@ add_row_numbers as (
         ),
         null
      ) as page_number,
-     if( MAX(session_engaged) OVER (PARTITION BY event_date, session_id )  = 1, session_id, NULL) as engaged_session_id 
+
+      if( MAX(session_engaged) OVER 
+        (PARTITION BY event_date, session_id )  = 1, session_id, NULL) 
+      as engaged_session_id 
+      
     ) as session_info
 
   from deduped
 )
 
 
----========================== Final Step ================================
-
 select
   current_timestamp() as _run_timestamp, -- indicates when the row was last run
   *
 from add_row_numbers
 where true
-
-
-

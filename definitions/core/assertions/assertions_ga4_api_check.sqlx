@@ -1,0 +1,135 @@
+config {
+    type: "table",
+    database: dataform.projectConfig.vars.OUTPUT_PROJECT,
+    schema: dataform.projectConfig.vars.QUALITY_DATASET,
+    description: "checking base metrics against GA4 API",
+    dependencies: ["assertion_logs",{name:"base_ga4_events"}],
+    tags:["prod", "assertions"],
+}
+js {
+    // const { helpers } = require("includes/core/helpers");
+    // const config = helpers.getConfig();
+    
+  // MERGED config implementation
+  // Require your helper functions.
+  const  helper_functions  = require("includes/helper_functions");
+  // Explicitly require the merged config from your config file.
+  // This is the source of truth for your configuration.
+  const  config   = helper_functions.getConfig();
+
+}
+
+SELECT
+  'running assertion' AS placeholder
+
+pre_operations {
+  -- declare variables and default value
+  DECLARE date_checkpoint DAtE DEFAULT DATE_SUB( CURRENT_DATE(), INTERVAL ${config.DATA_IS_FINAL_DAYS} day ) ;
+
+  DECLARE  assertion STRING DEFAULT 'api data check';
+  DECLARE check INT64;
+  DECLARE expectations INT64 DEFAULT 0;
+  DECLARE sample STRING;
+  DECLARE assertion_status STRING DEFAULT 'pass';
+  DECLARE  error_msg STRING DEFAULT 'Yipee';
+
+
+  IF ${config.ASSERTIONS_API_DATA_CHECK}  THEN
+  -- run assertion and collect sample of flawed rows
+  SET  (check, sample) = 
+     ( -- start set
+        WITH api_data AS (
+          SELECT "ga4_api" src,
+
+            PARSE_DATE("%Y%m%d", JSON_VALUE (js, '$.date')) date,
+            CAST(JSON_VALUE (js, '$.sessions') AS FLOAT64) sessions,
+            CAST(JSON_VALUE (js, '$.engagedSessions') AS FLOAT64)  engagedSessions,
+            CAST(JSON_VALUE (js, '$.totalUsers') AS FLOAT64)  totalUsers,
+            -- CAST(JSON_VALUE (js, '$.activeUsers') AS FLOAT64)  activeUsers,
+            CAST(JSON_VALUE (js, '$.screenPageViews') AS FLOAT64)  pageviews,
+            CAST(JSON_VALUE (js, '$.eventCount') AS FLOAT64)  events,
+            CAST(JSON_VALUE (js, '$.transactions') AS FLOAT64)  transactions,
+            CAST(JSON_VALUE (js, '$.totalRevenue') AS FLOAT64)  revenue
+
+          FROM
+          (
+          SELECT
+            ${dataform.projectConfig.vars.QUALITY_DATASET}.get_ga4_api_data(
+            PARSE_JSON( 
+              FORMAT('''{"dateRange": {"start_date": "%s", "end_date": "%s"}, 
+                "metrics": ["sessions", "engagedSessions", "totalUsers", "activeUsers","screenPageViews", "eventCount","transactions","totalRevenue"],  
+                "dimensions": ["date"]}''', CAST(date_checkpoint AS STRING), CAST(date_checkpoint AS STRING))
+            )
+            ) AS js
+          )
+        ) 
+      , bq_data as (
+        SELECT  'ga4_bq' , event_date as date, 
+          count(distinct session_id) sessions,
+          count(distinct if(event_params.session_engaged = 1, session_id, NULL)) engaged_sessions,
+          count(distinct user_pseudo_id) users,
+          countif(event_name="page_view") pageviews,
+          count(event_id) events,
+          count(distinct ecommerce.transaction_id) transactions,
+          sum( ecommerce.purchase_revenue) revenue,
+
+          -- SUM(event_params.engagement_time_msec) engagment_time
+          FROM ${ref("base_ga4_events")}
+          WHERE event_date = date_checkpoint
+          group by all
+      )
+      , pct_data as (
+          SELECT * FROM (
+            SELECT 
+                (SAFE_DIVIDE(a.sessions, b.sessions)-1)*100 as sessions,
+                (SAFE_DIVIDE(a.totalUsers, b.users) -1)*100 as totalUsers,
+                (SAFE_DIVIDE(a.engagedSessions, b.engaged_sessions)-1)*100 as engagedSessions,
+                (SAFE_DIVIDE(a.pageviews, b.pageviews) -1)*100 as pageviews,
+                (SAFE_DIVIDE(a.transactions, b.transactions)-1)*100 as transactions,
+                (SAFE_DIVIDE(a.revenue, b.revenue) -1)*100 as revenue,
+                (SAFE_DIVIDE(a.events, b.events)-1)*100 as events
+            FROM api_data a
+            JOIN  bq_data b USING(date)
+          )
+        UNPIVOT
+        (diff FOR metric IN (sessions, engagedSessions,totalUsers, pageviews, events , transactions, revenue)
+        )
+      )
+
+    SELECT AS STRUCT 
+                  COUNT(DISTINCT IF(diff > ${config.ALLOWED_DISCREPANCY_PERCENT}, 1, NULL) ) deviations,  
+                  STRING_AGG(DISTINCT IF(diff > ${config.ALLOWED_DISCREPANCY_PERCENT}, metric, NULL), ", ") metrics
+    FROM  
+      UNNEST((SELECT DISTINCT ARRAY((SELECT AS STRUCT  diff, metric FROM pct_data))   FROM pct_data)) 
+
+   ); -- end set
+
+    IF  check > expectations THEN 
+      SET  assertion_status = 'fail';
+      SET error_msg = FORMAT("%d 'base metric(s) exceeded expected threshold of %s (%s)", check, ${config.ALLOWED_DISCREPANCY_PERCENT} || "%", sample);
+    END IF;
+
+    -- Log assertions
+  INSERT INTO
+    ${ref("assertion_logs")}
+  VALUES
+    (CURRENT_TIMESTAMP(), assertion, CAST(date_checkpoint AS STRING), '${ref("base_ga4_events")}', expectations, check, sample, assertion_status, error_msg);
+
+  END IF  ; -- is assertion needed
+}
+ 
+
+post_operations {
+  IF ${config.ASSERTIONS_API_DATA_CHECK}  THEN
+  -- raise error
+    -- drop placeholder table
+  DROP TABLE
+    ${self()};
+  IF
+    check > expectations THEN RAISE
+  USING
+    MESSAGE = error_msg;
+  END IF;
+  END IF;
+}
+
