@@ -286,6 +286,7 @@ const generateURLParamsSQL_cleaned = (columnName, urlParamsArray, urlDecode = tr
     });
 
     return sqlSegments.join(',\n');
+
 };
 
 /**=======================================================*/
@@ -487,8 +488,6 @@ const generateClickIdTrafficSourceSQL = (
       LIMIT 1
     )[SAFE_OFFSET(0)] ${alias}`;
 };
-
-
 /**=======================================================*/
 
 /**
@@ -497,38 +496,38 @@ const generateClickIdTrafficSourceSQL = (
  * @param {Object} config - Data object
  * @returns {string} SQL fragment for SELECT statement creation
  */
-// const getSqlSelectFromRowSQL = (config) => {
-//   return Object.entries(config)
-//     .map(([key, value]) => {
-//       if (typeof value === "number") {
-//         return `${value} AS ${key}`;
-//       } else if (key === "date") {
-//         return `DATE '${value}' AS ${key}`;
-//       } else if (key === "event_timestamp" && !/^\d+$/.test(value)) {
-//         return `TIMESTAMP '${value}' AS ${key}`;
-//       } else if (key === "session_start" && !/^\d+$/.test(value)) {
-//         return `TIMESTAMP '${value}' AS ${key}`;
-//       } else if (key === "session_end" && !/^\d+$/.test(value)) {
-//         return `TIMESTAMP '${value}' AS ${key}`;
-//       } else if (typeof value === "string") {
-//         if (key === "int_value") return `${parseInt(value)} AS ${key}`;
-//         if (key.indexOf("timestamp") > -1)
-//           return `${parseInt(value)} AS ${key}`;
-//         if (key === "float_value" || key === "double_value")
-//           return `${parseFloat(value)} AS ${key}`;
-//         return `'${value}' AS ${key}`;
-//       } else if (value === null) {
-//         return `${value} AS ${key}`;
-//       } else if (value instanceof Array) {
-//         return `[${getSqlSelectFromRowSQL(value)}] AS ${key}`;
-//       } else {
-//         if (isStringInteger(key))
-//           return `STRUCT(${getSqlSelectFromRowSQL(value)})`;
-//         else return `STRUCT(${getSqlSelectFromRowSQL(value)}) AS ${key}`;
-//       }
-//     })
-//     .join(", ");
-// };
+const getSqlSelectFromRowSQL = (config) => {
+  return Object.entries(config)
+    .map(([key, value]) => {
+      if (typeof value === "number") {
+        return `${value} AS ${key}`;
+      } else if (key === "date") {
+        return `DATE '${value}' AS ${key}`;
+      } else if (key === "event_timestamp" && !/^\d+$/.test(value)) {
+        return `TIMESTAMP '${value}' AS ${key}`;
+      } else if (key === "session_start" && !/^\d+$/.test(value)) {
+        return `TIMESTAMP '${value}' AS ${key}`;
+      } else if (key === "session_end" && !/^\d+$/.test(value)) {
+        return `TIMESTAMP '${value}' AS ${key}`;
+      } else if (typeof value === "string") {
+        if (key === "int_value") return `${parseInt(value)} AS ${key}`;
+        if (key.indexOf("timestamp") > -1)
+          return `${parseInt(value)} AS ${key}`;
+        if (key === "float_value" || key === "double_value")
+          return `${parseFloat(value)} AS ${key}`;
+        return `'${value}' AS ${key}`;
+      } else if (value === null) {
+        return `${value} AS ${key}`;
+      } else if (value instanceof Array) {
+        return `[${getSqlSelectFromRowSQL(value)}] AS ${key}`;
+      } else {
+        if (isStringInteger(key))
+          return `STRUCT(${getSqlSelectFromRowSQL(value)})`;
+        else return `STRUCT(${getSqlSelectFromRowSQL(value)}) AS ${key}`;
+      }
+    })
+    .join(", ");
+};
 
 
 /**=======================================================*/
