@@ -15,30 +15,11 @@ js {
   const default_config = helperFunctions.getConfig();
 
   // Explicitly require the merged config from your config file.
-  // This is the source of truth for your configuration.
   const { mergedConfig } = require("includes/config");
-
-
-  // Perform an internal check to ensure the required config properties exist.
-  // This is a highly defensive pattern.
   const config = {
-    ...mergedConfig,
-    // Add defaults for critical arrays to prevent errors in helper functions.
-    // This is the key part that prevents the 'undefined' error.
-    CUSTOM_EVENT_PARAMS_TO_EXCLUDE: mergedConfig.CUSTOM_EVENT_PARAMS_TO_EXCLUDE || [],
-    CUSTOM_EVENT_PARAMS_ARRAY: mergedConfig.CUSTOM_EVENT_PARAMS_ARRAY || [],
-    CUSTOM_USER_PROPERTIES_ARRAY: mergedConfig.CUSTOM_USER_PROPERTIES_ARRAY || [],
-    CUSTOM_ITEM_PARAMS_TO_EXCLUDE: mergedConfig.CUSTOM_ITEM_PARAMS_TO_EXCLUDE || [],
-    CORE_PARAMS_ARRAY: mergedConfig.CORE_PARAMS_ARRAY || [],
-    EVENTS_TO_EXCLUDE: mergedConfig.EVENTS_TO_EXCLUDE || [],
-    HOSTNAME_EXCLUDE: mergedConfig.HOSTNAME_EXCLUDE || [],
-    HOSTNAME_INCLUDE_ONLY: mergedConfig.HOSTNAME_INCLUDE_ONLY || [],
-    KEY_EVENTS_ARRAY: mergedConfig.KEY_EVENTS_ARRAY || [],
+    ...mergedConfig
   };
-
-  // Now, all of your helper functions and SQL can rely on `myConfig`.
    helperFunctions.checkColumnNames(config);
-  
 }
 
   -- ==============================
@@ -48,6 +29,7 @@ js {
   declare start_date string default '20240716';
   declare end_date string default '20241009';
  }
+ 
   -- ==============================
   --        QUERY BLOCK
   -- ==============================

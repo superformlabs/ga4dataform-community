@@ -241,48 +241,15 @@ const generateURLParamSQL = (columnName, urlParam, urlDecode = true) => {
  * @param {boolean} [urlDecode=true] - Whether to URL decode the extracted values, default is true
  * @returns {string} SQL fragment for multiple URL parameters extraction
  */
-// const generateURLParamsSQL = (columnName, urlParamsArray, urlDecode = true) => {
-//   // generate the SQL:
-//   return `
-//         ${urlParamsArray
-//           .map((urlParam) =>
-//             generateURLParamSQL(columnName, urlParam, urlDecode)
-//           )
-//           .join(",\n")}
-//       `;
-// };
 const generateURLParamsSQL = (columnName, urlParamsArray, urlDecode = true) => {
-  // Input validation for robustness
-  if (!columnName || typeof columnName !== 'string') {
-    console.error('Error: "columnName" must be a non-empty string.');
-    return '';
-  }
-  if (!Array.isArray(urlParamsArray) || urlParamsArray.length === 0) {
-    console.error('Error: "urlParamsArray" must be a non-empty array.');
-    return '';
-  }
-
-  // Generate the SQL string by mapping and joining
-  const sqlSegments = urlParamsArray.map((urlParam) => {
-    // Sanitize the URL parameter key to prevent SQL injection or errors
-    const sanitizedParam = urlParam.replace(/[^a-zA-Z0-9_]/g, '');
-
-    // Construct the SQL using a helper function for clarity
-    const extractedValue = `
-        REGEXP_EXTRACT(
-            ${columnName}, 
-            r'([?&]${sanitizedParam}=[^&]*)'
-        )
-    `;
-
-    // Apply URL decoding if requested
-    const decodedValue = urlDecode ? `decode_url_param(${extractedValue})` : extractedValue;
-    
-    // Create the final SQL snippet with a proper alias
-    return `${decodedValue} AS ${sanitizedParam}`;
-  });
-
-  return sqlSegments.join(',\n');
+  // generate the SQL:
+  return `
+        ${urlParamsArray
+          .map((urlParam) =>
+            generateURLParamSQL(columnName, urlParam, urlDecode)
+          )
+          .join(",\n")}
+      `;
 };
 
 /**=======================================================*/
@@ -405,35 +372,6 @@ const generateTrafficSourceSQL = (
  * @param {string} [orderBy='time.event_timestamp_utc'] - Optional order by clause
  * @returns {string} SQL fragment for array aggregation
  */
-// const generateClickIdTrafficSourceSQL = (
-//   clickIdStruct,
-//   clickIdsArray,
-//   columnName = null,
-//   orderTypeAsc = true,
-//   orderBy = "time.event_timestamp_utc"
-// ) => {
-//   const alias = columnName === null ? "" : `as ${columnName || "click_id"} `;
-//   const orderDirection = orderTypeAsc ? "asc" : "desc";
-
-//   const coalesceItems = clickIdsArray
-//     .map((item) => `${clickIdStruct}.${item.name}`)
-//     .join(",\n");
-
-//   return `
-//         array_agg(
-//             if(
-//                 coalesce(
-//                     ${coalesceItems}
-//                 ) is null,
-//                 null,
-//                 ${clickIdStruct}
-//             )
-//             ignore nulls
-//             order by ${orderBy} ${orderDirection}
-//             limit 1
-//         )[safe_offset(0)] ${alias}`;
-// };
-
 const generateClickIdTrafficSourceSQL = (
   clickIdStruct,
   clickIdsArray,
@@ -441,49 +379,29 @@ const generateClickIdTrafficSourceSQL = (
   orderTypeAsc = true,
   orderBy = "time.event_timestamp_utc"
 ) => {
-  // Input Validation
-  if (!clickIdStruct || typeof clickIdStruct !== 'string' || clickIdStruct.trim() === '') {
-    console.error('Error: "clickIdStruct" must be a non-empty string.');
-    return '';
-  }
-  if (!Array.isArray(clickIdsArray) || clickIdsArray.length === 0) {
-    console.error('Error: "clickIdsArray" must be a non-empty array of objects with a "name" property.');
-    return '';
-  }
-
-  // Sanitize the alias to prevent SQL syntax errors
-  const safeColumnName = columnName ? columnName.replace(/[^a-zA-Z0-9_]/g, '') : clickIdStruct.split('.').slice(-1)[0];
-  const alias = `AS ${safeColumnName || 'click_id'}`;
-
-  // Determine the order direction
+  const alias = columnName === null ? "" : `as ${columnName || "click_id"} `;
   const orderDirection = orderTypeAsc ? "asc" : "desc";
 
-  // Build the coalesce string with error handling for missing 'name' properties
   const coalesceItems = clickIdsArray
-    .map((item) => {
-      if (!item || typeof item.name !== 'string') {
-        console.error('Error: All items in "clickIdsArray" must have a "name" property.');
-        // Return a null literal to prevent breaking the query
-        return 'null';
-      }
-      return `${clickIdStruct}.${item.name}`;
-    })
-    .join(",\n                    "); // Use consistent indentation for readability
+    .map((item) => `${clickIdStruct}.${item.name}`)
+    .join(",\n");
 
   return `
-    ARRAY_AGG(
-      IF(
-        COALESCE(
-          ${coalesceItems}
-        ) IS NULL,
-        NULL,
-        ${clickIdStruct}
-      )
-      IGNORE NULLS
-      ORDER BY ${orderBy} ${orderDirection}
-      LIMIT 1
-    )[SAFE_OFFSET(0)] ${alias}`;
+        array_agg(
+            if(
+                coalesce(
+                    ${coalesceItems}
+                ) is null,
+                null,
+                ${clickIdStruct}
+            )
+            ignore nulls
+            order by ${orderBy} ${orderDirection}
+            limit 1
+        )[safe_offset(0)] ${alias}`;
 };
+
+
 
 
 /**=======================================================*/
@@ -494,38 +412,38 @@ const generateClickIdTrafficSourceSQL = (
  * @param {Object} config - Data object
  * @returns {string} SQL fragment for SELECT statement creation
  */
-// const getSqlSelectFromRowSQL = (config) => {
-//   return Object.entries(config)
-//     .map(([key, value]) => {
-//       if (typeof value === "number") {
-//         return `${value} AS ${key}`;
-//       } else if (key === "date") {
-//         return `DATE '${value}' AS ${key}`;
-//       } else if (key === "event_timestamp" && !/^\d+$/.test(value)) {
-//         return `TIMESTAMP '${value}' AS ${key}`;
-//       } else if (key === "session_start" && !/^\d+$/.test(value)) {
-//         return `TIMESTAMP '${value}' AS ${key}`;
-//       } else if (key === "session_end" && !/^\d+$/.test(value)) {
-//         return `TIMESTAMP '${value}' AS ${key}`;
-//       } else if (typeof value === "string") {
-//         if (key === "int_value") return `${parseInt(value)} AS ${key}`;
-//         if (key.indexOf("timestamp") > -1)
-//           return `${parseInt(value)} AS ${key}`;
-//         if (key === "float_value" || key === "double_value")
-//           return `${parseFloat(value)} AS ${key}`;
-//         return `'${value}' AS ${key}`;
-//       } else if (value === null) {
-//         return `${value} AS ${key}`;
-//       } else if (value instanceof Array) {
-//         return `[${getSqlSelectFromRowSQL(value)}] AS ${key}`;
-//       } else {
-//         if (isStringInteger(key))
-//           return `STRUCT(${getSqlSelectFromRowSQL(value)})`;
-//         else return `STRUCT(${getSqlSelectFromRowSQL(value)}) AS ${key}`;
-//       }
-//     })
-//     .join(", ");
-// };
+const getSqlSelectFromRowSQL = (config) => {
+  return Object.entries(config)
+    .map(([key, value]) => {
+      if (typeof value === "number") {
+        return `${value} AS ${key}`;
+      } else if (key === "date") {
+        return `DATE '${value}' AS ${key}`;
+      } else if (key === "event_timestamp" && !/^\d+$/.test(value)) {
+        return `TIMESTAMP '${value}' AS ${key}`;
+      } else if (key === "session_start" && !/^\d+$/.test(value)) {
+        return `TIMESTAMP '${value}' AS ${key}`;
+      } else if (key === "session_end" && !/^\d+$/.test(value)) {
+        return `TIMESTAMP '${value}' AS ${key}`;
+      } else if (typeof value === "string") {
+        if (key === "int_value") return `${parseInt(value)} AS ${key}`;
+        if (key.indexOf("timestamp") > -1)
+          return `${parseInt(value)} AS ${key}`;
+        if (key === "float_value" || key === "double_value")
+          return `${parseFloat(value)} AS ${key}`;
+        return `'${value}' AS ${key}`;
+      } else if (value === null) {
+        return `${value} AS ${key}`;
+      } else if (value instanceof Array) {
+        return `[${getSqlSelectFromRowSQL(value)}] AS ${key}`;
+      } else {
+        if (isStringInteger(key))
+          return `STRUCT(${getSqlSelectFromRowSQL(value)})`;
+        else return `STRUCT(${getSqlSelectFromRowSQL(value)}) AS ${key}`;
+      }
+    })
+    .join(", ");
+};
 
 
 /**=======================================================*/
