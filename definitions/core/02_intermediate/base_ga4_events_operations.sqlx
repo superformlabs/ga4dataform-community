@@ -10,11 +10,8 @@ config {
   -- ==============================
 
 js {
-  // Require your helper functions.
   const helperFunctions = require("includes/helper_functions");
   const default_config = helperFunctions.getConfig();
-
-  // Explicitly require the merged config from your config file.
   const { mergedConfig } = require("includes/config");
   const config = {
     ...mergedConfig
@@ -29,7 +26,7 @@ js {
   declare start_date string default '20240716';
   declare end_date string default '20241009';
  }
- 
+
   -- ==============================
   --        QUERY BLOCK
   -- ==============================

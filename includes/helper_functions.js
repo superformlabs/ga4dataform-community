@@ -927,6 +927,7 @@ module.exports = {
   checkColumnNames,
   generateParamsSQL,
   generateURLParamsSQL,
+  generateParamSQL,
   generateStructSQL,
   generateListSQL,
   generateFilterTypeFromListSQL,

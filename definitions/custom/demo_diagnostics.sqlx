@@ -1,181 +1,181 @@
-config {
-    type: "table",
-    schema: dataform.projectConfig.vars.OUTPUTS_DATASET,
-    description: "What is in your GA4 - past 64 days",
-    bigquery: {
-        labels: require("includes/core/helpers.js").helpers.storageLabels()
-    }
-}
+-- config {
+--     type: "table",
+--     schema: dataform.projectConfig.vars.OUTPUTS_DATASET,
+--     description: "What is in your GA4 - past 64 days",
+--       bigquery: {
+--         labels: require("includes/core/helpers.js").helpers.storageLabels()
+--      }
+-- }
 
 
-/*
-    - caridinality of pages, sources
-    - self referral session start
-    - cookieless hits
-    - click ids without campaign names
-    - duplicate transaction ids
+-- /*
+--     - caridinality of pages, sources
+--     - self referral session start
+--     - cookieless hits
+--     - click ids without campaign names
+--     - duplicate transaction ids
 
-*/
+-- */
 
-js {
-  const { helpers } = require("includes/core/helpers");
-}
+-- js {
+--   const { helpers } = require("includes/helper_functions");
+-- }
 
--- only read this many days from the events table:
-pre_operations {
-  declare lookback_days INT64 default 64;
-  set @@query_label = "${helpers.executionLabels()}"
-}
+-- -- only read this many days from the events table:
+-- pre_operations {
+--   declare lookback_days INT64 default 64;
+--   set @@query_label = "${helpers.executionLabels()}"
+-- }
 
-with daily_diagnostics as (
-    select
-        time.date_local,
-        date_trunc(time.date_local, week) as week_start_date,
+-- with daily_diagnostics as (
+--     select
+--         time.date_local,
+--         date_trunc(time.date_local, week) as week_start_date,
 
-        -- cardinality counts (also done weekly)
-        count(distinct page.location) as daily_unique_pages,
-        count(distinct collected_traffic_source.manual_source) as daily_unique_sources,
-        count(distinct collected_traffic_source.manual_medium) as daily_unique_mediums,
-        count(distinct collected_traffic_source.manual_campaign_name) as daily_unique_campaign_names,
-        count(distinct device.web_info.hostname) as daily_unique_hostnames,
+--         -- cardinality counts (also done weekly)
+--         count(distinct page.location) as daily_unique_pages,
+--         count(distinct collected_traffic_source.manual_source) as daily_unique_sources,
+--         count(distinct collected_traffic_source.manual_medium) as daily_unique_mediums,
+--         count(distinct collected_traffic_source.manual_campaign_name) as daily_unique_campaign_names,
+--         count(distinct device.web_info.hostname) as daily_unique_hostnames,
 
-        array_agg(distinct collected_traffic_source.manual_source ignore nulls) as daily_sources,
-        array_agg(distinct collected_traffic_source.manual_medium ignore nulls) as daily_mediums,
-        array_agg(distinct collected_traffic_source.manual_campaign_name ignore nulls) as daily_campaign_names,
-        array_agg(distinct device.web_info.hostname ignore nulls) as daily_hostnames,
+--         array_agg(distinct collected_traffic_source.manual_source ignore nulls) as daily_sources,
+--         array_agg(distinct collected_traffic_source.manual_medium ignore nulls) as daily_mediums,
+--         array_agg(distinct collected_traffic_source.manual_campaign_name ignore nulls) as daily_campaign_names,
+--         array_agg(distinct device.web_info.hostname ignore nulls) as daily_hostnames,
 
-        -- duplicate transactions: transactions minus distinct transactions
-        countif(ecommerce.transaction_id is not null) - count(distinct ecommerce.transaction_id) as daily_duplicate_transactions,
+--         -- duplicate transactions: transactions minus distinct transactions
+--         countif(ecommerce.transaction_id is not null) - count(distinct ecommerce.transaction_id) as daily_duplicate_transactions,
         
-        -- ecommerce hits without item payload
-        countif(event_name = 'add_payment_info' and array_length(items) = 0) as add_payment_info_empty,
-        countif(event_name = 'add_shipping_info' and array_length(items) = 0) as add_shipping_info_empty,
-        countif(event_name = 'add_to_cart' and array_length(items) = 0) as add_to_cart_empty,
-        countif(event_name = 'add_to_wishlist' and array_length(items) = 0) as add_to_wishlist_empty,
-        countif(event_name = 'begin_checkout' and array_length(items) = 0) as begin_checkout_empty,
-        countif(event_name = 'purchase' and array_length(items) = 0) as purchase_empty,
-        countif(event_name = 'refund' and array_length(items) = 0) as refund_empty,
-        countif(event_name = 'remove_from_cart' and array_length(items) = 0) as remove_from_cart_empty,
-        countif(event_name = 'select_item' and array_length(items) = 0) as select_item_empty,
-        countif(event_name = 'select_promotion' and array_length(items) = 0) as select_promotion_empty,
-        countif(event_name = 'view_cart' and array_length(items) = 0) as view_cart_empty,
-        countif(event_name = 'view_item' and array_length(items) = 0) as view_item_empty,
-        countif(event_name = 'view_item_list' and array_length(items) = 0) as view_item_list_empty,
-        countif(event_name = 'view_promotion' and array_length(items) = 0) as view_promotion_empty,
+--         -- ecommerce hits without item payload
+--         countif(event_name = 'add_payment_info' and array_length(items) = 0) as add_payment_info_empty,
+--         countif(event_name = 'add_shipping_info' and array_length(items) = 0) as add_shipping_info_empty,
+--         countif(event_name = 'add_to_cart' and array_length(items) = 0) as add_to_cart_empty,
+--         countif(event_name = 'add_to_wishlist' and array_length(items) = 0) as add_to_wishlist_empty,
+--         countif(event_name = 'begin_checkout' and array_length(items) = 0) as begin_checkout_empty,
+--         countif(event_name = 'purchase' and array_length(items) = 0) as purchase_empty,
+--         countif(event_name = 'refund' and array_length(items) = 0) as refund_empty,
+--         countif(event_name = 'remove_from_cart' and array_length(items) = 0) as remove_from_cart_empty,
+--         countif(event_name = 'select_item' and array_length(items) = 0) as select_item_empty,
+--         countif(event_name = 'select_promotion' and array_length(items) = 0) as select_promotion_empty,
+--         countif(event_name = 'view_cart' and array_length(items) = 0) as view_cart_empty,
+--         countif(event_name = 'view_item' and array_length(items) = 0) as view_item_empty,
+--         countif(event_name = 'view_item_list' and array_length(items) = 0) as view_item_list_empty,
+--         countif(event_name = 'view_promotion' and array_length(items) = 0) as view_promotion_empty,
 
-        -- ecommerce hits - for reference
-        countif(event_name = 'add_payment_info') as add_payment_info,
-        countif(event_name = 'add_shipping_info') as add_shipping_info,
-        countif(event_name = 'add_to_cart') as add_to_cart,
-        countif(event_name = 'add_to_wishlist') as add_to_wishlist,
-        countif(event_name = 'begin_checkout') as begin_checkout,
-        countif(event_name = 'purchase') as purchase,
-        countif(event_name = 'refund') as refund,
-        countif(event_name = 'remove_from_cart') as remove_from_cart,
-        countif(event_name = 'select_item') as select_item,
-        countif(event_name = 'select_promotion') as select_promotion,
-        countif(event_name = 'view_cart') as view_cart,
-        countif(event_name = 'view_item') as view_item,
-        countif(event_name = 'view_item_list') as view_item_list,
-        countif(event_name = 'view_promotion') as view_promotion,
+--         -- ecommerce hits - for reference
+--         countif(event_name = 'add_payment_info') as add_payment_info,
+--         countif(event_name = 'add_shipping_info') as add_shipping_info,
+--         countif(event_name = 'add_to_cart') as add_to_cart,
+--         countif(event_name = 'add_to_wishlist') as add_to_wishlist,
+--         countif(event_name = 'begin_checkout') as begin_checkout,
+--         countif(event_name = 'purchase') as purchase,
+--         countif(event_name = 'refund') as refund,
+--         countif(event_name = 'remove_from_cart') as remove_from_cart,
+--         countif(event_name = 'select_item') as select_item,
+--         countif(event_name = 'select_promotion') as select_promotion,
+--         countif(event_name = 'view_cart') as view_cart,
+--         countif(event_name = 'view_item') as view_item,
+--         countif(event_name = 'view_item_list') as view_item_list,
+--         countif(event_name = 'view_promotion') as view_promotion,
 
-        -- ignored referrers
-        count(distinct if(
-            event_params.ignore_referrer = "true" and net.reg_domain(page.referrer) != net.reg_domain(page.location),
-            net.host(page.referrer),
-            NULL
-        )) as daily_unique_ignored_referrers,
-        array_agg(distinct if(
-            event_params.ignore_referrer = "true" and net.reg_domain(page.referrer) != net.reg_domain(page.location),
-            net.host(page.referrer),
-            NULL
-        ) ignore nulls) as daily_ignored_referrers,
-        -- session start from self referral
-        countif(
-            event_name = 'session_start' and net.reg_domain(page.referrer) = net.reg_domain(page.location)
-        ) as daily_self_referral_sessions,
-        countif(event_name = 'session_start') as daily_session_start,
+--         -- ignored referrers
+--         count(distinct if(
+--             event_params.ignore_referrer = "true" and net.reg_domain(page.referrer) != net.reg_domain(page.location),
+--             net.host(page.referrer),
+--             NULL
+--         )) as daily_unique_ignored_referrers,
+--         array_agg(distinct if(
+--             event_params.ignore_referrer = "true" and net.reg_domain(page.referrer) != net.reg_domain(page.location),
+--             net.host(page.referrer),
+--             NULL
+--         ) ignore nulls) as daily_ignored_referrers,
+--         -- session start from self referral
+--         countif(
+--             event_name = 'session_start' and net.reg_domain(page.referrer) = net.reg_domain(page.location)
+--         ) as daily_self_referral_sessions,
+--         countif(event_name = 'session_start') as daily_session_start,
 
-        -- cookieless hits
-        countif(user_pseudo_id is null) as daily_cookieless_hits,
-        countif(is_measurement_protocol_hit) as daily_measurement_protocol_hits,
-        countif(session_id is null) as daily_sessionless_hits,
-        count(*) as daily_hits,
+--         -- cookieless hits
+--         countif(user_pseudo_id is null) as daily_cookieless_hits,
+--         countif(is_measurement_protocol_hit) as daily_measurement_protocol_hits,
+--         countif(session_id is null) as daily_sessionless_hits,
+--         count(*) as daily_hits,
     
-    from ${ref("base_ga4_events")}
-    where event_date >= date_sub(
-      current_date(),
-      interval lookback_days day
-    )
-    group by all
-)
+--     from ${ref("base_ga4_events")}
+--     where event_date >= date_sub(
+--       current_date(),
+--       interval lookback_days day
+--     )
+--     group by all
+-- )
 
-, weekly_diagnostics as (
-    select
-        date_trunc(time.date_local, week) as week_start_date,
+-- , weekly_diagnostics as (
+--     select
+--         date_trunc(time.date_local, week) as week_start_date,
 
-        min(time.date_local) as first_recorded_date,
+--         min(time.date_local) as first_recorded_date,
 
-        count(distinct page.location) as weekly_pages,
-        count(distinct collected_traffic_source.manual_source) as weekly_sources,
-        count(distinct collected_traffic_source.manual_medium) as weekly_mediums,
-        count(distinct collected_traffic_source.manual_campaign_name) as weekly_campaign_names,
-        count(distinct device.web_info.hostname) as weekly_hostnames,
+--         count(distinct page.location) as weekly_pages,
+--         count(distinct collected_traffic_source.manual_source) as weekly_sources,
+--         count(distinct collected_traffic_source.manual_medium) as weekly_mediums,
+--         count(distinct collected_traffic_source.manual_campaign_name) as weekly_campaign_names,
+--         count(distinct device.web_info.hostname) as weekly_hostnames,
 
-        -- duplicate transactions: transactions minus distinct transactions
-        countif(ecommerce.transaction_id is not null) - count(distinct ecommerce.transaction_id) as weekly_duplicate_transactions,
+--         -- duplicate transactions: transactions minus distinct transactions
+--         countif(ecommerce.transaction_id is not null) - count(distinct ecommerce.transaction_id) as weekly_duplicate_transactions,
 
-    from ${ref("base_ga4_events")}
-    where event_date >= date_sub(
-      current_date(),
-      interval lookback_days day
-    )
-    group by all
-    having first_recorded_date = week_start_date -- we only want full weeks (or the most recent one)
-)
+--     from ${ref("base_ga4_events")}
+--     where event_date >= date_sub(
+--       current_date(),
+--       interval lookback_days day
+--     )
+--     group by all
+--     having first_recorded_date = week_start_date -- we only want full weeks (or the most recent one)
+-- )
 
-, join_in_weekly as (
-    select 
-        d.*,
-        w.weekly_pages,
-        w.weekly_sources,
-        w.weekly_mediums,
-        w.weekly_campaign_names,
-        w.weekly_hostnames,
-        w.weekly_duplicate_transactions,
+-- , join_in_weekly as (
+--     select 
+--         d.*,
+--         w.weekly_pages,
+--         w.weekly_sources,
+--         w.weekly_mediums,
+--         w.weekly_campaign_names,
+--         w.weekly_hostnames,
+--         w.weekly_duplicate_transactions,
 
-    from daily_diagnostics d
-    left join weekly_diagnostics w
-        on d.week_start_date = w.week_start_date
-        and d.date_local = w.week_start_date -- only join in 1 day per week
-)
-
-
-, final as (
-    select
-        *,
-        safe_divide(add_payment_info_empty, add_payment_info) as pct_add_payment_info_empty,
-        safe_divide(add_shipping_info_empty, add_shipping_info) as pct_add_shipping_info_empty,
-        safe_divide(add_to_cart_empty, add_to_cart) as pct_add_to_cart_empty,
-        safe_divide(add_to_wishlist_empty, add_to_wishlist) as pct_add_to_wishlist_empty,
-        safe_divide(begin_checkout_empty, begin_checkout) as pct_begin_checkout_empty,
-        safe_divide(purchase_empty, purchase) as pct_purchase_empty,
-        safe_divide(refund_empty, refund) as pct_refund_empty,
-        safe_divide(remove_from_cart_empty, remove_from_cart) as pct_remove_from_cart_empty,
-        safe_divide(select_item_empty, select_item) as pct_select_item_empty,
-        safe_divide(select_promotion_empty, select_promotion) as pct_select_promotion_empty,
-        safe_divide(view_cart_empty, view_cart) as pct_view_cart_empty,
-        safe_divide(view_item_empty, view_item) as pct_view_item_empty,
-        safe_divide(view_item_list_empty, view_item_list) as pct_view_item_list_empty,
-        safe_divide(view_promotion_empty, view_promotion) as pct_view_promotion_empty,
-
-        safe_divide(weekly_duplicate_transactions, purchase) as pct_duplicate_transactions,
-        safe_divide(daily_self_referral_sessions, daily_session_start) as pct_self_referrals,
-        safe_divide(daily_cookieless_hits, daily_hits) as pct_cookieless_hits,
-    from join_in_weekly
-)
+--     from daily_diagnostics d
+--     left join weekly_diagnostics w
+--         on d.week_start_date = w.week_start_date
+--         and d.date_local = w.week_start_date -- only join in 1 day per week
+-- )
 
 
-select
-    *
-from final
+-- , final as (
+--     select
+--         *,
+--         safe_divide(add_payment_info_empty, add_payment_info) as pct_add_payment_info_empty,
+--         safe_divide(add_shipping_info_empty, add_shipping_info) as pct_add_shipping_info_empty,
+--         safe_divide(add_to_cart_empty, add_to_cart) as pct_add_to_cart_empty,
+--         safe_divide(add_to_wishlist_empty, add_to_wishlist) as pct_add_to_wishlist_empty,
+--         safe_divide(begin_checkout_empty, begin_checkout) as pct_begin_checkout_empty,
+--         safe_divide(purchase_empty, purchase) as pct_purchase_empty,
+--         safe_divide(refund_empty, refund) as pct_refund_empty,
+--         safe_divide(remove_from_cart_empty, remove_from_cart) as pct_remove_from_cart_empty,
+--         safe_divide(select_item_empty, select_item) as pct_select_item_empty,
+--         safe_divide(select_promotion_empty, select_promotion) as pct_select_promotion_empty,
+--         safe_divide(view_cart_empty, view_cart) as pct_view_cart_empty,
+--         safe_divide(view_item_empty, view_item) as pct_view_item_empty,
+--         safe_divide(view_item_list_empty, view_item_list) as pct_view_item_list_empty,
+--         safe_divide(view_promotion_empty, view_promotion) as pct_view_promotion_empty,
+
+--         safe_divide(weekly_duplicate_transactions, purchase) as pct_duplicate_transactions,
+--         safe_divide(daily_self_referral_sessions, daily_session_start) as pct_self_referrals,
+--         safe_divide(daily_cookieless_hits, daily_hits) as pct_cookieless_hits,
+--     from join_in_weekly
+-- )
+
+
+-- select
+--     *
+-- from final

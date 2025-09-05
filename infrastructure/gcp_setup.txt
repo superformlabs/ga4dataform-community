@@ -2,7 +2,7 @@
 Name: gmp-clearview-cosmoprof-ca-web
 Region: us-central
 ActAs: uncheck Enforce policy
-Click Grant All  eprmissions to dataform service acount
+Click Grant All permissions to dataform service acount
 
 
 #Save project info into a shell variable:
