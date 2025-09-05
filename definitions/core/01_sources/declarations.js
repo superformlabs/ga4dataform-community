@@ -10,13 +10,9 @@ declare({
     name: 'events_*'
 
 });
-// declare({
-//     database: dataform.projectConfig.defaultProject,
-//     schema: dataform.projectConfig.vars.GA4_DATASET,
-//     tags: ["prod"],
-//     name: 'events_fresh_*'
-// });
-// ["ga4_sessions", "ga4_pages", "ga4_products", "ga4_events"]
+
+// //Declare tables that need to be exported in CLoud Storage
+// ["base_ga4_events", "base_ga4_items", "ga4_sessions", "ga4_pageviews"]
 //   .forEach(source => declare({
 //       schema: "gmp_output",
 //       name: source

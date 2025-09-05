@@ -1,12 +1,15 @@
-
 /**
  * Returns the merged core and custom configuration objects.
  * @returns {Object} Merged configuration object
  */
 const getConfig = () => {
-  // const { config } = require("includes/config");
-  const { mergedConfig } = require("./config");
-  return { ...mergedConfig };
+    // const { config } = require("includes/config");
+    const {
+        mergedConfig
+    } = require("./config");
+    return {
+        ...mergedConfig
+    };
 };
 
 /**=======================================================*/
@@ -82,21 +85,21 @@ const getEventParamKeysArray = (config, tbl, param_array = "event_params") => {
  * @returns {string} SQL fragment for parameter unnest
  */
 const generateParamSQL = (config, column = "event_params") => {
-  let value = "";
-  if (config.type === "decimal") {
-    value = `coalesce(
+    let value = "";
+    if (config.type === "decimal") {
+        value = `coalesce(
             safe_cast((select value.int_value from unnest(${column}) where key = '${config.name}') as numeric),
             safe_cast((select value.double_value from unnest(${column}) where key = '${config.name}') as numeric),
             safe_cast((select value.float_value  from unnest(${column}) where key = '${config.name}') as numeric)
           ) `;
-  } else if (config.type === "string") {
-    value = `
+    } else if (config.type === "string") {
+        value = `
           (select coalesce(value.string_value, cast(value.int_value as string), cast(value.float_value as string), cast(value.double_value as string) ) from unnest(${column}) where key = '${config.name}') `;
-  } else {
-    value = `(select value.${config.type}_value from unnest(${column}) where key = '${config.name}') `;
-  }
-  value = config.cleaningMethod ? config.cleaningMethod(value) : value;
-  return `${value} as ${config.renameTo ? config.renameTo : config.name}`;
+    } else {
+        value = `(select value.${config.type}_value from unnest(${column}) where key = '${config.name}') `;
+    }
+    value = config.cleaningMethod ? config.cleaningMethod(value) : value;
+    return `${value} as ${config.renameTo ? config.renameTo : config.name}`;
 };
 
 /**=======================================================*/
@@ -110,15 +113,15 @@ const generateParamSQL = (config, column = "event_params") => {
  * @returns {string} SQL fragment for array aggregation
  */
 const generateArrayAggSQL = (
-  paramName,
-  columnName = false,
-  orderTypeAsc = true,
-//   orderBy = "time.event_timestamp_utc"
-  orderBy = "event_timestamp"
+    paramName,
+    columnName = false,
+    orderTypeAsc = true,
+    //   orderBy = "time.event_timestamp_utc"
+    orderBy = "event_timestamp"
 ) => {
-  const alias =
-    columnName === null ? "" : `AS ${columnName ? columnName : paramName} `;
-  return `ARRAY_AGG(${paramName} IGNORE NULLS ORDER BY ${orderBy} ${
+    const alias =
+        columnName === null ? "" : `AS ${columnName ? columnName : paramName} `;
+    return `ARRAY_AGG(${paramName} IGNORE NULLS ORDER BY ${orderBy} ${
     orderTypeAsc ? "ASC" : "DESC"
   } LIMIT 1)[SAFE_OFFSET(0)] ${alias}`;
 };
@@ -128,10 +131,10 @@ const generateArrayAggSQL = (
 /* 
  * Function #4
  * Generates SQL for PIVOT clause */
-const getSqlPivotEventParams = (event_params)=> {
-   let value = "";
-   value = ` PIVOT ( MIN(param_value) FOR param_name IN (${event_params})  ) `
-return `${value}`;
+const getSqlPivotEventParams = (event_params) => {
+    let value = "";
+    value = ` PIVOT ( MIN(param_value) FOR param_name IN (${event_params})  ) `
+    return `${value}`;
 }
 
 /**=======================================================*/
@@ -142,15 +145,15 @@ return `${value}`;
  * Generates SQL code that counts instances of events 
  * specified in KEY_EVENT_ARRAY , to be included as a metric
  */
-// const getSqlSelectEventsAsMetrics = (config) => {
-//   return Object.entries(config)
-//     .map(([key, value]) => {
-//        return `countif(lower(event_name)='${value.toLowerCase()}') AS ${value.toLowerCase()}`;
-//     })
-//     .join(", ");
-// }
-
 const getSqlSelectEventsAsMetrics = (config) => {
+  return Object.entries(config)
+    .map(([key, value]) => {
+       return `countif(lower(event_name)='${value.toLowerCase()}') AS ${value.toLowerCase()}`;
+    })
+    .join(", ");
+}
+
+const getSqlSelectEventsAsMetrics_clean = (config) => {
     // Check if the input is a valid object and has entries
     if (!config || typeof config !== 'object' || Object.keys(config).length === 0) {
         // Return an empty string or a comment to avoid generating invalid SQL
@@ -180,11 +183,11 @@ const getSqlSelectEventsAsMetrics = (config) => {
  * @returns {string} SQL fragment for qualify statement to dedupe transactions
  */
 const generateTransactionsDedupeSQL = (tf) => {
-  if(tf) {
+    if (tf) {
         return `qualify duplicate_count = 1`
-  } else {
-     return ``
-  }
+    } else {
+        return ``
+    }
 }
 
 /**=======================================================*/
@@ -196,14 +199,13 @@ const generateTransactionsDedupeSQL = (tf) => {
  * @param {string} [column='event_params'] - Column name containing the parameters
  * @returns {string} SQL fragment for multiple parameters unnest
  */
-const generateParamsSQL_fake  = (config_array, column = "event_params") => {
-  return 
-      `${config_array}`;
+const generateParamsSQL_fake = (config_array, column = "event_params") => {
+    return `${config_array}`;
 
-  };
+};
 const generateParamsSQL = (config_array, column = "event_params") => {
-  console.log("alina");
-  return `
+    console.log("alina");
+    return `
       ${config_array
         .map((config) => {
           return generateParamSQL(config, column);
@@ -226,10 +228,10 @@ const generateParamsSQL = (config_array, column = "event_params") => {
  * @returns {string} SQL fragment for URL parameter extraction
  */
 const generateURLParamSQL = (columnName, urlParam, urlDecode = true) => {
-  let value = `regexp_extract(${columnName}, r"^[^#]+[?&]${urlParam.name}=([^&#]+)")`;
-  value = urlParam.cleaningMethod ? urlParam.cleaningMethod(value) : value;
-  value = urlDecode ? urlDecodeSQL(value) : value;
-  return `${value} as ${urlParam.renameTo ? urlParam.renameTo : urlParam.name}`;
+    let value = `regexp_extract(${columnName}, r"^[^#]+[?&]${urlParam.name}=([^&#]+)")`;
+    value = urlParam.cleaningMethod ? urlParam.cleaningMethod(value) : value;
+    value = urlDecode ? urlDecodeSQL(value) : value;
+    return `${value} as ${urlParam.renameTo ? urlParam.renameTo : urlParam.name}`;
 };
 
 /**=======================================================*/
@@ -242,48 +244,48 @@ const generateURLParamSQL = (columnName, urlParam, urlDecode = true) => {
  * @param {boolean} [urlDecode=true] - Whether to URL decode the extracted values, default is true
  * @returns {string} SQL fragment for multiple URL parameters extraction
  */
-// const generateURLParamsSQL = (columnName, urlParamsArray, urlDecode = true) => {
-//   // generate the SQL:
-//   return `
-//         ${urlParamsArray
-//           .map((urlParam) =>
-//             generateURLParamSQL(columnName, urlParam, urlDecode)
-//           )
-//           .join(",\n")}
-//       `;
-// };
 const generateURLParamsSQL = (columnName, urlParamsArray, urlDecode = true) => {
-  // Input validation for robustness
-  if (!columnName || typeof columnName !== 'string') {
-    console.error('Error: "columnName" must be a non-empty string.');
-    return '';
-  }
-  if (!Array.isArray(urlParamsArray) || urlParamsArray.length === 0) {
-    console.error('Error: "urlParamsArray" must be a non-empty array.');
-    return '';
-  }
+    // generate the SQL:
+    return `
+        ${urlParamsArray
+          .map((urlParam) =>
+            generateURLParamSQL(columnName, urlParam, urlDecode)
+          )
+          .join(",\n")}
+      `;
+};
+const generateURLParamsSQL_cleaned = (columnName, urlParamsArray, urlDecode = true) => {
+    // Input validation for robustness
+    if (!columnName || typeof columnName !== 'string') {
+        console.error('Error: "columnName" must be a non-empty string.');
+        return '';
+    }
+    if (!Array.isArray(urlParamsArray) || urlParamsArray.length === 0) {
+        console.error('Error: "urlParamsArray" must be a non-empty array.');
+        return '';
+    }
 
-  // Generate the SQL string by mapping and joining
-  const sqlSegments = urlParamsArray.map((urlParam) => {
-    // Sanitize the URL parameter key to prevent SQL injection or errors
-    const sanitizedParam = urlParam.replace(/[^a-zA-Z0-9_]/g, '');
+    // Generate the SQL string by mapping and joining
+    const sqlSegments = urlParamsArray.map((urlParam) => {
+        // Sanitize the URL parameter key to prevent SQL injection or errors
+        const sanitizedParam = urlParam.replace(/[^a-zA-Z0-9_]/g, '');
 
-    // Construct the SQL using a helper function for clarity
-    const extractedValue = `
+        // Construct the SQL using a helper function for clarity
+        const extractedValue = `
         REGEXP_EXTRACT(
             ${columnName}, 
             r'([?&]${sanitizedParam}=[^&]*)'
         )
     `;
 
-    // Apply URL decoding if requested
-    const decodedValue = urlDecode ? `decode_url_param(${extractedValue})` : extractedValue;
-    
-    // Create the final SQL snippet with a proper alias
-    return `${decodedValue} AS ${sanitizedParam}`;
-  });
+        // Apply URL decoding if requested
+        const decodedValue = urlDecode ? `decode_url_param(${extractedValue})` : extractedValue;
 
-  return sqlSegments.join(',\n');
+        // Create the final SQL snippet with a proper alias
+        return `${decodedValue} AS ${sanitizedParam}`;
+    });
+
+    return sqlSegments.join(',\n');
 };
 
 /**=======================================================*/
@@ -294,7 +296,7 @@ const generateURLParamsSQL = (columnName, urlParamsArray, urlDecode = true) => {
  * @returns {string} SQL fragment for struct creation
  */
 const generateStructSQL = (SQL) => {
-  return `
+    return `
     STRUCT (${SQL})
   `;
 };
@@ -316,27 +318,27 @@ const generateStructSQL = (SQL) => {
  * @returns {string} A SQL string in the format ('item1','item2','item3'). Returns '(\'\')' for an empty list.
  */
 const generateListSQL = (list) => {
-  // 1. Input Validation: Check if the input is a valid array.
-  if (!Array.isArray(list)) {
-    console.error("Error: The 'list' parameter must be an array.");
-    return "('')"; // Return a safe, valid SQL fragment
-  }
+    // 1. Input Validation: Check if the input is a valid array.
+    if (!Array.isArray(list)) {
+        console.error("Error: The 'list' parameter must be an array.");
+        return "('')"; // Return a safe, valid SQL fragment
+    }
 
-  // 2. Data Sanitization and Mapping: Map over the array to ensure each item is a string.
-  // This also handles cases where a non-string value might be in the array.
-  const sanitizedList = list.map(item => {
-    // Escape single quotes within the string to prevent SQL injection.
-    const sanitizedItem = String(item).replace(/'/g, "''");
-    return `'${sanitizedItem}'`;
-  });
+    // 2. Data Sanitization and Mapping: Map over the array to ensure each item is a string.
+    // This also handles cases where a non-string value might be in the array.
+    const sanitizedList = list.map(item => {
+        // Escape single quotes within the string to prevent SQL injection.
+        const sanitizedItem = String(item).replace(/'/g, "''");
+        return `'${sanitizedItem}'`;
+    });
 
-  // 3. Handle Empty Array: If the list is empty after sanitization, return a safe default.
-  if (sanitizedList.length === 0) {
-    return "('')";
-  }
+    // 3. Handle Empty Array: If the list is empty after sanitization, return a safe default.
+    if (sanitizedList.length === 0) {
+        return "('')";
+    }
 
-  // 4. Join and Return: Join the sanitized items with commas and wrap in parentheses.
-  return `(${sanitizedList.join(',')})`;
+    // 4. Join and Return: Join the sanitized items with commas and wrap in parentheses.
+    return `(${sanitizedList.join(',')})`;
 };
 /**=======================================================*/
 /**
@@ -348,9 +350,9 @@ const generateListSQL = (list) => {
  * @returns {string} SQL fragment for WHERE clause creation
  */
 const generateFilterTypeFromListSQL = (type = "exclude", columm, list) => {
-  if (list.length == 0) return `true`;
-  const filterType = type === "exclude" ? "not in" : "in";
-  return `coalesce(${columm},"") ${filterType}  ${generateListSQL(list)}`;
+    if (list.length == 0) return `true`;
+    const filterType = type === "exclude" ? "not in" : "in";
+    return `coalesce(${columm},"") ${filterType}  ${generateListSQL(list)}`;
 };
 
 /**=======================================================*/
@@ -365,16 +367,16 @@ const generateFilterTypeFromListSQL = (type = "exclude", columm, list) => {
  * @returns {string} SQL fragment for array aggregation
  */
 const generateTrafficSourceSQL = (
-  fixedTrafficSourceTable,
-  columnName = null,
-  orderTypeAsc = true,
-  orderBy = "time.event_timestamp_utc"
+    fixedTrafficSourceTable,
+    columnName = null,
+    orderTypeAsc = true,
+    orderBy = "time.event_timestamp_utc"
 ) => {
-  const alias =
-    columnName === null ? "" : `as ${columnName || "traffic_source"} `;
-  const orderDirection = orderTypeAsc ? "asc" : "desc";
+    const alias =
+        columnName === null ? "" : `as ${columnName || "traffic_source"} `;
+    const orderDirection = orderTypeAsc ? "asc" : "desc";
 
-  return `
+    return `
         array_agg(
             if(
                 coalesce(
@@ -436,42 +438,42 @@ const generateTrafficSourceSQL = (
 // };
 
 const generateClickIdTrafficSourceSQL = (
-  clickIdStruct,
-  clickIdsArray,
-  columnName = null,
-  orderTypeAsc = true,
-  orderBy = "time.event_timestamp_utc"
+    clickIdStruct,
+    clickIdsArray,
+    columnName = null,
+    orderTypeAsc = true,
+    orderBy = "time.event_timestamp_utc"
 ) => {
-  // Input Validation
-  if (!clickIdStruct || typeof clickIdStruct !== 'string' || clickIdStruct.trim() === '') {
-    console.error('Error: "clickIdStruct" must be a non-empty string.');
-    return '';
-  }
-  if (!Array.isArray(clickIdsArray) || clickIdsArray.length === 0) {
-    console.error('Error: "clickIdsArray" must be a non-empty array of objects with a "name" property.');
-    return '';
-  }
+    // Input Validation
+    if (!clickIdStruct || typeof clickIdStruct !== 'string' || clickIdStruct.trim() === '') {
+        console.error('Error: "clickIdStruct" must be a non-empty string.');
+        return '';
+    }
+    if (!Array.isArray(clickIdsArray) || clickIdsArray.length === 0) {
+        console.error('Error: "clickIdsArray" must be a non-empty array of objects with a "name" property.');
+        return '';
+    }
 
-  // Sanitize the alias to prevent SQL syntax errors
-  const safeColumnName = columnName ? columnName.replace(/[^a-zA-Z0-9_]/g, '') : clickIdStruct.split('.').slice(-1)[0];
-  const alias = `AS ${safeColumnName || 'click_id'}`;
+    // Sanitize the alias to prevent SQL syntax errors
+    const safeColumnName = columnName ? columnName.replace(/[^a-zA-Z0-9_]/g, '') : clickIdStruct.split('.').slice(-1)[0];
+    const alias = `AS ${safeColumnName || 'click_id'}`;
 
-  // Determine the order direction
-  const orderDirection = orderTypeAsc ? "asc" : "desc";
+    // Determine the order direction
+    const orderDirection = orderTypeAsc ? "asc" : "desc";
 
-  // Build the coalesce string with error handling for missing 'name' properties
-  const coalesceItems = clickIdsArray
-    .map((item) => {
-      if (!item || typeof item.name !== 'string') {
-        console.error('Error: All items in "clickIdsArray" must have a "name" property.');
-        // Return a null literal to prevent breaking the query
-        return 'null';
-      }
-      return `${clickIdStruct}.${item.name}`;
-    })
-    .join(",\n                    "); // Use consistent indentation for readability
+    // Build the coalesce string with error handling for missing 'name' properties
+    const coalesceItems = clickIdsArray
+        .map((item) => {
+            if (!item || typeof item.name !== 'string') {
+                console.error('Error: All items in "clickIdsArray" must have a "name" property.');
+                // Return a null literal to prevent breaking the query
+                return 'null';
+            }
+            return `${clickIdStruct}.${item.name}`;
+        })
+        .join(",\n                    "); // Use consistent indentation for readability
 
-  return `
+    return `
     ARRAY_AGG(
       IF(
         COALESCE(
@@ -538,14 +540,14 @@ const generateClickIdTrafficSourceSQL = (
  * @returns {string} SQL fragment for UNION ALL concatenation
  */
 const getSqlUnionAllFromRowsSQL = (rows) => {
-  try {
-    const selectStatements = rows
-      .map((data) => "SELECT " + getSqlSelectFromRowSQL(data))
-      .join("\nUNION ALL\n ");
-    return selectStatements;
-  } catch (err) {
-    console.error("Error reading or parsing rows", err);
-  }
+    try {
+        const selectStatements = rows
+            .map((data) => "SELECT " + getSqlSelectFromRowSQL(data))
+            .join("\nUNION ALL\n ");
+        return selectStatements;
+    } catch (err) {
+        console.error("Error reading or parsing rows", err);
+    }
 };
 
 
@@ -565,16 +567,16 @@ const getSqlUnionAllFromRowsSQL = (rows) => {
  * @returns {string} SQL fragment for CASE statement creation
  */
 const getDefaultChannelGroupingSQL = (
-  config,
-  source,
-  medium,
-  campaign,
-  category,
-  term,
-  content,
-  campaign_id
+    config,
+    source,
+    medium,
+    campaign,
+    category,
+    term,
+    content,
+    campaign_id
 ) => {
-  return `
+    return `
     case 
       when 
         (
@@ -666,7 +668,7 @@ const getDefaultChannelGroupingSQL = (
  * @returns {string} SQL fragment for URL decoding
  */
 const urlDecodeSQL = (urlColumnName) => {
-  return `
+    return `
   (
   SELECT SAFE_CONVERT_BYTES_TO_STRING(
     ARRAY_TO_STRING(ARRAY_AGG(
@@ -687,7 +689,7 @@ const urlDecodeSQL = (urlColumnName) => {
  * @returns {string} SQL fragment for click_id column names concatenation
  */
 const getClickIdsDimensionsSQL = (clickIds, prefix) => {
-  return clickIds.map((id) => `${prefix}.${id.name}`).join(",\n");
+    return clickIds.map((id) => `${prefix}.${id.name}`).join(",\n");
 };
 
 
@@ -702,7 +704,7 @@ const getClickIdsDimensionsSQL = (clickIds, prefix) => {
  */
 
 const safeCastSQL = (columnName, type = "INT64") =>
-  `safe_cast(${columnName} as ${type})`;
+    `safe_cast(${columnName} as ${type})`;
 
 /**=======================================================*/
 
@@ -713,7 +715,7 @@ const safeCastSQL = (columnName, type = "INT64") =>
  * @returns {string} SQL fragment for URL clearing
  */
 const clearURLSQL = (columnName) =>
-  `REGEXP_REPLACE(${columnName}, r'(?i)&amp(;|=)', '&')`;
+    `REGEXP_REPLACE(${columnName}, r'(?i)&amp(;|=)', '&')`;
 
 /**=======================================================*/
 
@@ -735,10 +737,10 @@ const lowerSQL = (columnName) => `lower(${columnName})`;
  * @returns {string} SQL fragment for click_id coalescing
  */
 const generateClickIdCoalesceSQL = (clickId) => {
-  if (clickId.sources.includes("collected_traffic_source")) {
-    return `coalesce(collected_traffic_source.${clickId.name}, event_params.${clickId.name},click_ids.${clickId.name}) as ${clickId.name}`;
-  }
-  return `click_ids.${clickId.name} as ${clickId.name}`;
+    if (clickId.sources.includes("collected_traffic_source")) {
+        return `coalesce(collected_traffic_source.${clickId.name}, event_params.${clickId.name},click_ids.${clickId.name}) as ${clickId.name}`;
+    }
+    return `click_ids.${clickId.name} as ${clickId.name}`;
 };
 
 /**=======================================================*/
@@ -751,12 +753,12 @@ const generateClickIdCoalesceSQL = (clickId) => {
  * @returns {string} SQL fragment for click_id CASE statement creation
  */
 const generateClickIdCasesSQL = (parameterName, clickIdsArray) => {
-  return clickIdsArray
-    .map(
-      (id) =>
-        `when click_ids.${id.name} is not null then '${id[parameterName]}'`
-    )
-    .join("\n");
+    return clickIdsArray
+        .map(
+            (id) =>
+            `when click_ids.${id.name} is not null then '${id[parameterName]}'`
+        )
+        .join("\n");
 };
 
 /**=======================================================*/
@@ -769,8 +771,8 @@ const generateClickIdCasesSQL = (parameterName, clickIdsArray) => {
  * @returns {boolean} True if the string can be safely converted to an integer, false otherwise
  */
 const isStringInteger = (str) => {
-  const num = Number(str);
-  return Number.isInteger(num);
+    const num = Number(str);
+    return Number.isInteger(num);
 };
 
 /**=======================================================*/
@@ -782,42 +784,42 @@ const isStringInteger = (str) => {
  * @returns {boolean} True if the configuration is valid, false otherwise
  */
 const checkColumnNames = (config) => {
-  // column checker helper function
-  const sanityCheck = (configArray, description) => {
-    if (configArray === undefined) {
-      return true; //silently ignore
-    }
-    if (typeof configArray[Symbol.iterator] !== "function") {
-      return true; //silently ignore
-    }
+    // column checker helper function
+    const sanityCheck = (configArray, description) => {
+        if (configArray === undefined) {
+            return true; //silently ignore
+        }
+        if (typeof configArray[Symbol.iterator] !== "function") {
+            return true; //silently ignore
+        }
 
-    const cols = new Set();
-    for (const obj of configArray) {
-      const col = obj.renameTo || obj.name;
-      if (cols.has(col)) {
-        throw new Error(
-          "Duplicate column: `" + col + "` found in " + description ||
-            "config" + " - please rename"
-        );
-      }
-      // Check for malformed outputName
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(col) || col.includes(" ")) {
-        throw new Error(
-          "Invalid column name: `" + col + "` found in " + description ||
-            "config" + " - please rename"
-        );
-      }
-      cols.add(col);
-    }
-    return true; // No duplicates found
-  };
+        const cols = new Set();
+        for (const obj of configArray) {
+            const col = obj.renameTo || obj.name;
+            if (cols.has(col)) {
+                throw new Error(
+                    "Duplicate column: `" + col + "` found in " + description ||
+                    "config" + " - please rename"
+                );
+            }
+            // Check for malformed outputName
+            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(col) || col.includes(" ")) {
+                throw new Error(
+                    "Invalid column name: `" + col + "` found in " + description ||
+                    "config" + " - please rename"
+                );
+            }
+            cols.add(col);
+        }
+        return true; // No duplicates found
+    };
 
-  sanityCheck(config.CUSTOM_EVENT_PARAMS_ARRAY, "custom event params");
-  sanityCheck(config.CUSTOM_USER_PROPERTIES_ARRAY, "user properties");
-  sanityCheck(config.CUSTOM_ITEM_PARAMS_ARRAY, "custom item parameters");
-  sanityCheck(config.CUSTOM_URL_PARAMS_ARRAY, "custom url parameters");
+    sanityCheck(config.CUSTOM_EVENT_PARAMS_ARRAY, "custom event params");
+    sanityCheck(config.CUSTOM_USER_PROPERTIES_ARRAY, "user properties");
+    sanityCheck(config.CUSTOM_ITEM_PARAMS_ARRAY, "custom item parameters");
+    sanityCheck(config.CUSTOM_URL_PARAMS_ARRAY, "custom url parameters");
 
-  return true;
+    return true;
 };
 
 /**=======================================================*/
@@ -827,23 +829,23 @@ const checkColumnNames = (config) => {
 // Used for dynamically tagging BigQuery jobs with labels
 */
 const executionLabels = () => {
-  const vars = dataform.projectConfig.vars;
+    const vars = dataform.projectConfig.vars;
 
-  // Filter keys that are either generic or execution-specific labels
-  const keys = Object.keys(vars).filter(
-    key => key.includes("LABEL_GENERIC_") || key.includes("LABEL_EXECUTION_")
-  );
+    // Filter keys that are either generic or execution-specific labels
+    const keys = Object.keys(vars).filter(
+        key => key.includes("LABEL_GENERIC_") || key.includes("LABEL_EXECUTION_")
+    );
 
-  // Format each label as "key:value" and join with commas
-  return keys
-    .map(key => {
-      const labelName = key
-        .replace("LABEL_GENERIC_", "")
-        .replace("LABEL_EXECUTION_", "")
-        .toLowerCase();
-      return `${labelName}:${vars[key]}`;
-    })
-    .join(", ");
+    // Format each label as "key:value" and join with commas
+    return keys
+        .map(key => {
+            const labelName = key
+                .replace("LABEL_GENERIC_", "")
+                .replace("LABEL_EXECUTION_", "")
+                .toLowerCase();
+            return `${labelName}:${vars[key]}`;
+        })
+        .join(", ");
 };
 
 /**=======================================================*/
@@ -852,18 +854,18 @@ const executionLabels = () => {
 // Used to apply table-level labeling
 */
 const storageLabels = () => {
-  const vars = dataform.projectConfig.vars;
-  // Select only generic labels that are not storage-specific
-  const keys = Object.keys(vars).filter(
-    key => key.includes("GENERIC") && !key.includes("STORAGE")
-  );
-  // Return an object where each key is a cleaned label name and value is from vars
-  return Object.fromEntries(
-    keys.map(key => {
-      const labelName = key.replace("LABEL_GENERIC_", "").toLowerCase();
-      return [labelName, vars[key]];
-    })
-  );
+    const vars = dataform.projectConfig.vars;
+    // Select only generic labels that are not storage-specific
+    const keys = Object.keys(vars).filter(
+        key => key.includes("GENERIC") && !key.includes("STORAGE")
+    );
+    // Return an object where each key is a cleaned label name and value is from vars
+    return Object.fromEntries(
+        keys.map(key => {
+            const labelName = key.replace("LABEL_GENERIC_", "").toLowerCase();
+            return [labelName, vars[key]];
+        })
+    );
 };
 
 /**=======================================================*/
@@ -873,20 +875,20 @@ const storageLabels = () => {
 // Intended for use in BigQuery SET QUERIES clause to label tables
 */
 const storageUpdateLabels = () => {
-  const vars = dataform.projectConfig.vars;
+    const vars = dataform.projectConfig.vars;
 
-  return Object.keys(vars)
-    // Filter for generic labels that are not related to storage-specific configs
-    .filter(
-      key => key.includes("GENERIC") && !key.includes("STORAGE")
-    )
-    // Convert each key-value pair into a SQL tuple string
-    .map(key => {
-      const labelName = key.replace("LABEL_GENERIC_", "").toLowerCase();
-      return `('${labelName}', '${vars[key]}')`;
-    })
-    // Join all tuples with commas to produce a valid SQL list
-    .join(", ");
+    return Object.keys(vars)
+        // Filter for generic labels that are not related to storage-specific configs
+        .filter(
+            key => key.includes("GENERIC") && !key.includes("STORAGE")
+        )
+        // Convert each key-value pair into a SQL tuple string
+        .map(key => {
+            const labelName = key.replace("LABEL_GENERIC_", "").toLowerCase();
+            return `('${labelName}', '${vars[key]}')`;
+        })
+        // Join all tuples with commas to produce a valid SQL list
+        .join(", ");
 };
 
 /**=======================================================*/
@@ -899,32 +901,32 @@ const storageUpdateLabels = () => {
  * @returns {string} - A string containing ALTER TABLE SQL statements.
  */
 function generateAlterTableStatements(tables) {
-  // Access project-level variables defined in dataform.json or dataform project config
-  const vars = dataform.projectConfig.vars;
+    // Access project-level variables defined in dataform.json or dataform project config
+    const vars = dataform.projectConfig.vars;
 
-  // Generate the label string, e.g., ('department', 'analytics'), ('env', 'prod')
-  const labelString = storageUpdateLabels();
+    // Generate the label string, e.g., ('department', 'analytics'), ('env', 'prod')
+    const labelString = storageUpdateLabels();
 
-  // Loop through each table to create an ALTER TABLE statement
-  return tables
-    .map(table => {
-      let dataset;
+    // Loop through each table to create an ALTER TABLE statement
+    return tables
+        .map(table => {
+            let dataset;
 
-      // Decide which dataset the table belongs to based on its name prefix
-      // Tables starting with 'int_' are in the TRANSFORMATIONS_DATASET
-      // Others are in the OUTPUTS_DATASET
-      if (table.startsWith("int_")) {
-        dataset = vars.TRANSFORMATIONS_DATASET;
-      } else {
-        dataset = vars.OUTPUTS_DATASET;
-      }
+            // Decide which dataset the table belongs to based on its name prefix
+            // Tables starting with 'int_' are in the TRANSFORMATIONS_DATASET
+            // Others are in the OUTPUTS_DATASET
+            if (table.startsWith("int_")) {
+                dataset = vars.TRANSFORMATIONS_DATASET;
+            } else {
+                dataset = vars.OUTPUTS_DATASET;
+            }
 
-      // Construct and return the SQL string for setting table labels
-      return `ALTER TABLE \`${dataset}.${table}\`\nSET OPTIONS (\n  labels = [${labelString}]);`;
-    })
+            // Construct and return the SQL string for setting table labels
+            return `ALTER TABLE \`${dataset}.${table}\`\nSET OPTIONS (\n  labels = [${labelString}]);`;
+        })
 
-    // Join all statements with line breaks to form the full script
-    .join("\n\n");
+        // Join all statements with line breaks to form the full script
+        .join("\n\n");
 }
 
 /**=======================================================*/
@@ -937,21 +939,24 @@ function generateAlterTableStatements(tables) {
  * @returns {{week: number, year: number}} - An object containing the ISO week number and year
  */
 const getWeekAndYear = (date) => {
-  const d = new Date(date);
-  const target = new Date(d.valueOf());
+    const d = new Date(date);
+    const target = new Date(d.valueOf());
 
-  // Set to nearest Thursday
-  const dayNr = (d.getDay() + 6) % 7; // Monday=0, Sunday=6
-  target.setDate(target.getDate() - dayNr + 3);
+    // Set to nearest Thursday
+    const dayNr = (d.getDay() + 6) % 7; // Monday=0, Sunday=6
+    target.setDate(target.getDate() - dayNr + 3);
 
-  // January 4th is always in week 1
-  const jan4 = new Date(target.getFullYear(), 0, 4);
-  const dayDiff = (target - jan4) / (1000 * 60 * 60 * 24);
+    // January 4th is always in week 1
+    const jan4 = new Date(target.getFullYear(), 0, 4);
+    const dayDiff = (target - jan4) / (1000 * 60 * 60 * 24);
 
-  const week = 1 + Math.floor(dayDiff / 7);
-  const year = target.getFullYear();
+    const week = 1 + Math.floor(dayDiff / 7);
+    const year = target.getFullYear();
 
-  return { week, year };
+    return {
+        week,
+        year
+    };
 };
 //console.log(getWeekAndYear('2025-08-21')); // { week: 34, year: 2025 }
 
@@ -966,14 +971,17 @@ const getWeekAndYear = (date) => {
  * getMonthAndYear('2025-08-21'); // { month: 8, year: 2025 }
  */
 const getMonthAndYear = (date) => {
-  const d = new Date(date);
-  const month = d.getMonth() + 1; // getMonth() returns 0-11
-  const year = d.getFullYear();
-  return { month, year };
+    const d = new Date(date);
+    const month = d.getMonth() + 1; // getMonth() returns 0-11
+    const year = d.getFullYear();
+    return {
+        month,
+        year
+    };
 };
 
 //console.log(getMonthAndYear('2025-08-21')); // { month: 8, year: 2025 }
-/**=======================================================*/ 
+/**=======================================================*/
 
 /**
  * Function #33
@@ -984,58 +992,89 @@ const getMonthAndYear = (date) => {
  * @returns {string} The pathname portion of the URL (e.g., "/about"), or an empty string if invalid.
  */
 const getPagePathFromFullUrl = (fullUrl, hostname) => {
-  if (!fullUrl) {
-    return '';
-  }
-
-  try {
-    let workingUrl = fullUrl.trim();
-
-   // If it’s relative (doesn't start with http/https), prepend hostname
-    if (!/^https?:\/\//i.test(workingUrl)) {
-      workingUrl = `http://${hostname}${workingUrl.startsWith('/') ? '' : '/'}${workingUrl}`;
+    if (!fullUrl) {
+        return '';
     }
 
-    // Extract path with regex (everything after hostname and before ? or #)
-    const match = workingUrl.match(/^https?:\/\/[^/]+(\/[^?#]*)?/i);
-    return match && match[1] ? match[1] : '/';
+    try {
+        let workingUrl = fullUrl.trim();
 
-  } catch (e) {
-    return '';
-  }
+        // If it’s relative (doesn't start with http/https), prepend hostname
+        if (!/^https?:\/\//i.test(workingUrl)) {
+            workingUrl = `http://${hostname}${workingUrl.startsWith('/') ? '' : '/'}${workingUrl}`;
+        }
+
+        // Extract path with regex (everything after hostname and before ? or #)
+        const match = workingUrl.match(/^https?:\/\/[^/]+(\/[^?#]*)?/i);
+        return match && match[1] ? match[1] : '/';
+
+    } catch (e) {
+        return '';
+    }
+};
+/**=======================================================*/
+
+/**
+ * Function #34
+ * Generates SQL to export data into a file of a specified format into CLoud Storage bucket
+ *
+ * @param {string} fullUrl - The full or relative URL string.
+ * @param {string} hostname - The hostname to use as base when `fullUrl` is relative.
+ * @returns {string} The pathname portion of the URL (e.g., "/about"), or an empty string if invalid.
+ */
+const generateExportDataSQL = (gcs_folder, table_ref, file_name) => {
+    const vars = dataform.projectConfig.vars;
+    let value = `
+      EXPORT DATA OPTIONS(
+        uri=(CONCAT('gs://${vars["GCS_BUCKET"]}/${gcs_folder}/', FORMAT_DATE('%Y%m%d' , date_checkpoint), '_gcp_', '${file_name}', '_*.${vars["EXPORT_FILE_FORMAT"]}')), 
+        format=UPPER('${vars["EXPORT_FILE_FORMAT"]}'),
+        overwrite=true
+       ) AS
+          SELECT DISTINCT * FROM (        -- Overhead SELECT DISTINCT and LIMIT are aded to fix the issue with producting multiple export files insteand of one
+          SELECT * FROM ${table_ref} WHERE event_date = date_checkpoint
+          )
+          ORDER BY _run_timestamp LIMIT 1000000000000000000; 
+          `;
+
+    return value;
 };
 
+/**=======================================================*/
+
+
 module.exports = {
- // helpers
-  checkColumnNames,
-  generateParamsSQL,
-  generateURLParamsSQL,
-  generateStructSQL,
-  generateListSQL,
-  generateFilterTypeFromListSQL,
-  generateArrayAggSQL,
-  generateTrafficSourceSQL,
-  generateClickIdTrafficSourceSQL,
-  getSqlUnionAllFromRowsSQL,
-  getDefaultChannelGroupingSQL,
-  urlDecodeSQL,
-  safeCastSQL,
-  clearURLSQL,
-  lowerSQL,
-  getClickIdsDimensionsSQL,
-  getConfig,
-  generateClickIdCoalesceSQL,
-  generateClickIdCasesSQL,
-  generateTransactionsDedupeSQL,
-  getEventParamKeysArray,
-  storageLabels,
-  executionLabels,
-  storageUpdateLabels,
-  generateAlterTableStatements,
-  getSqlSelectEventsAsMetrics,
-  getSqlPivotEventParams,
-  generateParamsSQL_fake,
-  getWeekAndYear,
-  getMonthAndYear,
-  getPagePathFromFullUrl
+    // helpers
+    checkColumnNames,
+    generateParamsSQL,
+    generateURLParamsSQL,
+    generateStructSQL,
+    generateListSQL,
+    generateFilterTypeFromListSQL,
+    generateArrayAggSQL,
+    generateTrafficSourceSQL,
+    generateClickIdTrafficSourceSQL,
+    getSqlUnionAllFromRowsSQL,
+    getDefaultChannelGroupingSQL,
+    urlDecodeSQL,
+    safeCastSQL,
+    clearURLSQL,
+    lowerSQL,
+    getClickIdsDimensionsSQL,
+    getConfig,
+    generateClickIdCoalesceSQL,
+    generateClickIdCasesSQL,
+    generateTransactionsDedupeSQL,
+    getEventParamKeysArray,
+    storageLabels,
+    executionLabels,
+    storageUpdateLabels,
+    generateAlterTableStatements,
+    getSqlSelectEventsAsMetrics,
+    getSqlPivotEventParams,
+    generateParamsSQL_fake,
+    getWeekAndYear,
+    getMonthAndYear,
+    getPagePathFromFullUrl,
+    generateParamSQL,
+    generateExportDataSQL
 };

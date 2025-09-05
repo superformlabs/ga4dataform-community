@@ -9,5 +9,9 @@ vars:
   TRANSFORMATIONS_DATASET: gmp_base 
   OUTPUTS_DATASET: gmp_outputs 
   REPORTING_DATASET: gmp_reporting 
-  INPUT_PROJECT: infotrust-main-ua-834138-7
-
+  INPUT_PROJECT:  infotrust-main-ua-834138-7
+  EXPORT_TO_GCS: "True"
+  GCS_BUCKET:  gmp_clearview
+  EXPORT_FILE_FORMAT: json
+  RUN_FOR_DATE: 2025-08-31
+# 

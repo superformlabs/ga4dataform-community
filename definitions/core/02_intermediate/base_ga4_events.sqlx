@@ -20,12 +20,12 @@ config {
   --        JS BLOCK
   -- ==============================
 js {
-  const { helpers } = require("includes/core/helpers");
-  const config = helpers.getConfig();
+  //- const { helpers } = require("includes/core/helpers");
+  // const config = helpers.getConfig();
 
   // MERGED Config implementation
-  //const  helper_functions  = require("includes/helper_functions");` `
-  //const mergedConfig = helper_functions.getConfig();
+  const helpers  = require("includes/helper_functions");` `
+  const config = helper_functions.getConfig();
 
   /* check if there's invalid columns or dupe columns in the custom column definitions */
   helpers.checkColumnNames(config);
@@ -82,18 +82,11 @@ pre_operations {
   --        POST-OPERATIONS
   -- ==============================
 post_operations {
-    ${when(incremental(),
-    `EXPORT DATA OPTIONS(
-        uri=(CONCAT('gs://${config.GCS_BUCKET}/${dataform.projectConfig.vars.TRANSFORMATIONS_DATASET}/',  FORMAT_DATE('%Y%m%d' , date_checkpoint), '_gcp_', '${name()}', '_*.parquet')), 
-        format='PARQUET',
-        overwrite=true
-       ) AS
-
-          SELECT DISTINCT * FROM (        -- Overhead SELECT DISTINCT and LIMIT are aded to fix the issue with producting multiple export files insteand of one
-          SELECT * FROM ${self()} WHERE event_date = date_checkpoint
-          )
-          ORDER BY _run_timestamp LIMIT 1000000000000000000; `
-    )}
+    -- Export file into Cloud storage if requested in Config
+    ${when(incremental() && dataform.projectConfig.vars.EXPORT_TO_GCS == 'True',
+      `${helpers.generateExportDataSQL(dataform.projectConfig.vars.TRANSFORMATIONS_DATASET, self(), name())
+      }`
+   )}
 }
 
   -- ==============================

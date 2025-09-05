@@ -196,7 +196,7 @@ const CORE_ARRAYS = {
 // -----------------------------------------------------------------------------
 
 const customConfig = {
-  GA4_START_DATE: "2025-05-01",
+  GA4_START_DATE: "2025-07-01",
   CUSTOM_EVENT_PARAMS_TO_EXCLUDE: ['batch_event_index','batch_ordering_id','batch_page_id'],
   CUSTOM_EVENT_PARAMS_ARRAY: [],
   CUSTOM_USER_PROPERTIES_ARRAY: [],

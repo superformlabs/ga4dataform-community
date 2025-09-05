@@ -1,0 +1,9 @@
+
+
+
+config {
+  type: "operations",
+  tags: ["gcs","export","dev"]
+}
+
+ 
