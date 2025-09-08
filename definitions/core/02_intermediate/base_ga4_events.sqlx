@@ -20,6 +20,15 @@ config {
   --        JS BLOCK
   -- ==============================
 js {
+<<<<<<< HEAD
+  const helperFunctions = require("includes/helper_functions");
+  const default_config = helperFunctions.getConfig();
+  const { mergedConfig } = require("includes/config");
+  const config = {
+    ...mergedConfig
+  };
+   helperFunctions.checkColumnNames(config);
+=======
   //- const { helpers } = require("includes/core/helpers");
   // const config = helpers.getConfig();
 
@@ -36,6 +45,7 @@ js {
   } else { 
     dateFilter = `parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint `;
   }
+>>>>>>> refs/heads/main
 }
 
   -- ==============================
@@ -116,11 +126,11 @@ with query_source as (
 
     -- filters from config:
     -- discard unwanted events
-    and ${helpers.generateFilterTypeFromListSQL("exclude", "event_name", config.EVENTS_TO_EXCLUDE)}
+    and ${helperFunctions.generateFilterTypeFromListSQL("exclude", "event_name", config.EVENTS_TO_EXCLUDE)}
     -- discard unwanted hostnames
-    and ${helpers.generateFilterTypeFromListSQL("exclude", "device.web_info.hostname", config.HOSTNAME_EXCLUDE)}
+    and ${helperFunctions.generateFilterTypeFromListSQL("exclude", "device.web_info.hostname", config.HOSTNAME_EXCLUDE)}
     -- only include wanted hostnames
-    and ${helpers.generateFilterTypeFromListSQL("include", "device.web_info.hostname", config.HOSTNAME_INCLUDE_ONLY)}
+    and ${helperFunctions.generateFilterTypeFromListSQL("include", "device.web_info.hostname", config.HOSTNAME_INCLUDE_ONLY)}
 
     -- leave cookieless pings in - those will be in the events table and  do not have a session
     -- and user_pseudo_id is not null
@@ -326,22 +336,22 @@ step1 as (
 
     -- the programatically added SQL:
     -- grab all core event parameters
-    ${helpers.generateStructSQL(helpers.generateParamsSQL(config.CORE_PARAMS_ARRAY))} as event_params,
+    ${helperFunctions.generateStructSQL(helperFunctions.generateParamsSQL(config.CORE_PARAMS_ARRAY))} as event_params,
 
     -- and the custom ones
     ${when(
       config.CUSTOM_EVENT_PARAMS_ARRAY.length > 0,
-        `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_EVENT_PARAMS_ARRAY))} as event_params_custom,`
+        `${helperFunctions.generateStructSQL(helperFunctions.generateParamsSQL(config.CUSTOM_EVENT_PARAMS_ARRAY))} as event_params_custom,`
       )} 
 
     -- add user_properties
     ${when(
       config.CUSTOM_USER_PROPERTIES_ARRAY.length > 0,      
-        `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} as user_properties,`
+        `${helperFunctions.generateStructSQL(helperFunctions.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} as user_properties,`
       )}
 
         -- recast
-    ${helpers.generateParamSQL(   {type: "int",  name: "session_engaged" })}
+    ${helperFunctions.generateParamSQL( {type: "int",  name: "session_engaged" })}
 
   from query_source
 
@@ -401,7 +411,7 @@ step3 as (
     ) as event_id,
     *,
     -- standard url parameters from config
-    ${helpers.generateStructSQL(helpers.generateURLParamsSQL(
+    ${helperFunctions.generateStructSQL(helperFunctions.generateURLParamsSQL(
       'event_params.page_location',
       config.URL_PARAMS_ARRAY
     ))} as url_params,
@@ -409,14 +419,14 @@ step3 as (
     -- custom url parameters from config
     ${when(
       config.CUSTOM_URL_PARAMS_ARRAY.length > 0,      
-        `${helpers.generateStructSQL(helpers.generateURLParamsSQL(
+        `${helperFunctions.generateStructSQL(helperFunctions.generateURLParamsSQL(
         'event_params.page_location',
         config.CUSTOM_URL_PARAMS_ARRAY
         ))} as url_params_custom,`
       )}
 
     -- click IDs from config
-    ${helpers.generateStructSQL(helpers.generateURLParamsSQL(
+    ${helperFunctions.generateStructSQL(helperFunctions.generateURLParamsSQL(
       'event_params.page_location',
       config.CLICK_IDS_ARRAY,
       false
@@ -459,7 +469,7 @@ step5 as (
       ) as fixed_traffic_source,
     -- put all the click ids (from config) in a seperate struct
     struct(
-      ${config.CLICK_IDS_ARRAY.map(id =>helpers.generateClickIdCoalesceSQL(id)).join(", ")}
+      ${config.CLICK_IDS_ARRAY.map(id =>helperFunctions.generateClickIdCoalesceSQL(id)).join(", ")}
     ) as click_ids
 
   from step4
