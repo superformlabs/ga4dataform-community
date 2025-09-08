@@ -1042,41 +1042,6 @@ const generateExportDataSQL = (gcs_folder, table_ref, file_name) => {
 
 
 module.exports = {
-<<<<<<< HEAD
- // helpers
-  checkColumnNames,
-  generateParamsSQL,
-  generateURLParamsSQL,
-  generateParamSQL,
-  generateStructSQL,
-  generateListSQL,
-  generateFilterTypeFromListSQL,
-  generateArrayAggSQL,
-  generateTrafficSourceSQL,
-  generateClickIdTrafficSourceSQL,
-  getSqlUnionAllFromRowsSQL,
-  getDefaultChannelGroupingSQL,
-  urlDecodeSQL,
-  safeCastSQL,
-  clearURLSQL,
-  lowerSQL,
-  getClickIdsDimensionsSQL,
-  getConfig,
-  generateClickIdCoalesceSQL,
-  generateClickIdCasesSQL,
-  generateTransactionsDedupeSQL,
-  getEventParamKeysArray,
-  storageLabels,
-  executionLabels,
-  storageUpdateLabels,
-  generateAlterTableStatements,
-  getSqlSelectEventsAsMetrics,
-  getSqlPivotEventParams,
-  generateParamsSQL_fake,
-  getWeekAndYear,
-  getMonthAndYear,
-  getPagePathFromFullUrl
-=======
     // helpers
     checkColumnNames,
     generateParamsSQL,
@@ -1111,5 +1076,4 @@ module.exports = {
     getPagePathFromFullUrl,
     generateParamSQL,
     generateExportDataSQL
->>>>>>> refs/heads/main
 };

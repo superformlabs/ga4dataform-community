@@ -1,14 +1,14 @@
 config {
   type: "incremental",
   uniqueKey: ['session_id', "item_id"],
-  description: "Intermediate incremental sessions table with modeling helperFunctions implemented. 1 row per unique session_id. Contains only valid sessions.",
+  description: "Intermediate incremental sessions table with modeling helpers implemented. 1 row per unique session_id. Contains only valid sessions.",
   database: dataform.projectConfig.vars.OUTPUT_PROJECT,
   schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
   tags:[dataform.projectConfig.vars.GA4_DATASET,"sessions","dev"],
   bigquery: {
     partitionBy: "event_date",
     clusterBy: [ "session_id" ],
-    // labels: require("includes/helper_functions").helpers.storageLabels()
+    // labels: require("includes/core/helpers.js").helpers.storageLabels()
   },
 }
 
@@ -16,23 +16,12 @@ config {
   --        JS BLOCK
   -- ==============================
 js {
-<<<<<<< HEAD
- 
-  const helperFunctions = require("includes/helper_functions");
-  const default_config = helperFunctions.getConfig();
-  const { mergedConfig } = require("includes/config");
-  const config = {
-    ...mergedConfig
-  };
-   helperFunctions.checkColumnNames(config);
-=======
   // const { helpers } = require("includes/core/helpers");
   // const config = helpers.getConfig();
 
   // MERGED Config implementation
   const helpers  = require("includes/helper_functions");` `
   const config = helper_functions.getConfig();
->>>>>>> refs/heads/main
 }
 
   -- ==============================
@@ -71,20 +60,20 @@ with events as (
     stream_id,
     user_pseudo_id, 
     max(is_active_user) is_active_user,
-    ${helperFunctions.generateArrayAggSQL('user_id',false, false)}, -- to account for potentially multiple
+    ${helpers.generateArrayAggSQL('user_id',false, false)}, -- to account for potentially multiple
 
     -- min(table_suffix) as table_suffix,
     count(distinct table_suffix) > 1 as is_multiday_session,  -- for later AZ
 
     -- first
-    ${helperFunctions.generateArrayAggSQL('device')},
-    ${helperFunctions.generateArrayAggSQL('geo')},
-    ${helperFunctions.generateArrayAggSQL('app_info')},
-    ${helperFunctions.generateArrayAggSQL('platform')},
+    ${helpers.generateArrayAggSQL('device')},
+    ${helpers.generateArrayAggSQL('geo')},
+    ${helpers.generateArrayAggSQL('app_info')},
+    ${helpers.generateArrayAggSQL('platform')},
 
     --  traffic info
-    -- ${helperFunctions.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')} ,
-    ${helperFunctions.generateArrayAggSQL('session_traffic_source_last_click.cross_channel_campaign', 'cross_channel_campaign')} ,
+    -- ${helpers.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')} ,
+    ${helpers.generateArrayAggSQL('session_traffic_source_last_click.cross_channel_campaign', 'cross_channel_campaign')} ,
 
     -- do we need user info in ecomm table? AZ
         -- min(event_params.ga_session_number) as ga_session_number, -- could be NULL when hit comes from MP
@@ -109,7 +98,7 @@ with events as (
         -- and key events as metrics - also not needed AZ
         -- ${when(
         --   config.KEY_EVENTS_ARRAY.length > 0,
-        --     `${helperFunctions.getSqlSelectEventsAsMetrics(config.KEY_EVENTS_ARRAY)}  `
+        --     `${helpers.getSqlSelectEventsAsMetrics(config.KEY_EVENTS_ARRAY)}  `
         --   )} ,
 
        max(is_final) as is_final --return true if session started on an is_final day
@@ -180,7 +169,7 @@ add_meta_info as (
 --         select as struct
 --         first_traffic_source.*,
 --         first_click_ids.*,
---         ${helperFunctions.getDefaultChannelGroupingSQL(config,
+--         ${helpers.getDefaultChannelGroupingSQL(config,
 --                                             'first_traffic_source.source',
 --                                             'first_traffic_source.medium',
 --                                             'first_traffic_source.campaign',
@@ -194,7 +183,7 @@ add_meta_info as (
 --         select as struct
 --         last_traffic_source.*,
 --         last_click_ids.*,
---         ${helperFunctions.getDefaultChannelGroupingSQL(config,
+--         ${helpers.getDefaultChannelGroupingSQL(config,
 --                                             'last_traffic_source.source',
 --                                             'last_traffic_source.medium',
 --                                             'last_traffic_source.campaign',

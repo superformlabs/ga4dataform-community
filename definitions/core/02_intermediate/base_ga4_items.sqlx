@@ -17,26 +17,9 @@ config {
   }
 }
 
-<<<<<<< HEAD
-  -- ==============================
-  --        JS BLOCK
-  -- ==============================
-=======
 
 
->>>>>>> refs/heads/main
 js {
-<<<<<<< HEAD
- 
-  const helperFunctions = require("includes/helper_functions");
-  const default_config = helperFunctions.getConfig();
-  const { mergedConfig } = require("includes/config");
-  const config = {
-    ...mergedConfig
-  };
-   helperFunctions.checkColumnNames(config);
-}
-=======
   // const { helpers } = require("includes/core/helpers");
   // const config = helpers.getConfig();
 
@@ -53,7 +36,6 @@ js {
   } else { 
     dateFilter = `parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint `;
   }
->>>>>>> refs/heads/main
 
 }
 
@@ -135,11 +117,11 @@ with query_source as (
 
     -- filters from config:
     -- discard unwanted events
-    and ${helperFunctions.generateFilterTypeFromListSQL("exclude", "event_name", config.EVENTS_TO_EXCLUDE)}
+    and ${helpers.generateFilterTypeFromListSQL("exclude", "event_name", config.EVENTS_TO_EXCLUDE)}
     -- discard unwanted hostnames
-    and ${helperFunctions.generateFilterTypeFromListSQL("exclude", "device.web_info.hostname", config.HOSTNAME_EXCLUDE)}
+    and ${helpers.generateFilterTypeFromListSQL("exclude", "device.web_info.hostname", config.HOSTNAME_EXCLUDE)}
     -- only include wanted hostnames
-    and ${helperFunctions.generateFilterTypeFromListSQL("include", "device.web_info.hostname", config.HOSTNAME_INCLUDE_ONLY)}
+    and ${helpers.generateFilterTypeFromListSQL("include", "device.web_info.hostname", config.HOSTNAME_INCLUDE_ONLY)}
 
     -- leave cookieless pings in - those will be in the events table and  do not have a session
     -- and user_pseudo_id is not null
@@ -320,49 +302,20 @@ step1 as (
             items.promotion_name,
             items.creative_name,
             items.creative_slot
-<<<<<<< HEAD
-            -- ${when(config.CUSTOM_ITEM_PARAMS_ARRAY.length > 0,
-            --     `, ${helperFunctions.generateStructSQL(
-            --     helperFunctions.generateParamsSQL(
-            --         config.CUSTOM_ITEM_PARAMS_ARRAY, 
-            --         "items.item_params"
-            --     )
-=======
             ${when(config.CUSTOM_ITEM_PARAMS_ARRAY.length > 0,
                 `, ${helpers.generateStructSQL(
                           helpers.generateParamsSQL(config.CUSTOM_ITEM_PARAMS_ARRAY, "items.item_params"  )
                     )
                   }  as item_params_custom`)
             }
->>>>>>> refs/heads/main
             -- )
-<<<<<<< HEAD
-            -- } as item_params_custom`)}
-          
-           ${when(config.CUSTOM_ITEM_PARAMS_ARRAY.length > 0,
-          `, ${helperFunctions.generateStructSQL(
-          helperFunctions.generateParamsSQL(
-              config.CUSTOM_ITEM_PARAMS_ARRAY, 
-              "items.item_params"
-          )
-      )
-      } as item_params_custom`)},
-
-
-=======
     --     from unnest(items) as items
     --   )
     -- ) as items
       ,
->>>>>>> refs/heads/main
     -- the programatically added SQL:
-<<<<<<< HEAD
-    -- grab all core event parameters
-    -- ${helperFunctions.generateStructSQL(helperFunctions.generateParamsSQL(config.CORE_PARAMS_ARRAY))} as event_params,
-=======
     -- grab all core event parameters - maybe we don;t need all event parameters in this table
     -- ${helpers.generateStructSQL(helpers.generateParamsSQL(config.CORE_PARAMS_ARRAY))} as event_params,
->>>>>>> refs/heads/main
 
  -- add some event parameters
         STRUCT (
@@ -380,13 +333,13 @@ step1 as (
     -- and the custom ones
     -- ${when(
     --   config.CUSTOM_EVENT_PARAMS_ARRAY.length > 0,
-    --     `${helperFunctions.generateStructSQL(helperFunctions.generateParamsSQL(config.CUSTOM_EVENT_PARAMS_ARRAY))} as event_params_custom,`
+    --     `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_EVENT_PARAMS_ARRAY))} as event_params_custom,`
     --   )} 
 
     -- add user_properties
     ${when(
       config.CUSTOM_USER_PROPERTIES_ARRAY.length > 0,      
-        `${helperFunctions.generateStructSQL(helperFunctions.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} as user_properties,`
+        `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} as user_properties,`
       )}
 
 

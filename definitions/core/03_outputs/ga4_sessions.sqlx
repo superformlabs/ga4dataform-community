@@ -18,23 +18,12 @@ config {
   -- ==============================
 
 js {
-<<<<<<< HEAD
- 
-  const helperFunctions = require("includes/helper_functions");
-  const default_config = helperFunctions.getConfig();
-  const { mergedConfig } = require("includes/config");
-  const config = {
-    ...mergedConfig
-  };
-   helperFunctions.checkColumnNames(config);
-=======
   // const { helpers } = require("includes/core/helpers");
   // const config = helpers.getConfig();
 
   // MERGED Config implementation
   const helpers  = require("includes/helper_functions");` `
   const config = helper_functions.getConfig();
->>>>>>> refs/heads/main
 }
 
   -- ==============================
@@ -42,7 +31,7 @@ js {
   -- ==============================
 pre_operations {
   declare date_checkpoint DATE;
---   set @@query_label = "${helperFunctions.executionLabels()}";
+--   set @@query_label = "${helpers.executionLabels()}";
   set date_checkpoint = (
     ${when(incremental(),
       `select
@@ -70,41 +59,41 @@ with events as (
     stream_id,
     user_pseudo_id, 
     max(is_active_user) is_active_user,
-    ${helperFunctions.generateArrayAggSQL('user_id',false, false)}, -- to account for potentially multiple
+    ${helpers.generateArrayAggSQL('user_id',false, false)}, -- to account for potentially multiple
 
     -- min(table_suffix) as table_suffix,
     count(distinct table_suffix) > 1 as is_multiday_session,  -- for later AZ
 
     -- first
-    ${helperFunctions.generateArrayAggSQL('device')},
-    ${helperFunctions.generateArrayAggSQL('geo')},
-    ${helperFunctions.generateArrayAggSQL('app_info')},
-    ${helperFunctions.generateArrayAggSQL('platform')},
+    ${helpers.generateArrayAggSQL('device')},
+    ${helpers.generateArrayAggSQL('geo')},
+    ${helpers.generateArrayAggSQL('app_info')},
+    ${helpers.generateArrayAggSQL('platform')},
 
     --  traffic info
-    -- ${helperFunctions.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')} ,
-    ${helperFunctions.generateArrayAggSQL('session_traffic_source_last_click.cross_channel_campaign', 'cross_channel_campaign')} ,
+    -- ${helpers.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')} ,
+    ${helpers.generateArrayAggSQL('session_traffic_source_last_click.cross_channel_campaign', 'cross_channel_campaign')} ,
 
     struct(
-      ${helperFunctions.generateArrayAggSQL('page.location','landing_page_location')},
-      ${helperFunctions.generateArrayAggSQL('page.path','landing_page_path')},
-      ${helperFunctions.generateArrayAggSQL('page.hostname','landing_page_hostname')},
-      ${helperFunctions.generateArrayAggSQL('page.referrer','landing_page_referrer')},
-      ${helperFunctions.generateArrayAggSQL('event_params.content_group','landing_content_group')}
+      ${helpers.generateArrayAggSQL('page.location','landing_page_location')},
+      ${helpers.generateArrayAggSQL('page.path','landing_page_path')},
+      ${helpers.generateArrayAggSQL('page.hostname','landing_page_hostname')},
+      ${helpers.generateArrayAggSQL('page.referrer','landing_page_referrer')},
+      ${helpers.generateArrayAggSQL('event_params.content_group','landing_content_group')}
     ) as landing_page,
     -- last
     struct(
-      ${helperFunctions.generateArrayAggSQL('page.location','exit_page_location', false)},
-      ${helperFunctions.generateArrayAggSQL('page.path','exit_page_path', false)},
-      ${helperFunctions.generateArrayAggSQL('page.hostname','exit_page_hostname', false)},
-      ${helperFunctions.generateArrayAggSQL('event_params.content_group','exit_content_group', false)}
+      ${helpers.generateArrayAggSQL('page.location','exit_page_location', false)},
+      ${helpers.generateArrayAggSQL('page.path','exit_page_path', false)},
+      ${helpers.generateArrayAggSQL('page.hostname','exit_page_hostname', false)},
+      ${helpers.generateArrayAggSQL('event_params.content_group','exit_content_group', false)}
     ) as exit_page,
 
     -- these will be packaged to a single struct later
-    -- ${helperFunctions.generateTrafficSourceSQL('fixed_traffic_source','first_traffic_source')},
-    -- ${helperFunctions.generateTrafficSourceSQL('fixed_traffic_source','last_traffic_source', false)},
-    -- ${helperFunctions.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'first_click_ids')},
-    -- ${helperFunctions.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'last_click_ids', false)},
+    -- ${helpers.generateTrafficSourceSQL('fixed_traffic_source','first_traffic_source')},
+    -- ${helpers.generateTrafficSourceSQL('fixed_traffic_source','last_traffic_source', false)},
+    -- ${helpers.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'first_click_ids')},
+    -- ${helpers.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'last_click_ids', false)},
 
         min(event_params.ga_session_number) as ga_session_number, -- could be NULL when hit comes from MP
         CASE 
@@ -128,7 +117,7 @@ with events as (
         -- and key events as metrics
         ${when(
           config.KEY_EVENTS_ARRAY.length > 0,
-            `${helperFunctions.getSqlSelectEventsAsMetrics(config.KEY_EVENTS_ARRAY)}  `
+            `${helpers.getSqlSelectEventsAsMetrics(config.KEY_EVENTS_ARRAY)}  `
           )} ,
 
        max(is_final) as is_final --return true if session started on an is_final day

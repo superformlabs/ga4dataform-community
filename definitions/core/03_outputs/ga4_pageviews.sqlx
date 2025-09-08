@@ -15,16 +15,6 @@ config {
   -- ==============================
 
 js {
-<<<<<<< HEAD
- 
-  const helperFunctions = require("includes/helper_functions");
-  const default_config = helperFunctions.getConfig();
-  const { mergedConfig } = require("includes/config");
-  const config = {
-    ...mergedConfig
-  };
-   helperFunctions.checkColumnNames(config);
-=======
   // const { helpers } = require("includes/core/helpers");
   // const config = helpers.getConfig();
 
@@ -33,7 +23,6 @@ js {
   const config = helper_functions.getConfig();
     /* check if there's invalid columns or dupe columns in the custom column definitions */
     helpers.checkColumnNames(config);
->>>>>>> refs/heads/main
 }
 
   -- ==============================
@@ -98,11 +87,11 @@ SELECT
   geo,
   app_info,
   platform,
-  -- ${helperFunctions.generateArrayAggSQL('user_id', false, false)},
-  -- ${helperFunctions.generateArrayAggSQL('device')},
-  -- ${helperFunctions.generateArrayAggSQL('geo')},
-  -- ${helperFunctions.generateArrayAggSQL('app_info')},
-  -- ${helperFunctions.generateArrayAggSQL('platform')},
+  -- ${helpers.generateArrayAggSQL('user_id', false, false)},
+  -- ${helpers.generateArrayAggSQL('device')},
+  -- ${helpers.generateArrayAggSQL('geo')},
+  -- ${helpers.generateArrayAggSQL('app_info')},
+  -- ${helpers.generateArrayAggSQL('platform')},
 
   session_traffic_source_last_click.cross_channel_campaign,
 
@@ -123,17 +112,17 @@ SELECT
   --     ''),r'[\?#].*','')
   --   END
   -- AS page_path_cleaned,
-  -- STRUCT( ${helperFunctions.generateArrayAggSQL('page.location', 'page_location')},
-  --   ${helperFunctions.generateArrayAggSQL('page.path', 'page_path')},
-  --   ${helperFunctions.generateArrayAggSQL('page.hostname', 'page_hostname')},
-  --   ${helperFunctions.generateArrayAggSQL('page.referrer', 'page_referrer')},
-  --   ${helperFunctions.generateArrayAggSQL('event_params.content_group', 'content_group')},
-  --   ${helperFunctions.generateArrayAggSQL('event_params.content_id', 'content_id')},
-  --   ${helperFunctions.generateArrayAggSQL('event_params.content_type', 'content_type')}
+  -- STRUCT( ${helpers.generateArrayAggSQL('page.location', 'page_location')},
+  --   ${helpers.generateArrayAggSQL('page.path', 'page_path')},
+  --   ${helpers.generateArrayAggSQL('page.hostname', 'page_hostname')},
+  --   ${helpers.generateArrayAggSQL('page.referrer', 'page_referrer')},
+  --   ${helpers.generateArrayAggSQL('event_params.content_group', 'content_group')},
+  --   ${helpers.generateArrayAggSQL('event_params.content_id', 'content_id')},
+  --   ${helpers.generateArrayAggSQL('event_params.content_type', 'content_type')}
   --    ) 
   --   AS page,
 
-  -- ${helperFunctions.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')},
+  -- ${helpers.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')},
 
 
   -- METRICS
