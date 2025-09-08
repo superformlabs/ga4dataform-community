@@ -29,6 +29,7 @@ const CORE_DEFAULTS = {
     TRANSACTIONS_DEDUPE: false,
     TRANSACTION_TOTALS_UID: "user_pseudo_id",
     DATA_IS_FINAL_DAYS: 3,
+    ALLOWED_DISCREPANCY_PERCENT: 10,        // Allowed/expected discrepancy from GA4 data in UI
     EXTRA_CHANNEL_GROUPS: false,
     ASSERTIONS_EVENT_ID_UNIQUENESS: true,
     ASSERTIONS_SESSION_DURATION_VALIDITY: true,
@@ -37,6 +38,8 @@ const CORE_DEFAULTS = {
     ASSERTIONS_TABLES_TIMELINESS: true,
     ASSERTIONS_TRANSACTION_ID_COMPLETENESS: true,
     ASSERTIONS_USER_PSEUDO_ID_COMPLETENESS: true,
+    ASSERTIONS_API_DATA_CHECK: true
+
 };
 
 const CORE_ARRAYS = {
@@ -193,7 +196,7 @@ const CORE_ARRAYS = {
 // -----------------------------------------------------------------------------
 
 const customConfig = {
-  GA4_START_DATE: "2025-05-01",
+  GA4_START_DATE: "2025-07-01",
   CUSTOM_EVENT_PARAMS_TO_EXCLUDE: ['batch_event_index','batch_ordering_id','batch_page_id'],
   CUSTOM_EVENT_PARAMS_ARRAY: [],
   CUSTOM_USER_PROPERTIES_ARRAY: [],
@@ -208,7 +211,9 @@ const customConfig = {
   LAST_NON_DIRECT_LOOKBACK_DAYS: 90,
   TRANSACTIONS_DEDUPE: true,
   TRANSACTION_TOTALS_UID: 'user_pseudo_id',
-
+  DATA_IS_FINAL_DAYS: 3,
+  ALLOWED_DISCREPANCY_PERCENT: 10,
+  
      // example:
   // CUSTOM_ITEM_PARAMS_ARRAY: [
   //    { name: "stock_status", type: "string" }
@@ -222,7 +227,8 @@ const customConfig = {
   ASSERTIONS_SESSIONS_VALIDITY: false, 
   ASSERTIONS_TABLES_TIMELINESS: false,
   ASSERTIONS_TRANSACTION_ID_COMPLETENESS: false,
-  ASSERTIONS_USER_PSEUDO_ID_COMPLETENESS: false
+  ASSERTIONS_USER_PSEUDO_ID_COMPLETENESS: false,
+  ASSERTIONS_API_DATA_CHECK: false
 };
 
 // -----------------------------------------------------------------------------

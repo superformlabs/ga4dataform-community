@@ -1,0 +1,18 @@
+
+config {
+    type: "operations",
+    database: dataform.projectConfig.vars.OUTPUT_PROJECT,
+    schema: dataform.projectConfig.vars.QUALITY_DATASET,
+    description: "Remote function to check metrics against GA4 API data",
+    tags:["infrastructure", "assertions"],
+} 
+  -- CREATE REMOTE FUNCTION
+  CREATE OR REPLACE FUNCTION `${database()}.${schema()}.get_ga4_api_data`(payload JSON) 
+  RETURNS JSON
+  REMOTE WITH CONNECTION `${database()}.${dataform.projectConfig.defaultLocation}.ga4-remote-connection`
+  OPTIONS (
+      endpoint = 'https://us-central1-${database()}.cloudfunctions.net/ga4-remote-fn', 
+      user_defined_context = [("Content-Type", "application/json")], 
+      max_batching_rows = 0
+      
+  );

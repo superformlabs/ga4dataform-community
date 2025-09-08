@@ -15,6 +15,7 @@ config {
   -- ==============================
 
 js {
+<<<<<<< HEAD
  
   const helperFunctions = require("includes/helper_functions");
   const default_config = helperFunctions.getConfig();
@@ -23,6 +24,16 @@ js {
     ...mergedConfig
   };
    helperFunctions.checkColumnNames(config);
+=======
+  // const { helpers } = require("includes/core/helpers");
+  // const config = helpers.getConfig();
+
+  // MERGED Config implementation
+  const helpers  = require("includes/helper_functions");
+  const config = helper_functions.getConfig();
+    /* check if there's invalid columns or dupe columns in the custom column definitions */
+    helpers.checkColumnNames(config);
+>>>>>>> refs/heads/main
 }
 
 

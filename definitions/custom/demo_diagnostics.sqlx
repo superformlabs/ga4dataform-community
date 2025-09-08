@@ -21,11 +21,19 @@
 --   const { helpers } = require("includes/helper_functions");
 -- }
 
+<<<<<<< HEAD
 -- -- only read this many days from the events table:
 -- pre_operations {
 --   declare lookback_days INT64 default 64;
 --   set @@query_label = "${helpers.executionLabels()}"
 -- }
+=======
+-- only read this many days from the events table:
+pre_operations {
+  declare lookback_days INT64 default 64;
+--   set @@query_label = "${helpers.executionLabels()}"
+}
+>>>>>>> refs/heads/main
 
 -- with daily_diagnostics as (
 --     select

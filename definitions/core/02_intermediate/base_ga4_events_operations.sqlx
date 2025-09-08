@@ -11,7 +11,13 @@ config {
 
 js {
   const helperFunctions = require("includes/helper_functions");
+<<<<<<< HEAD
   const default_config = helperFunctions.getConfig();
+=======
+  //const default_config = helperFunctions.getConfig();
+
+  // Explicitly require the merged config from your config file.
+>>>>>>> refs/heads/main
   const { mergedConfig } = require("includes/config");
   const config = {
     ...mergedConfig
