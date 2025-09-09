@@ -7,7 +7,7 @@ const { safeCastSQL, lowerSQL } = require("./helper_functions");
 // -----------------------------------------------------------------------------
 
 const CORE_DEFAULTS = {
-    GA4_START_DATE: "2025-07-01",
+    GA4_START_DATE: "2025-06-01",
     EVENTS_TO_EXCLUDE: [],
     HOSTNAME_EXCLUDE: [],
     HOSTNAME_INCLUDE_ONLY: [],
@@ -228,7 +228,7 @@ const customConfig = {
   ASSERTIONS_TABLES_TIMELINESS: false,
   ASSERTIONS_TRANSACTION_ID_COMPLETENESS: false,
   ASSERTIONS_USER_PSEUDO_ID_COMPLETENESS: false,
-  ASSERTIONS_API_DATA_CHECK: false
+  ASSERTIONS_API_DATA_CHECK: true
 };
 
 // -----------------------------------------------------------------------------

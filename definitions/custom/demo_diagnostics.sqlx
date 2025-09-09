@@ -102,7 +102,10 @@ with daily_diagnostics as (
         countif(session_id is null) as daily_sessionless_hits,
         count(*) as daily_hits,
     
-    from ${ref("base_ga4_events")}
+    from ${ref("base_ga4_events")} join
+    (select event_date, session_id, user_pseudo_id, items 
+    from ${ref("base_ga4_items")}) ga4_items 
+    using (event_date, session_id, user_pseudo_id)
     where event_date >= date_sub(
       current_date(),
       interval lookback_days day

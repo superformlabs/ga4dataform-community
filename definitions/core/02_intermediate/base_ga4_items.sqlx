@@ -34,10 +34,12 @@ js {
   helpers.checkColumnNames(config);
 
   var dateFilter = "" ;
-  if (dataform.projectConfig.vars.RUN_FOR_DATE != "") {
+  if (dataform.projectConfig.vars.RUN_FOR_DATE != undefined) {
     dateFilter = `parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) = date_checkpoint `;
   } else { 
-    dateFilter = `parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint `;
+         dateFilter = ` _table_suffix >= '20250701' `;
+    // dateFilter = `parse_date('%Y%m%d', regexp_extract(_table_suffix,'[0-9]+')) >= date_checkpoint `;
+
   }
 
 }
@@ -311,7 +313,7 @@ step1 as (
                     )
                   }  as item_params_custom`)
             }
-            -- )
+    --         )
     --     from unnest(items) as items
     --   )
     -- ) as items
@@ -346,7 +348,7 @@ step1 as (
       )}
 
 
-  from query_source, unnest(items) items
+  from query_source , unnest(items) items
 
 ),
 
@@ -420,9 +422,9 @@ add_meta_info as (
       coalesce(batch.batch_page_id, 0) ||
       coalesce( batch.batch_ordering_id,0) ||
       coalesce( batch.batch_event_index,0) ||
-      coalesce(item_id, "") ||
+      coalesce(items.item_id, "") ||
       "_" || 
-      REGEXP_REPLACE(item_variant , r'(not set)', 'no_item')
+      REGEXP_REPLACE(items.item_variant , r'(not set)', 'no_item')
     ) as event_item_id,
 
  
@@ -446,7 +448,7 @@ add_meta_info as (
           date(datetime(time.event_timestamp_utc, '${dataform.projectConfig.vars.LOCAL_TIMEZONE}')) as date_local
     ) time
 
-  from  step2
+  from  step2, unnest(items) items
 ),
 
 -- dedupe based on event_id and remove redundant event_params
