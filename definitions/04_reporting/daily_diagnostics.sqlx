@@ -2,9 +2,9 @@ config {
     type: "table",
     schema: dataform.projectConfig.vars.OUTPUTS_DATASET,
     description: "What is in your GA4 - past 64 days",
-    bigquery: {
-        labels: require("includes/core/helpers.js").helpers.storageLabels()
-    }
+   // bigquery: {
+      //  labels: require("includes/helper_functions").helpers.storageLabels()
+   // }
 }
 
 
@@ -18,7 +18,7 @@ config {
 */
 
 js {
-  const { helpers } = require("includes/core/helpers");
+  const helpers = require("includes/helper_functions");
 }
 
 -- only read this many days from the events table:

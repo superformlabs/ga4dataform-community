@@ -3,13 +3,13 @@ config {
     schema: dataform.projectConfig.vars.OUTPUTS_DATASET,
     description: "Daily session aggregate table - can be used for LP report, marketing, etc",
     bigquery: {
-        partitionBy: "session_date",
-        labels: require("includes/core/helpers.js").helpers.storageLabels()
+        partitionBy: "session_date"
+       // labels: require("includes/core/helpers.js").helpers.storageLabels()
     }
 }
 
 js {
-  const { helpers } = require("includes/core/helpers");
+  const helpers  = require("includes/helper_functions");
 }
 
 pre_operations {
