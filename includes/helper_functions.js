@@ -409,85 +409,35 @@ const generateTrafficSourceSQL = (
  * @param {string} [orderBy='time.event_timestamp_utc'] - Optional order by clause
  * @returns {string} SQL fragment for array aggregation
  */
-// const generateClickIdTrafficSourceSQL = (
-//   clickIdStruct,
-//   clickIdsArray,
-//   columnName = null,
-//   orderTypeAsc = true,
-//   orderBy = "time.event_timestamp_utc"
-// ) => {
-//   const alias = columnName === null ? "" : `as ${columnName || "click_id"} `;
-//   const orderDirection = orderTypeAsc ? "asc" : "desc";
-
-//   const coalesceItems = clickIdsArray
-//     .map((item) => `${clickIdStruct}.${item.name}`)
-//     .join(",\n");
-
-//   return `
-//         array_agg(
-//             if(
-//                 coalesce(
-//                     ${coalesceItems}
-//                 ) is null,
-//                 null,
-//                 ${clickIdStruct}
-//             )
-//             ignore nulls
-//             order by ${orderBy} ${orderDirection}
-//             limit 1
-//         )[safe_offset(0)] ${alias}`;
-// };
-
 const generateClickIdTrafficSourceSQL = (
-    clickIdStruct,
-    clickIdsArray,
-    columnName = null,
-    orderTypeAsc = true,
-    orderBy = "time.event_timestamp_utc"
+  clickIdStruct,
+  clickIdsArray,
+  columnName = null,
+  orderTypeAsc = true,
+  orderBy = "time.event_timestamp_utc"
 ) => {
-    // Input Validation
-    if (!clickIdStruct || typeof clickIdStruct !== 'string' || clickIdStruct.trim() === '') {
-        console.error('Error: "clickIdStruct" must be a non-empty string.');
-        return '';
-    }
-    if (!Array.isArray(clickIdsArray) || clickIdsArray.length === 0) {
-        console.error('Error: "clickIdsArray" must be a non-empty array of objects with a "name" property.');
-        return '';
-    }
+  const alias = columnName === null ? "" : `as ${columnName || "click_id"} `;
+  const orderDirection = orderTypeAsc ? "asc" : "desc";
 
-    // Sanitize the alias to prevent SQL syntax errors
-    const safeColumnName = columnName ? columnName.replace(/[^a-zA-Z0-9_]/g, '') : clickIdStruct.split('.').slice(-1)[0];
-    const alias = `AS ${safeColumnName || 'click_id'}`;
+  const coalesceItems = clickIdsArray
+    .map((item) => `${clickIdStruct}.${item.name}`)
+    .join(",\n");
 
-    // Determine the order direction
-    const orderDirection = orderTypeAsc ? "asc" : "desc";
-
-    // Build the coalesce string with error handling for missing 'name' properties
-    const coalesceItems = clickIdsArray
-        .map((item) => {
-            if (!item || typeof item.name !== 'string') {
-                console.error('Error: All items in "clickIdsArray" must have a "name" property.');
-                // Return a null literal to prevent breaking the query
-                return 'null';
-            }
-            return `${clickIdStruct}.${item.name}`;
-        })
-        .join(",\n                    "); // Use consistent indentation for readability
-
-    return `
-    ARRAY_AGG(
-      IF(
-        COALESCE(
-          ${coalesceItems}
-        ) IS NULL,
-        NULL,
-        ${clickIdStruct}
-      )
-      IGNORE NULLS
-      ORDER BY ${orderBy} ${orderDirection}
-      LIMIT 1
-    )[SAFE_OFFSET(0)] ${alias}`;
+  return `
+        array_agg(
+            if(
+                coalesce(
+                    ${coalesceItems}
+                ) is null,
+                null,
+                ${clickIdStruct}
+            )
+            ignore nulls
+            order by ${orderBy} ${orderDirection}
+            limit 1
+        )[safe_offset(0)] ${alias}`;
 };
+
 /**=======================================================*/
 
 /**
@@ -930,7 +880,7 @@ function generateAlterTableStatements(tables) {
 
 /**=======================================================*/
 /**
- * Function #21
+ * Function #31
  * Converts a given date into its ISO week number and year.
  * Uses ISO 8601 standard: weeks start on Monday, and the first week of the year
  * is the one that contains January 4th.
