@@ -1,23 +1,21 @@
 config {
     type: "table",
     schema: dataform.projectConfig.vars.QUALITY_DATASET,
-    description: "checking if sessions are valid",
-    dependencies: ["assertion_logs",{name:"ga4_sessions"}],
+    description: "user_pseudo_id should not be null",
+    dependencies: ["assertion_logs",{name:"base_ga4_events"}],
     tags:[dataform.projectConfig.vars.GA4_DATASET, "assertions"],
 }
-
 js {
-    const { helpers } = require("includes/core/helpers");
+    const helpers  = require("includes/helper_functions");
     const config = helpers.getConfig();
 }
-
 SELECT
   'running assertion' AS placeholder
 
 pre_operations {
   -- declare variables and default value
   DECLARE
-    assertion STRING DEFAULT 'sessions validity';
+    assertion STRING DEFAULT 'user_pseudo_id completeness';
   DECLARE
     check INT64;
   DECLARE
@@ -29,43 +27,38 @@ pre_operations {
   DECLARE
     error_msg STRING DEFAULT 'Yippee-ki-yay';
     -- run assertion and collect sample of flawed rows
-  IF ${config.ASSERTIONS_SESSIONS_VALIDITY}  THEN
+  IF ${config.ASSERTIONS_USER_PSEUDO_ID_COMPLETENESS}  THEN
   SET
     (check,
       sample) = (
     SELECT
       AS STRUCT COUNT(*),
-      STRING_AGG(CAST(session_id AS string), ", "
+      STRING_AGG(CAST(event_id AS string), ", "
       LIMIT
         5)
     FROM
-      ${ref("ga4_sessions")}
+      ${ref("base_ga4_events")}
     WHERE
-      session_date >= DATE_SUB( CURRENT_DATE(), INTERVAL 3 day )
-      AND (landing_page.landing_page_location IS NULL
-        OR user_pseudo_id IS NULL
-        OR session_id IS NULL
-        OR session_date IS NULL
-        OR device.category IS NULL
-        OR time.session_start_timestamp_utc IS NULL ) );
+      event_date >= DATE_SUB( CURRENT_DATE(), INTERVAL 3 day )
+      AND user_pseudo_id IS NULL );
   IF
     check > expectations THEN
   SET
     assertion_status = 'fail';
   SET
-    error_msg = FORMAT("%d sessions not valid. one of these is null: landing_page_location, user_pseudo_id, session_id, session_date, device.category, session_start_timestamp_utc", check);
+    error_msg = FORMAT("%d null user_pseudo_id", check);
   END IF
     ;
     -- Log assertions
   INSERT INTO
     ${ref("assertion_logs")}
   VALUES
-    (CURRENT_TIMESTAMP(), assertion, '${ref("ga4_sessions")}', expectations, check, sample, assertion_status, error_msg);
+    (CURRENT_TIMESTAMP(), assertion, '${ref("base_ga4_events")}', expectations, check, sample, assertion_status, error_msg);
   END IF
 }
 
 post_operations {
-  IF ${config.ASSERTIONS_SESSIONS_VALIDITY}  THEN
+  IF ${config.ASSERTIONS_USER_PSEUDO_ID_COMPLETENESS}  THEN
   -- raise error
     -- drop placeholder table
   DROP TABLE

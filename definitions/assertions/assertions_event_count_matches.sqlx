@@ -7,7 +7,7 @@ config {
 }
 
 js {
-    const { helpers } = require("includes/core/helpers");
+    const helpers  = require("includes/helper_functions");
     const config = helpers.getConfig();
 }
 
