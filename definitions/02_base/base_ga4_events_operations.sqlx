@@ -11,15 +11,12 @@ config {
 
 js {
   // Require your helper functions.
-  const helperFunctions = require("includes/helper_functions");
-  //const default_config = helperFunctions.getConfig();
-
-  // Explicitly require the merged config from your config file.
+  const helpers = require("includes/helper_functions");
   const { mergedConfig } = require("includes/config");
   const config = {
     ...mergedConfig
   };
-   helperFunctions.checkColumnNames(config);
+   helpers.checkColumnNames(config);
 }
 
   -- ==============================
@@ -249,18 +246,18 @@ step1 as (
     ) as batch,
 
     -- grab all core event parameters
-    ${helper_functions.generateStructSQL(helper_functions.generateParamsSQL(config.CORE_PARAMS_ARRAY))} as event_params,
+    ${helpers.generateStructSQL(helpers.generateParamsSQL(config.CORE_PARAMS_ARRAY))} as event_params,
 
     -- and the custom ones
     ${when(
       config.CUSTOM_EVENT_PARAMS_ARRAY.length > 0,
-        `${helper_functions.generateStructSQL(helper_functions.generateParamsSQL(config.CUSTOM_EVENT_PARAMS_ARRAY))} as event_params_custom,`
+        `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_EVENT_PARAMS_ARRAY))} as event_params_custom,`
       )} 
 
     -- add user_properties
     ${when(
       config.CUSTOM_USER_PROPERTIES_ARRAY.length > 0,      
-        `${helper_functions.generateStructSQL(helper_functions.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} as user_properties,`
+        `${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} as user_properties,`
       )}
 
  from ${ref("events_*")}
@@ -276,11 +273,11 @@ step1 as (
 
     -- filters from config:
     -- discard unwanted events
-    and ${helper_functions.generateFilterTypeFromListSQL("exclude", "event_name", config.EVENTS_TO_EXCLUDE)}
+    and ${helpers.generateFilterTypeFromListSQL("exclude", "event_name", config.EVENTS_TO_EXCLUDE)}
     -- discard unwanted hostnames
-    and ${helper_functions.generateFilterTypeFromListSQL("exclude", "device.web_info.hostname", config.HOSTNAME_EXCLUDE)}
+    and ${helpers.generateFilterTypeFromListSQL("exclude", "device.web_info.hostname", config.HOSTNAME_EXCLUDE)}
     -- only include wanted hostnames
-    and ${helper_functions.generateFilterTypeFromListSQL("include", "device.web_info.hostname", config.HOSTNAME_INCLUDE_ONLY)}
+    and ${helpers.generateFilterTypeFromListSQL("include", "device.web_info.hostname", config.HOSTNAME_INCLUDE_ONLY)}
 
 ),
 
