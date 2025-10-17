@@ -1,6 +1,6 @@
 /*
 	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
 	Artem Korneev, Jules Stuifbergen,
 	Johan van de Werken, Krisztián Korpa,
 	Simon Breton
@@ -188,9 +188,9 @@ add_meta_info as (
     ) session_source
   from events
   left join source_categories join_first
-    on join_first.source = events.first_traffic_source.source
+    on events.first_traffic_source.source like join_first.source
   left join source_categories join_last
-    on join_last.source = events.last_traffic_source.source
+    on events.last_traffic_source.source like join_last.source
 )
 
 select

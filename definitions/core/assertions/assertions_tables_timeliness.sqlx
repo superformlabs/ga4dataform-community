@@ -70,6 +70,7 @@ pre_operations {
       FROM
         ${ref("events_*")}
       WHERE
+        CONTAINS_SUBSTR(_TABLE_SUFFIX, 'fresh') IS FALSE AND 
         CONTAINS_SUBSTR(_TABLE_SUFFIX, 'intraday') IS FALSE) );
   IF
     check > expectations THEN

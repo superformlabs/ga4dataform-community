@@ -1,6 +1,6 @@
 /*
 	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
 	Artem Korneev, Jules Stuifbergen,
 	Johan van de Werken, Krisztián Korpa,
 	Simon Breton
@@ -18,11 +18,65 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/*
+  WARNING:
+  DO NOT OVERWRITE ANYTHING IN THIS FILE!
+  FILES IN THE CORE FOLDER CAN BE OVERWRITTEN DURING UPDATES
+  PLEASE USE THE *includes/custom/config.js* FILE TO ADJUST YOUR CONFIG
+*/
 
+const { helpers } = require("../core/helpers");
+const lowerSQL = helpers.lowerSQL;
 
-const { safeCastSQL, lowerSQL } = require("./helpers");
+// the below variables are either used as "placeholders" if custom/config.js is not filled out
+// or to add static, default logic that is needed for core functions
 
+// this date will be the first shard that is processed
+const GA4_START_DATE = "2020-01-01";
 
+// Default Channel Grouping mimics GA4
+// We create extra channels, enable those?
+const EXTRA_CHANNEL_GROUPS = false;
+
+// how many days should pass in order to deem an event 'final'
+// we recommend using 3 as Measurement Protocol hits can arrive 72 hours into the past
+const DATA_IS_FINAL_DAYS = 3;
+
+// adjust your lookback window
+const LAST_NON_DIRECT_LOOKBACK_DAYS = 90;
+
+const CLICK_IDS_ARRAY = [
+  // how to classify click ids (from collected_traffic_source) when there is no source/medium/campaign found?
+  // (defaults should be fine)
+
+  // name: from collected_traffic_source
+  // medium and campaign: fill in with this value when needed (meaning: when found to be organic/referral)
+  // note: we never overwrite MEDIUM, CAMPAIGN if explitly set. We only overwrite when campaign is "(organic)", "(referral)" or NULL
+  {name:'gclid', source:"google", medium:"cpc", campaign: "(not set)", sources:["url","collected_traffic_source"] },
+  {name:'dclid', source:"google", medium:"cpc", campaign: "(not set)", sources:["url","collected_traffic_source"] },
+  {name:'srsltid', source:"google", medium:"organic", campaign: "Shopping Free Listings", sources:["url","collected_traffic_source"] },
+  {name:'gbraid', source:"google",  medium:"cpc", campaign: "(not set)", sources:["url"]},
+  {name:'wbraid', source:"google",  medium:"cpc", campaign: "(not set)", sources:["url"] },
+  {name:'msclkid', source:"bing", medium:"cpc", campaign: "(not set)", sources:["url"] }
+];
+
+const SOCIAL_PLATFORMS_REGEX = ['pinterest',
+                                'facebook',
+                                'instagram',
+                                'reddit',
+                                'tiktok',
+                                'linkedin',
+                                'snapchat',
+                                'messenger',
+                                'twitter'].join('|');
+
+const TABLES_OUTPUT = [
+                        "ga4_events",
+                        "int_ga4_sessions",
+                        "int_ga4_transactions",
+                        "ga4_sessions",
+                        "ga4_transactions"
+];
 
 const URL_PARAMS_ARRAY = [
     // url parameters to extract to own column
@@ -41,6 +95,30 @@ const URL_PARAMS_ARRAY = [
     { name: "gtm_debug" },
     { name: "_gl" },
 ];
+
+const CUSTOM_EVENT_PARAMS_ARRAY = [];
+
+const CUSTOM_USER_PROPERTIES_ARRAY = [];
+
+const CUSTOM_ITEM_PARAMS_ARRAY = [];
+
+const CUSTOM_URL_PARAMS_ARRAY = [];
+
+const EVENTS_TO_EXCLUDE = [];
+const HOSTNAME_EXCLUDE = [];
+const HOSTNAME_INCLUDE_ONLY = [];
+
+const ASSERTIONS_EVENT_ID_UNIQUENESS = false;
+const ASSERTIONS_SESSION_DURATION_VALIDITY = false;
+const ASSERTIONS_SESSION_ID_UNIQUENESS = false;
+const ASSERTIONS_SESSIONS_VALIDITY = false;
+const ASSERTIONS_TABLES_TIMELINESS = false;
+const ASSERTIONS_TRANSACTION_ID_COMPLETENESS = false;
+const ASSERTIONS_USER_PSEUDO_ID_COMPLETENESS = false;
+
+const TRANSACTIONS_DEDUPE = false;
+const TRANSACTION_TOTALS_UID = "user_pseudo_id";
+
 
 /*
     The following table lists most of the event parameters from automatically
@@ -96,8 +174,7 @@ const CORE_PARAMS_ARRAY = [
     },
     {
         type: "string",
-        name: "session_engaged",
-        cleaningMethod: safeCastSQL
+        name: "session_engaged"
     },
 
     // page specific
@@ -571,117 +648,6 @@ const CORE_PARAMS_ARRAY = [
         type: "string",
         name: "lead_status"
     }
-
-];
-
-// config starts here
-
-
-// Default Channel Grouping mimics GA4
-// We create extra channels, enable those?
-const EXTRA_CHANNEL_GROUPS = false;
-
-// this date will be the first shard that is processed
-const GA4_START_DATE = "2020-01-01";
-
-// how many days should pass in order to deem an event 'final'
-// we recommend using 3 as Measurement Protocol hits can arrive 72 hours into the past
-const DATA_IS_FINAL_DAYS = 3;
-
-// adjust your lookback window
-const LAST_NON_DIRECT_LOOKBACK_DAYS = 90;
-
-// quality checks can be toggled off by changing to false
-const ASSERTIONS_EVENT_ID_UNIQUENESS = true;
-const ASSERTIONS_SESSION_DURATION_VALIDITY = true;
-const ASSERTIONS_SESSION_ID_UNIQUENESS = true;
-const ASSERTIONS_SESSIONS_VALIDITY = true; 
-const ASSERTIONS_TABLES_TIMELINESS = true; 
-const ASSERTIONS_TRANSACTION_ID_COMPLETENESS = true;
-const ASSERTIONS_USER_PSEUDO_ID_COMPLETENESS = true;
-
-
-// deduplicate transactions?
-const TRANSACTIONS_DEDUPE = false;
-
-// what column to use for tranasction running totals to use?
-// valid values: user_pseudo_id | user_id | <some valid column name>
-const TRANSACTION_TOTALS_UID = "user_pseudo_id";
-
-
-// ga4 event param config
-
-// type: string, int, decimal
-// name: "param_name"
-// renameTo: "name_of_output_column" (optional)
-
-// decimal will cast/coalesce into numeric via - INT, FLOAT, DOUBLE
-// string will cast/coalesce into string via STRING, INT, FLOAT DOUBLE
-
-
-const CUSTOM_EVENT_PARAMS_ARRAY = [
-  // example set: this will populate 5 fields in the `event_params_custom` column in the `ga4_events` table
-  // known limitation: the output column names must be valid. use letters and underscores to be safe 
-];
-
-
-const CUSTOM_USER_PROPERTIES_ARRAY = [
-];
-
-
-const CUSTOM_ITEM_PARAMS_ARRAY = [
-
-];
-
-const CUSTOM_URL_PARAMS_ARRAY = [
-
-];
-
-
-
-const CLICK_IDS_ARRAY = [
-  // how to classify click ids (from collected_traffic_source) when there is no source/medium/campaign found?
-  // (defaults should be fine)
-
-  // name: from collected_traffic_source
-  // medium and campaign: fill in with this value when needed (meaning: when found to be organic/referral)
-  // note: we never overwrite MEDIUM, CAMPAIGN if explitly set. We only overwrite when campaign is "(organic)", "(referral)" or NULL
-  {name:'gclid', source:"google", medium:"cpc", campaign: "(not set)", sources:["url","collected_traffic_source"] },
-  {name:'dclid', source:"google", medium:"cpc", campaign: "(not set)", sources:["url","collected_traffic_source"] },
-  {name:'srsltid', source:"google", medium:"organic", campaign: "Shopping Free Listings", sources:["url","collected_traffic_source"] },
-  {name:'gbraid', source:"google",  medium:"cpc", campaign: "(not set)", sources:["url"]},
-  {name:'wbraid', source:"google",  medium:"cpc", campaign: "(not set)", sources:["url"] },
-  {name:'msclkid', source:"bing", medium:"cpc", campaign: "(not set)", sources:["url"] }
-];
-
-
-
-
-// if you have events you don't want to process, include them here
-const EVENTS_TO_EXCLUDE = [];
-const HOSTNAME_EXCLUDE = []; // a list of hostnames to exclude (leave all others in)
-const HOSTNAME_INCLUDE_ONLY = []; // a list of hostnames to include (discard all others)
-
-
-
-// do not change anything below this line
-
-const SOCIAL_PLATFORMS_REGEX = ['pinterest',
-                                'facebook',
-                                'instagram',
-                                'reddit',
-                                'tiktok',
-                                'linkedin',
-                                'snapchat',
-                                'messenger',
-                                'twitter'].join('|');
-
-const TABLES_OUTPUT = [
-                        "ga4_events",
-                        "int_ga4_sessions",
-                        "int_ga4_transactions",
-                        "ga4_sessions",
-                        "ga4_transactions"
 ];
 
 const coreConfig = {

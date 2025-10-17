@@ -1,6 +1,6 @@
 /*
 	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2024 Superform Labs <support@ga4dataform.com>
+	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
 	Artem Korneev, Jules Stuifbergen,
 	Johan van de Werken, Krisztián Korpa,
 	Simon Breton
@@ -579,10 +579,11 @@ add_meta_info as (
           date(datetime(time.event_timestamp_utc, '${dataform.projectConfig.vars.LOCAL_TIMEZONE}')) as date_local
     ) time,
     -- try to guess if this is a MP hit
-    if(device.language is null and device.operating_system is null and device.category = 'desktop',
-       true,
-       false
-    ) as is_measurement_protocol_hit,
+    case
+      when event_date >= '2025-06-11' and platform = 'WEB' and batch.batch_page_id is null then true
+      when event_date < '2025-06-11' and device.language is null and device.operating_system is null and device.category = 'desktop' then true
+      else false
+    end as is_measurement_protocol_hit,
 
     -- make session_id - can be NULL (if anonymous ping or MP hit without session_id)
     farm_fingerprint(
