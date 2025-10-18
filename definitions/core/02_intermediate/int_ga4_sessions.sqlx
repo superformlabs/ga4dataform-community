@@ -84,8 +84,9 @@ with events as (
     ${helpers.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')},
     
     -- these will be packaged to a single struct later
-    ${helpers.generateTrafficSourceSQL('fixed_traffic_source','first_traffic_source')},
-    ${helpers.generateTrafficSourceSQL('fixed_traffic_source','last_traffic_source', false)},
+	-- Prefer non-null medium, then non-null source, then timestamp-- Prefer non-null medium, then non-null source, then timestamp
+	${helpers.generateTrafficSourceSQL('fixed_traffic_source','first_traffic_source', true,  '(fixed_traffic_source.medium IS NULL), (fixed_traffic_source.source IS NULL), time.event_timestamp_utc')},
+	${helpers.generateTrafficSourceSQL('fixed_traffic_source','last_traffic_source', false, '(fixed_traffic_source.medium IS NULL), (fixed_traffic_source.source IS NULL), time.event_timestamp_utc')},
     ${helpers.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'first_click_ids')},
     ${helpers.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'last_click_ids', false)},
     
