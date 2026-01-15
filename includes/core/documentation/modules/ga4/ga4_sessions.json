@@ -1,0 +1,166 @@
+{
+  "session_id": "Unique identifier for the session - contains only non-NULL values (cluster column)",
+  "stream_id": "The numeric ID of the data stream from which the event originated",
+  "user_pseudo_id": "Pseudonymous identifier for the user",
+  "property_id": "Google Analytics property ID",
+  "table_suffix": "Suffix of the events table name the event was sourced",
+  "is_final": "Indicates if the data is final or subject to change (based on 72h window)",
+  "device": {
+    "description": "information about the device from which the event originated - we take the first value of the session",
+    "columns": {
+        "category": "The device category (mobile, tablet, desktop)",
+        "mobile_brand_name": "Mobile device brand name",
+        "mobile_model_name": "Mobile device model name",
+        "mobile_marketing_name": "Mobile device marketing name",
+        "mobile_os_hardware_model": "The device model information retrieved directly from the operating system",
+        "operating_system": "Operating system name",
+        "operating_system_version": "Operating system version",
+        "vendor_id": "IDFV (present only if IDFA is not collected)",
+        "advertising_id": "Advertising ID/IDFA",
+        "language": "OS language setting",
+        "is_limited_ad_tracking": "Indicates if ad tracking is limited. On iOS14+, returns false if the IDFA is non-zero",
+        "time_zone_offset_seconds": "The offset from GMT in seconds",
+        "web_info": {
+          "description": "Web-specific device information",
+          "columns": {
+            "browser": "Web browser name",
+            "browser_version": "Web browser version",
+            "hostname": "The hostname associated with the logged event"
+          }
+        }
+    }
+  },
+  "geo": {
+      "description": "Geographic information - first value of the session",
+      "columns": {
+        "continent": "The continent from which events were reported, based on IP address",
+        "country": "The country from which events were reported, based on IP address",
+        "region": "The region from which events were reported, based on IP address",
+        "city": "The city from which events were reported, based on IP address",
+        "sub_continent": "The subcontinent from which events were reported, based on IP address",
+        "metro": "The metro from which events were reported, based on IP address"
+      }
+  },
+  "app_info": {
+    "description": "contains information about the app in which the event was initiated- first value of the session",
+    "columns": {
+        "id": "The package name or bundle ID of the app",
+        "version": "The app's versionName (Android) or short bundle version",
+        "install_store": "The store that installed the app",
+        "firebase_app_id": "The Firebase App ID associated with the app",
+        "install_source": "The source that installed the app"
+    }
+  },
+  "platform": "The data stream platform (Web, IOS or Android) from which the event originated",
+  "landing_page": {
+    "description": "Information about the landing page (first page_location of the session)",
+    "columns": {
+      "landing_page_location": "Full URL of the landing page",
+      "landing_page_path": "Path of the landing page",
+      "landing_page_hostname": "Hostname of the landing page",
+      "landing_page_referrer": "Referrer URL for the landing page",
+      "landing_content_group": "Content group of the landing page"
+    }
+  },
+  "session_traffic_source_last_click": {
+    "description": "The session_traffic_source_last_click RECORD contains the last-click attributed session traffic source data across Google ads and manual contexts, where available",
+    "columns": {
+        "manual_campaign": {
+        "description": "Manually set campaign information",
+        "columns": {
+            "campaign_id": "The ID of the last clicked manual campaign",
+            "campaign_name": "The name of the last clicked manual campaign",
+            "source": "The specific source within the platform of the last clicked manual campaign",
+            "medium": "The medium of the last clicked manual campaign (e.g., paid search, organic search, email)",
+            "term": "The keyword/search term of the last clicked manual campaign",
+            "content": "Additional metadata of the last clicked manual campaign",
+            "source_platform": "The platform of the last clicked manual campaign (e.g., search engine, social media)",
+            "creative_format": "The format of the creative of the last clicked manual campaign",
+            "marketing_tactic": "The marketing tactic of the last clicked manual campaign"
+        }
+        },
+        "google_ads_campaign": {
+        "description": "Google Ads information",
+        "columns": {
+            "customer_id": "The customer ID associated with the Google Ads account",
+            "account_name": "The name of the Google Ads account",
+            "campaign_id": "The ID of the Google Ads campaign",
+            "campaign_name": "The name of the Google Ads campaign",
+            "ad_group_id": "The ID of the ad group within the Google Ads campaign",
+            "ad_group_name": "The name of the ad group within the Google Ads campaign"
+        }
+        }
+    }
+  },
+  "user_id": "Unique identifier for the user - last non-null value of the session",
+  "exit_page": {
+    "description": "Information about the exit page (last page_location of the session)",
+    "columns": {
+      "exit_page_location": "Full URL of the exit page",
+      "exit_page_path": "Path of the exit page",
+      "exit_page_hostname": "Hostname of the exit page",
+      "exit_content_group": "Content group of the exit page"
+    }
+  },
+  "ga_session_number": "Google Analytics session number",
+  "session_date": "Date of the session (partitioning column) - based on start date of the session",
+  "session_info": {
+    "description": "Additional session information",
+    "columns": {
+      "is_engaged_session": "Indicates if the session is engaged",
+      "is_with_source": "Indicates if any of the events of the session has a source",
+      "is_direct_session": "Indicates if the session is direct (opposite of is_with_source)",
+      "is_debug_session": "Indicates if the session is in debug mode",
+      "is_cross_domain": "Indicates if any of the events in the session has a cross-domain source (based on the cross domain url parameter)"
+    }
+  },
+  "time": {
+    "description": "Time-related information for the session",
+    "columns": {
+      "session_start_timestamp_utc": "Session start timestamp in UTC",
+      "session_end_timestamp_utc": "Session end timestamp in UTC",
+      "engagement_time_msec": "sum of Engagement time in milliseconds",
+      "session_duration_s": "Session duration in seconds (based on start and end times)"
+    }
+  },
+  "session_source": {
+    "description": "Session source of actual session: first non-empty source of the session. Taken from 'fixed_traffic_source'",
+    "columns": {
+        "campaign_id": "Campaign ID - utm_id",
+        "campaign": "Campaign name - utm_campaign",
+        "source": "Traffic source",
+        "medium": "Traffic medium",
+        "term": "Search term - utm_term",
+        "content": "Content identifier - utm_content",
+        "gclid": "Google Click Identifier",
+        "dclid": "DoubleClick Click Identifier",
+        "srsltid": "Search Result Slot Identifier (google shopping)",
+        "gbraid": "Google Ads Click Identifier for iOS",
+        "wbraid": "Google Ads Click Identifier for Web",
+        "msclkid": "Microsoft Click Identifier",
+        "default_channel_grouping": "Default channel grouping",
+        "source_platform": "The platform responsible for directing traffic to a given Analytics property - utm_marketing_platform",
+        "creative_format": "Type of creative - utm_creative_format",
+        "marketing_tactic": "Targeting criteria applied to a campaign - utm_marketing_tactic"
+
+    }
+  },
+  "last_non_direct_traffic_source": {
+    "description": "Last non-direct traffic source information. Takes first_source if available, else last source of previous session withing lookback window",
+    "columns": {
+      "campaign_id": "Campaign ID",
+      "campaign": "Campaign name",
+      "source": "Traffic source",
+      "medium": "Traffic medium",
+      "term": "Search term",
+      "content": "Content identifier",
+      "gclid": "Google Click Identifier",
+      "dclid": "DoubleClick Click Identifier",
+      "srsltid": "Search Result Slot Identifier",
+      "gbraid": "Google Ads Click Identifier for iOS",
+      "wbraid": "Google Ads Click Identifier for Web",
+      "msclkid": "Microsoft Click Identifier",
+      "default_channel_grouping": "Default channel grouping"
+    }
+  }
+}

@@ -1,0 +1,123 @@
+/*
+	This file is part of "GA4 Dataform Package".
+	Copyright (C) 2023-2026 Superform Labs <support@superformlabs.eu>
+	Artem Korneev, Jules Stuifbergen,
+	Johan van de Werken, Krisztián Korpa,
+	Simon Breton
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, version 3 of the License.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License in the LICENSE.txt file for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+config {
+  type: "incremental",
+  description: "Output sessions table with last non direct logic added",
+  schema: dataform.projectConfig.vars.OUTPUTS_DATASET,
+  tags:[dataform.projectConfig.vars.GA4_DATASET,"sessions","outputs"],
+  bigquery: {
+    partitionBy: "session_date",
+    clusterBy: [ "session_id" ],
+    labels: require("includes/core/helpers.js").helpers.storageLabels()
+  },
+  columns: require("includes/core/documentation/helpers.js").ga4Sessions
+}
+
+js {
+  const { helpers } = require("includes/core/modules/ga4/helpers");
+  const config = helpers.getModuleConfig('ga4');
+}
+
+/* incrementality */
+pre_operations {
+  DECLARE date_checkpoint DATE;
+  SET @@query_label = "${helpers.executionLabels()}";
+  SET date_checkpoint = (
+    ${when(incremental(),
+      `SELECT
+        COALESCE(MAX(session_date)+1, DATE('${config.GA4_START_DATE}'))
+      FROM ${self()}
+      WHERE is_final = TRUE`,
+    `SELECT DATE('${config.GA4_START_DATE}')`)}   /* the default, when it's not incremental */
+  );
+  -- delete some older data, since this may be updated later by GA4
+  ${
+    when(incremental(),
+      `DELETE FROM ${self()} WHERE session_date >= date_checkpoint`
+      )
+  }
+}
+
+WITH source_sessions AS (
+  SELECT *
+  FROM ${ref("int_ga4_sessions")}
+  WHERE session_date >= date_checkpoint - INTERVAL ${config.LAST_NON_DIRECT_LOOKBACK_DAYS} DAY
+  -- discard the multiday session dupes here, keeping only the first, with the latest end time
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY session_id
+    ORDER BY time.session_start_timestamp_utc ASC, time.session_end_timestamp_utc DESC
+  ) = 1
+),
+
+stage_add_last_non_direct AS (
+  SELECT
+    *,
+    IF(
+      session_info.is_with_source, -- use the first source if there is one
+      session_source.first,
+      -- if there is no source, lookback, and use LAST non-null source
+      LAST_VALUE(
+        -- make sure we do not carry empty source structs
+        IF(
+          COALESCE(
+            session_source.last.campaign_id,
+            session_source.last.campaign,
+            session_source.last.source,
+            session_source.last.medium,
+            session_source.last.term,
+            session_source.last.content,
+            ${helpers.getClickIdsDimensionsSQL(config.CLICK_IDS_ARRAY,'session_source.last')}
+          ) IS NULL,
+          NULL,
+          session_source.last
+        )
+        IGNORE NULLS
+      ) OVER lookback_window
+
+    ) AS last_non_direct_traffic_source
+
+  FROM source_sessions
+
+  WINDOW lookback_window AS (
+    PARTITION BY user_pseudo_id
+    ORDER BY UNIX_MILLIS(time.session_start_timestamp_utc)
+    RANGE BETWEEN ${config.LAST_NON_DIRECT_LOOKBACK_DAYS * 24 * 3600 * 1000} PRECEDING AND CURRENT ROW
+  )
+),
+
+-- now rewrite NULL default channel grouping to Direct
+final_add_direct_to_dcg AS (
+  SELECT
+    * EXCEPT (session_source)
+    REPLACE (
+      (
+        SELECT AS STRUCT
+          last_non_direct_traffic_source.* EXCEPT (default_channel_grouping),
+          COALESCE(last_non_direct_traffic_source.default_channel_grouping, "Direct") AS default_channel_grouping
+      ) AS last_non_direct_traffic_source
+    ),
+    session_source.first AS session_source
+  FROM stage_add_last_non_direct
+)
+
+SELECT *
+FROM final_add_direct_to_dcg
+WHERE session_date >= date_checkpoint

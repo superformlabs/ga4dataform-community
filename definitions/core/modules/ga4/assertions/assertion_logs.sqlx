@@ -1,0 +1,37 @@
+
+
+config {
+    type: "operations",
+    schema: dataform.projectConfig.vars.QUALITY_DATASET,
+    hasOutput: true // optional, lets you reference the empty table
+}
+
+BEGIN
+  DECLARE full_table_path STRING;
+  DECLARE schema_table STRING;
+
+  -- Get the full table path and schema name
+  SET full_table_path = "${self()}";
+  SET schema_table = SPLIT(full_table_path, '.')[OFFSET(1)];
+
+  -- Try to create the schema if it doesn't exist
+  EXECUTE IMMEDIATE FORMAT('''CREATE SCHEMA IF NOT EXISTS `%s` OPTIONS(location='${dataform.projectConfig.defaultLocation}')''', schema_table);
+
+  -- Create the table if it doesn't exist
+  EXECUTE IMMEDIATE FORMAT(
+    '''
+    CREATE TABLE IF NOT EXISTS
+      %s (
+        inserted_at TIMESTAMP,
+        assertion STRING,
+        model STRING,
+        expectations INT64,
+        count INT64,
+        sample STRING,
+        assertion_status STRING,
+        error_msg STRING
+      )
+    ''', full_table_path);
+
+END;
+

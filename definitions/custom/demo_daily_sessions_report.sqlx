@@ -1,6 +1,6 @@
 /*
 	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
+	Copyright (C) 2023-2026 Superform Labs <support@superformlabs.eu>
 	Artem Korneev, Jules Stuifbergen,
 	Johan van de Werken, Krisztián Korpa,
 	Simon Breton
@@ -26,7 +26,7 @@ config {
     bigquery: {
         partitionBy: "session_date",
         labels: require("includes/core/helpers.js").helpers.storageLabels()
-    }
+    },
 }
 
 js {
@@ -37,116 +37,113 @@ pre_operations {
   set @@query_label = "${helpers.executionLabels()}"
 }
 
-with sessions_aggregation as (
+WITH source_sessions_aggregation AS (
 
-    select
-        s.session_date,
-        s.session_id,
-        if(s.ga_session_number = 1, 'New Session', 'Returning Session') as session_type,
-        s.session_info.is_engaged_session,
-        s.session_info.is_direct_session,
-        s.device.category as device_category,
-        s.geo.country,
-        s.platform,
-        s.stream_id,
+  SELECT
+    s.session_date,
+    s.session_id,
+    IF(s.ga_session_number = 1, 'New Session', 'Returning Session') AS session_type,
+    s.session_info.is_engaged_session,
+    s.session_info.is_direct_session,
+    s.device.category AS device_category,
+    s.geo.country,
+    s.platform,
+    s.stream_id,
 
-        s.last_non_direct_traffic_source.campaign as session_campaign,
-        s.last_non_direct_traffic_source.source as session_source,
-        s.last_non_direct_traffic_source.medium as session_medium,
-        s.last_non_direct_traffic_source.content as session_content,
-        s.last_non_direct_traffic_source.term as session_term,
-        s.last_non_direct_traffic_source.default_channel_grouping as session_default_channel_grouping,
+    s.last_non_direct_traffic_source.campaign AS session_campaign,
+    s.last_non_direct_traffic_source.source AS session_source,
+    s.last_non_direct_traffic_source.medium AS session_medium,
+    s.last_non_direct_traffic_source.content AS session_content,
+    s.last_non_direct_traffic_source.term AS session_term,
+    s.last_non_direct_traffic_source.default_channel_grouping AS session_default_channel_grouping,
 
-        s.session_traffic_source_last_click.google_ads_campaign.campaign_name as last_click_google_ads_campaign,
-        s.session_traffic_source_last_click.manual_campaign.campaign_name as last_click_campaign_name,
-        s.session_traffic_source_last_click.manual_campaign.source as last_click_source,
-        s.session_traffic_source_last_click.manual_campaign.medium as last_click_medium,
-        s.session_traffic_source_last_click.manual_campaign.term as last_click_term,
-        s.session_traffic_source_last_click.manual_campaign.content as last_click_content,
+    s.session_traffic_source_last_click.google_ads_campaign.campaign_name AS last_click_google_ads_campaign,
+    s.session_traffic_source_last_click.manual_campaign.campaign_name AS last_click_campaign_name,
+    s.session_traffic_source_last_click.manual_campaign.source AS last_click_source,
+    s.session_traffic_source_last_click.manual_campaign.medium AS last_click_medium,
+    s.session_traffic_source_last_click.manual_campaign.term AS last_click_term,
+    s.session_traffic_source_last_click.manual_campaign.content AS last_click_content,
 
-        s.landing_page.landing_page_path,
-        s.landing_page.landing_content_group,
-        s.exit_page.exit_page_path,
-        e.ecommerce.transaction_id as transaction_id,
+    s.landing_page.landing_page_path,
+    s.landing_page.landing_content_group,
+    s.exit_page.exit_page_path,
+    e.ecommerce.transaction_id,
 
-        countif(e.event_name = 'page_view') as page_view,
-        countif(e.event_name = 'view_item') as view_item,
-        countif(e.event_name = 'add_to_cart') as add_to_cart,
-        countif(e.event_name = 'begin_checkout') as begin_checkout,
-        countif(e.event_name = 'purchase') as purchase,
-        countif(e.event_name = 'view_search_results') as view_search_results,
-        sum(e.ecommerce.purchase_revenue) as revenue,
-     
-    
-    from ${ref("ga4_sessions")} s
-    left join ${ref("ga4_events")} e
-        on s.session_id = e.session_id
-        and e.event_name in (
+    COUNTIF(e.event_name = 'page_view') AS page_view,
+    COUNTIF(e.event_name = 'view_item') AS view_item,
+    COUNTIF(e.event_name = 'add_to_cart') AS add_to_cart,
+    COUNTIF(e.event_name = 'begin_checkout') AS begin_checkout,
+    COUNTIF(e.event_name = 'purchase') AS purchase,
+    COUNTIF(e.event_name = 'view_search_results') AS view_search_results,
+    SUM(e.ecommerce.purchase_revenue) AS revenue
+
+  FROM ${ref("ga4_sessions")} AS s
+  LEFT JOIN ${ref("ga4_events")} AS e
+    ON
+      s.session_id = e.session_id
+      AND e.event_name IN (
         'page_view',
         'view_item',
         'add_to_cart',
         'begin_checkout',
         'purchase',
         'view_search_results'
-        )
-    group by all
-
+      )
+  GROUP BY ALL
 
 ),
 
-daily_aggregation as (
+final_daily_aggregation AS (
 
-    select
-        session_date,
-        session_type,
-        is_direct_session,
-        device_category,
-        country,
-        platform,
-        stream_id,
+  SELECT
+    session_date,
+    session_type,
+    is_direct_session,
+    device_category,
+    country,
+    platform,
+    stream_id,
 
-        -- "our" attribution
-        ifnull(session_campaign, '(not set)') as session_campaign,
-        ifnull(session_source, '(not set)') as session_source,
-        ifnull(session_medium, '(not set)') as session_medium,
-        ifnull(session_content, '(not set)') as session_content,
-        ifnull(session_term, '(not set)') as session_term,
-        session_default_channel_grouping,
+    -- "our" attribution
+    COALESCE(session_campaign, '(not set)') AS session_campaign,
+    COALESCE(session_source, '(not set)') AS session_source,
+    COALESCE(session_medium, '(not set)') AS session_medium,
+    COALESCE(session_content, '(not set)') AS session_content,
+    COALESCE(session_term, '(not set)') AS session_term,
+    session_default_channel_grouping,
 
-        -- google attribution (if available)
-        last_click_google_ads_campaign
-        last_click_campaign_name,
-        last_click_source,
-        last_click_medium,
-        last_click_term,
-        last_click_content,
+    -- google attribution (if available)
+    last_click_google_ads_campaign
+      AS last_click_campaign_name,
+    last_click_source,
+    last_click_medium,
+    last_click_term,
+    last_click_content,
 
-        landing_page_path,
-        landing_content_group,
-        exit_page_path,
+    landing_page_path,
+    landing_content_group,
+    exit_page_path,
 
-        count(distinct session_id) as sessions,
-        count(distinct if(is_engaged_session, session_id, null)) as engaged_sessions,
-        
-        sum(revenue) as revenue,
-        sum(page_view) as page_view,
-        sum(view_item) as view_item,
-        sum(add_to_cart) as add_to_cart,
-        sum(begin_checkout) as  begin_checkout,
-        sum(purchase) as purchase,
-        sum(view_search_results) as view_search_results,
+    COUNT(DISTINCT session_id) AS sessions,
+    COUNT(DISTINCT IF(is_engaged_session, session_id, NULL)) AS engaged_sessions,
 
-        count(distinct if(view_item > 0, session_id, null)) as view_item_sessions,
-        count(distinct if(add_to_cart > 0, session_id, null)) as add_to_cart_sessions,
-        count(distinct if(begin_checkout > 0, session_id, null)) as  begin_checkout_sessions,
-        count(distinct if(purchase > 0, session_id, null)) as purchase_sessions,
-        count(distinct transaction_id) as transactions
+    SUM(revenue) AS revenue,
+    SUM(page_view) AS page_view,
+    SUM(view_item) AS view_item,
+    SUM(add_to_cart) AS add_to_cart,
+    SUM(begin_checkout) AS begin_checkout,
+    SUM(purchase) AS purchase,
+    SUM(view_search_results) AS view_search_results,
 
-    from sessions_aggregation
-    group by all
+    COUNT(DISTINCT IF(view_item > 0, session_id, NULL)) AS view_item_sessions,
+    COUNT(DISTINCT IF(add_to_cart > 0, session_id, NULL)) AS add_to_cart_sessions,
+    COUNT(DISTINCT IF(begin_checkout > 0, session_id, NULL)) AS begin_checkout_sessions,
+    COUNT(DISTINCT IF(purchase > 0, session_id, NULL)) AS purchase_sessions,
+    COUNT(DISTINCT transaction_id) AS transactions
+
+  FROM source_sessions_aggregation
+  GROUP BY ALL
 )
 
-
-select
-    *
-from daily_aggregation
+SELECT *
+FROM final_daily_aggregation

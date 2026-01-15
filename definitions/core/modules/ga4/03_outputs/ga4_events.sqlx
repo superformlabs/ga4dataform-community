@@ -1,0 +1,658 @@
+/*
+	This file is part of "GA4 Dataform Package".
+	Copyright (C) 2023-2026 Superform Labs <support@superformlabs.eu>
+	Artem Korneev, Jules Stuifbergen,
+	Johan van de Werken, Krisztián Korpa,
+	Simon Breton
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, version 3 of the License.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License in the LICENSE.txt file for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+config {
+  type: "incremental",
+  tags: [dataform.projectConfig.vars.GA4_DATASET,"events","outputs"],
+  schema: dataform.projectConfig.vars.OUTPUTS_DATASET,
+  description: "Output events table: unnested, cleaned, clustered data with several fixes",
+  bigquery: {
+    partitionBy: "event_date",
+    clusterBy: ["event_name", "session_id"],
+    labels: require("includes/core/helpers.js").helpers.storageLabels()
+  },
+    columns: require("includes/core/documentation/helpers.js").ga4Events
+}
+
+
+js {
+  const { helpers } = require("includes/core/modules/ga4/helpers");
+  const config = helpers.getModuleConfig('ga4');
+  /* check if there's invalid columns or dupe columns in the custom column definitions */
+  helpers.checkColumnNames(config);
+}
+
+
+/* incrementality */
+pre_operations {
+  DECLARE date_checkpoint DATE;
+  SET @@query_label = "${helpers.executionLabels()}";
+  SET date_checkpoint = (
+    ${when(incremental(),
+      `SELECT
+        COALESCE(MAX(event_date)+1, DATE('${config.GA4_START_DATE}'))
+      FROM ${self()}
+      WHERE is_final = TRUE`,
+    `SELECT DATE('${config.GA4_START_DATE}')`)}   /* the default, when it's not incremental */
+  );
+    -- delete some older data, since this may be updated later by GA4
+  ${
+    when(incremental(),
+      `DELETE FROM ${self()} WHERE event_date >= date_checkpoint`
+      )
+  }
+}
+
+WITH source_ga4_export AS (
+
+  SELECT
+    _table_suffix AS table_suffix,
+    *
+  FROM ${ref("events_*")}
+  WHERE
+    TRUE
+
+    -- incrementality clause
+    AND PARSE_DATE('%Y%m%d', REGEXP_EXTRACT(_table_suffix, '[0-9]+')) >= date_checkpoint
+
+    -- filters go here
+
+    -- intraday filter: exclude
+    AND CONTAINS_SUBSTR(_table_suffix, 'intraday') IS FALSE
+    -- fresh filter: exclude
+    AND CONTAINS_SUBSTR(_table_suffix, 'fresh') IS FALSE
+
+    -- filters from config:
+    -- discard unwanted events
+    -- noqa: disable=all
+    and ${helpers.generateFilterTypeFromListSQL("exclude", "event_name", config.EVENTS_TO_EXCLUDE)}
+    -- discard unwanted hostnames
+    and ${helpers.generateFilterTypeFromListSQL("exclude", "device.web_info.hostname", config.HOSTNAME_EXCLUDE)}
+    -- only include wanted hostnames
+    and ${helpers.generateFilterTypeFromListSQL("include", "device.web_info.hostname", config.HOSTNAME_INCLUDE_ONLY)}
+    -- noqa: enable=all
+    -- leave cookieless pings in - those will be in the events table do not have a session
+    -- and user_pseudo_id is not null
+
+),
+
+stage_unnest_params AS (
+
+  SELECT
+
+    -- first chunk: the basics
+    event_name,
+    table_suffix,
+    PARSE_DATE('%Y%m%d', event_date) AS event_date, -- partition column
+    DATE_DIFF(CURRENT_DATE(), CAST(event_date AS DATE FORMAT 'YYYYMMDD'), DAY) > ${config.DATA_IS_FINAL_DAYS} AS is_final, -- used for incrementality
+
+    STRUCT(
+      -- timestamps
+      event_timestamp,
+      TIMESTAMP_MICROS(event_timestamp) AS event_timestamp_utc,
+      user_first_touch_timestamp AS user_first_touch_timestamp,
+      TIMESTAMP_MICROS(user_first_touch_timestamp) AS user_first_touch_timestamp_utc
+    ) AS time,
+
+    -- user info
+    user_pseudo_id,
+    user_id,
+    is_active_user,
+
+    -- event info
+    batch_event_index,
+    batch_ordering_id,
+    batch_page_id,
+
+    -- now the structs - we will need to explicitly name ALL fields herein, as to not break incremental builds when Google adds a column in a struct
+    -- privacy info
+    STRUCT(
+      privacy_info.analytics_storage AS analytics_storage,
+      privacy_info.ads_storage AS ads_storage,
+      privacy_info.uses_transient_token AS uses_transient_token
+    ) AS privacy_info,
+
+    STRUCT(
+      collected_traffic_source.manual_campaign_id,
+      collected_traffic_source.manual_campaign_name,
+      collected_traffic_source.manual_source,
+      collected_traffic_source.manual_medium,
+      collected_traffic_source.manual_term,
+      collected_traffic_source.manual_content,
+      collected_traffic_source.manual_source_platform,
+      collected_traffic_source.manual_creative_format,
+      collected_traffic_source.manual_marketing_tactic,
+      collected_traffic_source.gclid,
+      collected_traffic_source.dclid,
+      collected_traffic_source.srsltid
+    ) AS collected_traffic_source, -- as is. This will be fixed in the next step
+
+    STRUCT(
+      STRUCT(
+        session_traffic_source_last_click.manual_campaign.campaign_id,
+        session_traffic_source_last_click.manual_campaign.campaign_name,
+        session_traffic_source_last_click.manual_campaign.source,
+        session_traffic_source_last_click.manual_campaign.medium,
+        session_traffic_source_last_click.manual_campaign.term,
+        session_traffic_source_last_click.manual_campaign.content,
+        session_traffic_source_last_click.manual_campaign.source_platform,
+        session_traffic_source_last_click.manual_campaign.creative_format,
+        session_traffic_source_last_click.manual_campaign.marketing_tactic
+      ) AS manual_campaign,
+      STRUCT(
+        session_traffic_source_last_click.google_ads_campaign.customer_id,
+        session_traffic_source_last_click.google_ads_campaign.account_name,
+        session_traffic_source_last_click.google_ads_campaign.campaign_id,
+        session_traffic_source_last_click.google_ads_campaign.campaign_name,
+        session_traffic_source_last_click.google_ads_campaign.ad_group_id,
+        session_traffic_source_last_click.google_ads_campaign.ad_group_name
+      ) AS google_ads_campaign,
+      STRUCT(
+        session_traffic_source_last_click.cross_channel_campaign.campaign_name,
+        session_traffic_source_last_click.cross_channel_campaign.campaign_id,
+        session_traffic_source_last_click.cross_channel_campaign.source,
+        session_traffic_source_last_click.cross_channel_campaign.medium,
+        session_traffic_source_last_click.cross_channel_campaign.source_platform,
+        session_traffic_source_last_click.cross_channel_campaign.default_channel_group,
+        session_traffic_source_last_click.cross_channel_campaign.primary_channel_group
+      ) AS cross_channel_campaign,
+      STRUCT(
+        session_traffic_source_last_click.sa360_campaign.campaign_id,
+        session_traffic_source_last_click.sa360_campaign.campaign_name,
+        session_traffic_source_last_click.sa360_campaign.source,
+        session_traffic_source_last_click.sa360_campaign.medium,
+        session_traffic_source_last_click.sa360_campaign.ad_group_id,
+        session_traffic_source_last_click.sa360_campaign.ad_group_name,
+        session_traffic_source_last_click.sa360_campaign.creative_format,
+        session_traffic_source_last_click.sa360_campaign.engine_account_name,
+        session_traffic_source_last_click.sa360_campaign.engine_account_type,
+        session_traffic_source_last_click.sa360_campaign.manager_account_name
+      ) AS sa360_campaign,
+      STRUCT(
+        session_traffic_source_last_click.cm360_campaign.campaign_id,
+        session_traffic_source_last_click.cm360_campaign.campaign_name,
+        session_traffic_source_last_click.cm360_campaign.source,
+        session_traffic_source_last_click.cm360_campaign.medium,
+        session_traffic_source_last_click.cm360_campaign.account_id,
+        session_traffic_source_last_click.cm360_campaign.account_name,
+        session_traffic_source_last_click.cm360_campaign.advertiser_id,
+        session_traffic_source_last_click.cm360_campaign.advertiser_name,
+        session_traffic_source_last_click.cm360_campaign.creative_id,
+        session_traffic_source_last_click.cm360_campaign.creative_format,
+        session_traffic_source_last_click.cm360_campaign.creative_name,
+        session_traffic_source_last_click.cm360_campaign.creative_type,
+        session_traffic_source_last_click.cm360_campaign.creative_type_id,
+        session_traffic_source_last_click.cm360_campaign.creative_version,
+        session_traffic_source_last_click.cm360_campaign.placement_id,
+        session_traffic_source_last_click.cm360_campaign.placement_cost_structure,
+        session_traffic_source_last_click.cm360_campaign.placement_name,
+        session_traffic_source_last_click.cm360_campaign.rendering_id,
+        session_traffic_source_last_click.cm360_campaign.site_id,
+        session_traffic_source_last_click.cm360_campaign.site_name
+      ) AS cm360_campaign,
+      STRUCT(
+        session_traffic_source_last_click.dv360_campaign.campaign_id,
+        session_traffic_source_last_click.dv360_campaign.campaign_name,
+        session_traffic_source_last_click.dv360_campaign.source,
+        session_traffic_source_last_click.dv360_campaign.medium,
+        session_traffic_source_last_click.dv360_campaign.advertiser_id,
+        session_traffic_source_last_click.dv360_campaign.advertiser_name,
+        session_traffic_source_last_click.dv360_campaign.creative_id,
+        session_traffic_source_last_click.dv360_campaign.creative_format,
+        session_traffic_source_last_click.dv360_campaign.creative_name,
+        session_traffic_source_last_click.dv360_campaign.exchange_id,
+        session_traffic_source_last_click.dv360_campaign.exchange_name,
+        session_traffic_source_last_click.dv360_campaign.insertion_order_id,
+        session_traffic_source_last_click.dv360_campaign.insertion_order_name,
+        session_traffic_source_last_click.dv360_campaign.line_item_id,
+        session_traffic_source_last_click.dv360_campaign.line_item_name,
+        session_traffic_source_last_click.dv360_campaign.partner_id,
+        session_traffic_source_last_click.dv360_campaign.partner_name
+      ) AS dv360_campaign
+    ) AS session_traffic_source_last_click,
+
+    STRUCT(
+      publisher.ad_format,
+      publisher.ad_revenue_in_usd,
+      publisher.ad_source_name,
+      publisher.ad_unit_id
+    ) AS publisher,
+
+    ecommerce, -- for now. Will be repacked and cleaned below in step 2
+
+    STRUCT(
+      user_ltv.revenue,
+      user_ltv.currency
+    ) AS user_ltv,
+
+    STRUCT(
+      device.category,
+      device.mobile_brand_name,
+      device.mobile_model_name,
+      device.mobile_marketing_name,
+      device.mobile_os_hardware_model,
+      device.operating_system,
+      device.operating_system_version,
+      device.vendor_id,
+      device.advertising_id,
+      device.language,
+      device.is_limited_ad_tracking,
+      device.time_zone_offset_seconds,
+      STRUCT(
+        device.web_info.browser,
+        device.web_info.browser_version,
+        device.web_info.hostname
+      ) AS web_info
+    ) AS device,
+
+    STRUCT(
+      app_info.id,
+      app_info.version,
+      app_info.install_store,
+      app_info.firebase_app_id,
+      app_info.install_source
+    ) AS app_info,
+
+    STRUCT(
+      geo.continent,
+      geo.country,
+      geo.region,
+      geo.city,
+      geo.sub_continent,
+      geo.metro
+    ) AS geo,
+
+    STRUCT(
+      traffic_source.name AS campaign_name,
+      traffic_source.source,
+      traffic_source.medium
+    ) AS first_user_traffic_source,
+
+    stream_id,
+    platform,
+    '${dataform.projectConfig.vars.GA4_DATASET}' AS property_id,
+
+    -- repack the items array struct
+    ARRAY(
+      (
+        SELECT
+          STRUCT(
+            items.item_id,
+            items.item_name,
+            items.item_brand,
+            items.item_variant,
+            items.item_category,
+            items.item_category2,
+            items.item_category3,
+            items.item_category4,
+            items.item_category5,
+            items.price_in_usd,
+            items.price,
+            items.quantity,
+            items.item_revenue_in_usd,
+            items.item_revenue,
+            items.item_refund_in_usd,
+            items.item_refund,
+            items.coupon,
+            items.affiliation,
+            items.location_id,
+            items.item_list_id,
+            items.item_list_name,
+            items.item_list_index,
+            items.promotion_id,
+            items.promotion_name,
+            items.creative_name,
+            items.creative_slot
+            -- noqa: disable=all
+            ${when(config.CUSTOM_ITEM_PARAMS_ARRAY.length > 0,
+                `, ${helpers.generateStructSQL(
+                helpers.generateParamsSQL(
+                    config.CUSTOM_ITEM_PARAMS_ARRAY, 
+                    "items.item_params"
+                )
+            )
+            } AS item_params_custom`)}
+            -- noqa: enable=all
+          )
+        FROM UNNEST(items) AS items
+      )
+    ) AS items,
+
+    -- the programatically added SQL:
+    -- grab all core event parameters
+    ${helpers.generateStructSQL(helpers.generateParamsSQL(config.CORE_PARAMS_ARRAY))} AS event_params
+    -- and the custom ones
+    -- noqa: disable=all
+    ${when(
+      config.CUSTOM_EVENT_PARAMS_ARRAY.length > 0,
+        `,${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_EVENT_PARAMS_ARRAY))} AS event_params_custom`
+      )} 
+    -- add user_properties
+    ${when(
+      config.CUSTOM_USER_PROPERTIES_ARRAY.length > 0,      
+        `,${helpers.generateStructSQL(helpers.generateParamsSQL(config.CUSTOM_USER_PROPERTIES_ARRAY,'user_properties'))} AS user_properties`
+      )}
+    -- noqa: enable=all
+
+  FROM source_ga4_export
+
+),
+
+stage_repack_structs AS (
+  -- small cleanups
+  -- in July 2024, the batch_* event parameters were moved to a column. This is for backwards compatibility, let's move this too.
+  SELECT
+    * EXCEPT (
+      ecommerce,
+      batch_event_index,
+      batch_ordering_id,
+      batch_page_id
+    ),
+
+    STRUCT(
+      batch_event_index,
+      COALESCE(batch_ordering_id, event_params.batch_ordering_id) AS batch_ordering_id,
+      COALESCE(batch_page_id, event_params.batch_page_id) AS batch_page_id
+    ) AS batch,
+
+    -- repack ecommerce struct
+    -- fix transaction_id, change to NULL if "(not set)"
+    -- also remove NANs in ecommerce struct
+    STRUCT(
+      ecommerce.total_item_quantity,
+      IF(IS_NAN(ecommerce.purchase_revenue_in_usd), 0, ecommerce.purchase_revenue_in_usd) AS purchase_revenue_in_usd,
+      IF(IS_NAN(ecommerce.purchase_revenue), 0, ecommerce.purchase_revenue) AS purchase_revenue,
+      IF(IS_NAN(ecommerce.refund_value_in_usd), 0, ecommerce.refund_value_in_usd) AS refund_value_in_usd,
+      IF(IS_NAN(ecommerce.refund_value), 0, ecommerce.refund_value) AS refund_value,
+      IF(IS_NAN(ecommerce.shipping_value_in_usd), 0, ecommerce.shipping_value_in_usd) AS shipping_value_in_usd,
+      IF(IS_NAN(ecommerce.shipping_value), 0, ecommerce.shipping_value) AS shipping_value,
+      IF(IS_NAN(ecommerce.tax_value_in_usd), 0, ecommerce.tax_value_in_usd) AS tax_value_in_usd,
+      IF(IS_NAN(ecommerce.tax_value), 0, ecommerce.tax_value) AS tax_value,
+      ecommerce.unique_items,
+      IF(ecommerce.transaction_id = '(not set)', NULL, ecommerce.transaction_id) AS transaction_id
+    ) AS ecommerce
+
+  FROM stage_unnest_params
+),
+
+stage_url_parsing_and_event_id AS (
+  -- repack extracted parameters to cleaner structs, and create event_id
+
+  SELECT
+    *,
+    -- standard url parameters from config
+    ${helpers.generateStructSQL(helpers.generateURLParamsSQL(
+      'event_params.page_location',
+      config.URL_PARAMS_ARRAY
+    ))} AS url_params,
+
+    -- custom url parameters from config
+    -- noqa: disable=all
+    ${when(
+      config.CUSTOM_URL_PARAMS_ARRAY.length > 0,      
+        `${helpers.generateStructSQL(helpers.generateURLParamsSQL(
+        'event_params.page_location',
+        config.CUSTOM_URL_PARAMS_ARRAY
+        ))} AS url_params_custom,`
+      )}
+    -- noqa: enable=all
+    -- click IDs from config
+    ${helpers.generateStructSQL(helpers.generateURLParamsSQL(
+      'event_params.page_location',
+      config.CLICK_IDS_ARRAY,
+      false
+    ))} AS click_ids,
+    -- create event ID
+    FARM_FINGERPRINT(
+      event_name
+      || time.event_timestamp
+      || COALESCE(user_pseudo_id, 'no')
+      || COALESCE(event_params.ga_session_id, 0)
+      || COALESCE(batch.batch_page_id, 0)
+      || COALESCE(batch.batch_ordering_id, 0)
+      || COALESCE(batch.batch_event_index, 0)
+      || COALESCE(event_params.engagement_time_msec, 0)
+    ) AS event_id
+  FROM stage_repack_structs
+),
+
+stage_discard_synthetic_bundle_events AS (
+  SELECT *
+  FROM stage_url_parsing_and_event_id
+  WHERE TRUE
+  -- final filter: discard audience events
+  AND (event_params.synthetic_bundle IS NULL OR event_params.synthetic_bundle != 1)
+),
+
+stage_traffic_source_coalesce_and_click_ids AS (
+
+  SELECT
+    * EXCEPT (
+      click_ids
+    ),
+    -- create a traffic source struct with
+    -- 1. the manual params
+    -- 2. if not present: for backwards compatibility: use event params
+    -- 3. if not present: use the utm params - but not on later batches, since collected_traffic_source is always null on those hits.
+    -- (and yes, that is annoying).
+    -- PS: in the pre-batch_ordering_id era, this will work too, since if(NULL, NULL, use params) uses params
+    STRUCT(
+      LOWER(COALESCE(collected_traffic_source.manual_campaign_id, IF(batch.batch_ordering_id > 1, NULL, url_params.utm_id))) AS campaign_id,
+      LOWER(COALESCE(collected_traffic_source.manual_campaign_name, IF(batch.batch_ordering_id > 1, NULL, COALESCE(event_params.campaign, url_params.utm_campaign)))) AS campaign,
+      LOWER(COALESCE(collected_traffic_source.manual_source, IF(batch.batch_ordering_id > 1, NULL, COALESCE(event_params.source, url_params.utm_source)))) AS source,
+      LOWER(COALESCE(collected_traffic_source.manual_medium, IF(batch.batch_ordering_id > 1, NULL, COALESCE(event_params.medium, url_params.utm_medium)))) AS medium,
+      LOWER(COALESCE(collected_traffic_source.manual_term, IF(batch.batch_ordering_id > 1, NULL, COALESCE(event_params.term, url_params.utm_term)))) AS term,
+      LOWER(COALESCE(collected_traffic_source.manual_content, IF(batch.batch_ordering_id > 1, NULL, COALESCE(event_params.content, url_params.utm_content)))) AS content,
+      LOWER(COALESCE(collected_traffic_source.manual_source_platform, IF(batch.batch_ordering_id > 1, NULL, url_params.utm_source_platform))) AS source_platform,
+      LOWER(COALESCE(collected_traffic_source.manual_creative_format, IF(batch.batch_ordering_id > 1, NULL, url_params.utm_creative_format))) AS creative_format,
+      LOWER(COALESCE(collected_traffic_source.manual_marketing_tactic, IF(batch.batch_ordering_id > 1, NULL, url_params.utm_marketing_tactic))) AS marketing_tactic
+    ) AS fixed_traffic_source,
+    -- put all the click ids (from config) in a seperate struct
+    STRUCT(
+      ${config.CLICK_IDS_ARRAY.map(id =>helpers.generateClickIdCoalesceSQL(id)).join(", ")}
+    ) AS click_ids
+
+  FROM stage_discard_synthetic_bundle_events
+  WHERE event_date >= date_checkpoint
+
+),
+
+-- remove brackets from source/medium for organic and referral
+
+stage_create_fixed_traffic_source AS (
+
+  SELECT
+    * EXCEPT (
+      fixed_traffic_source
+    ),
+
+    -- fix misattribution issues
+    STRUCT(
+      fixed_traffic_source.campaign_id,
+      -- only rewrite campaign if it is organic or referral
+      CASE
+        WHEN (
+          (COALESCE(fixed_traffic_source.campaign, '') IN ('(organic)', '(referral)', ''))
+          OR fixed_traffic_source.campaign IS NULL
+        )
+          THEN
+            CASE
+            ${helpers.generateClickIdCasesSQL("campaign",config.CLICK_IDS_ARRAY)}
+              ELSE fixed_traffic_source.campaign
+            END
+        ELSE fixed_traffic_source.campaign
+      END AS campaign,
+
+      CASE
+        -- page_referrer contains "android-app://com.google" then 'google'
+        WHEN fixed_traffic_source.source IS NULL AND event_params.page_referrer LIKE '%android-app://com.google%'
+          THEN 'google'
+
+        -- use the domain name if the referrer is non-google android
+        WHEN fixed_traffic_source.source IS NULL AND event_params.page_referrer LIKE '%android-app%'
+          THEN net.host(event_params.page_referrer)
+
+        WHEN fixed_traffic_source.source IS NULL AND event_params.ignore_referrer != 'true' AND event_params.page_referrer IS NOT NULL
+          THEN net.host(event_params.page_referrer)
+
+        WHEN (
+          (fixed_traffic_source.source IS NOT NULL AND COALESCE(fixed_traffic_source.campaign, '') IN ('(organic)', '(referral)', ''))
+          OR (fixed_traffic_source.source IS NULL AND fixed_traffic_source.campaign IS NULL)
+        )
+          THEN
+            CASE
+            ${helpers.generateClickIdCasesSQL("source",config.CLICK_IDS_ARRAY)}
+              ELSE fixed_traffic_source.source
+            END
+        ELSE fixed_traffic_source.source
+      END AS source,
+
+      CASE
+        WHEN (
+          (fixed_traffic_source.medium IS NOT NULL AND COALESCE(fixed_traffic_source.campaign, '') IN ('(organic)', '(referral)', ''))
+          OR (fixed_traffic_source.medium IS NULL AND fixed_traffic_source.campaign IS NULL)
+        )
+          THEN
+            CASE
+            ${helpers.generateClickIdCasesSQL("medium",config.CLICK_IDS_ARRAY)}
+              ELSE fixed_traffic_source.medium
+            END
+
+        -- page_referrer contains "android-app" then 'organic' (cpc is handled above)
+        WHEN fixed_traffic_source.medium IS NULL AND event_params.page_referrer LIKE '%android-app://com.google%'
+          THEN 'organic'
+
+        -- page_referrer contains "android-app" and is one of social platforms then 'social'
+        WHEN fixed_traffic_source.medium IS NULL AND REGEXP_CONTAINS(event_params.page_referrer, r'^android-app.*(${config.SOCIAL_PLATFORMS_REGEX}).*')
+          THEN 'social'
+
+        -- page_referrer contains "android-app", fall back to "android-app"
+        WHEN fixed_traffic_source.medium IS NULL AND event_params.page_referrer LIKE '%android-app%'
+          THEN 'android-app'
+
+        WHEN fixed_traffic_source.medium IS NULL AND event_params.ignore_referrer != 'true' AND event_params.page_referrer IS NOT NULL
+          THEN 'referral'
+
+        ELSE fixed_traffic_source.medium
+
+      END AS medium,
+      fixed_traffic_source.term,
+      fixed_traffic_source.content,
+      fixed_traffic_source.source_platform,
+      fixed_traffic_source.creative_format,
+      fixed_traffic_source.marketing_tactic
+    ) AS fixed_traffic_source
+
+    -- recast
+    -- safe_cast(session_engaged as INT64) as session_engaged
+
+  FROM stage_traffic_source_coalesce_and_click_ids
+),
+
+stage_add_meta_info AS (
+  SELECT
+    * EXCEPT (
+      time
+    ),
+    (
+      SELECT AS STRUCT
+        time.*,
+        DATETIME(time.event_timestamp_utc, '${dataform.projectConfig.vars.LOCAL_TIMEZONE}') AS timestamp_local,
+        DATE(DATETIME(time.event_timestamp_utc, '${dataform.projectConfig.vars.LOCAL_TIMEZONE}')) AS date_local
+    ) AS time,
+    -- try to guess if this is a MP hit
+    CASE
+      WHEN event_date >= '2025-06-11' AND platform = 'WEB' AND batch.batch_page_id IS NULL THEN TRUE
+      WHEN event_date < '2025-06-11' AND device.language IS NULL AND device.operating_system IS NULL AND device.category = 'desktop' THEN TRUE
+      ELSE FALSE
+    END AS is_measurement_protocol_hit,
+
+    -- make session_id - can be NULL (if anonymous ping or MP hit without session_id)
+    FARM_FINGERPRINT(
+      user_pseudo_id || event_params.ga_session_id
+    ) AS session_id,
+
+    -- all page information in a page struct
+    STRUCT(
+      LOWER(net.host(event_params.page_location)) AS hostname,
+      event_params.page_location AS location,
+      -- strip and leave only path - https://www.rfc-editor.org/rfc/rfc3986#appendix-B - not lowering, urls are case sensitive
+      REGEXP_EXTRACT(event_params.page_location, r'^(?:(?:[^:\/?#]+):)?(?:\/\/(?:[^\/?#]*))?([^?#]*)(?:\?(?:[^#]*))?(?:#(?:.*))?') AS path,
+      event_params.page_referrer AS referrer,
+      event_params.page_title AS title
+    ) AS page,
+
+    -- is this a hit with source? Or: not direct/none or when we have a source or medium
+    CASE
+      WHEN (fixed_traffic_source.source != 'direct' AND fixed_traffic_source.medium != 'none') THEN TRUE
+      WHEN (COALESCE(fixed_traffic_source.source, fixed_traffic_source.medium) IS NOT NULL) THEN TRUE
+      ELSE FALSE
+    END AS has_source
+
+  FROM stage_create_fixed_traffic_source
+),
+
+-- dedupe based on event_id and remove redundant event_params
+stage_dedupe_by_event_id AS (
+  SELECT
+    * REPLACE ((SELECT AS STRUCT event_params.* EXCEPT (
+      batch_ordering_id,
+      batch_page_id,
+      page_location,
+      page_referrer,
+      page_title
+    )) AS event_params)
+  FROM stage_add_meta_info
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY event_id) = 1
+),
+
+final_add_row_numbers AS (
+  SELECT
+    *,
+    STRUCT(
+    -- calculate hit numbers per session (now is the time)
+      IF(
+        user_pseudo_id IS NOT NULL AND event_params.ga_session_id IS NOT NULL,
+        ROW_NUMBER() OVER (
+          PARTITION BY user_pseudo_id, event_params.ga_session_id
+          ORDER BY time.event_timestamp ASC
+        ),
+        NULL
+      ) AS hit_number,
+
+      -- and page number
+      IF(
+        user_pseudo_id IS NOT NULL AND event_params.ga_session_id IS NOT NULL AND batch.batch_page_id IS NOT NULL,
+        DENSE_RANK() OVER (
+          PARTITION BY user_pseudo_id, event_params.ga_session_id
+          ORDER BY batch.batch_page_id ASC
+        ),
+        NULL
+      ) AS page_number
+    ) AS session_info
+
+  FROM stage_dedupe_by_event_id
+)
+
+SELECT
+  CURRENT_TIMESTAMP() AS _run_timestamp, -- indicates when the row was last run
+  *
+FROM final_add_row_numbers
+WHERE TRUE

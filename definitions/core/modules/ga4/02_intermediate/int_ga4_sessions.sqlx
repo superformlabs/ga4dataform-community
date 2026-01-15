@@ -1,0 +1,200 @@
+/*
+	This file is part of "GA4 Dataform Package".
+	Copyright (C) 2023-2026 Superform Labs <support@superformlabs.eu>
+	Artem Korneev, Jules Stuifbergen,
+	Johan van de Werken, Krisztián Korpa,
+	Simon Breton
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, version 3 of the License.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License in the LICENSE.txt file for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+config {
+  type: "incremental",
+  description: "Intermediate incremental sessions table with modeling helpers implemented. 1 row per unique session_id. Contains only valid sessions.",
+  schema: dataform.projectConfig.vars.TRANSFORMATIONS_DATASET,
+  tags:[dataform.projectConfig.vars.GA4_DATASET,"sessions","intermediate"],
+  dependencies: ["source_categories"],
+  bigquery: {
+    partitionBy: "session_date",
+    clusterBy: [ "session_id" ],
+    labels: require("includes/core/helpers.js").helpers.storageLabels()
+  },
+}
+
+js {
+  const { helpers } = require("includes/core/modules/ga4/helpers");
+  const config = helpers.getModuleConfig('ga4');
+}
+
+/* incrementality */
+pre_operations {
+  DECLARE date_checkpoint DATE;
+  SET @@query_label = "${helpers.executionLabels()}";
+  SET date_checkpoint = (
+    ${when(incremental(),
+      `SELECT
+        COALESCE(MAX(session_date)+1, DATE('${config.GA4_START_DATE}'))
+      FROM ${self()}
+      WHERE is_final = TRUE`,
+    `SELECT DATE('${config.GA4_START_DATE}')`)}   /* the default, when it's not incremental */
+  );
+    -- delete some older data, since this may be updated later by GA4
+  ${
+    when(incremental(),
+      `DELETE FROM ${self()} WHERE session_date >= date_checkpoint`
+      )
+  }
+}
+
+-- simple sessions: referrers as is, no Last Non Direct - 1 source per session (the first no null)
+
+WITH source_events AS (
+  SELECT
+    session_id,
+    stream_id,
+    user_pseudo_id,
+    property_id,
+    MIN(table_suffix) AS table_suffix,
+    COUNT(DISTINCT table_suffix) > 1 AS is_multiday_session,
+    MAX(is_final) AS is_final, --return true if session started on an is_final day
+
+    -- first
+    ${helpers.generateArrayAggSQL('device')},
+    ${helpers.generateArrayAggSQL('geo')},
+    ${helpers.generateArrayAggSQL('app_info')},
+    ${helpers.generateArrayAggSQL('platform')},
+
+    STRUCT(
+      ${helpers.generateArrayAggSQL('page.location','landing_page_location')},
+      ${helpers.generateArrayAggSQL('page.path','landing_page_path')},
+      ${helpers.generateArrayAggSQL('page.hostname','landing_page_hostname')},
+      ${helpers.generateArrayAggSQL('page.referrer','landing_page_referrer')},
+      ${helpers.generateArrayAggSQL('event_params.content_group','landing_content_group')}
+    ) AS landing_page,
+    ${helpers.generateArrayAggSQL('session_traffic_source_last_click', 'session_traffic_source_last_click')},
+
+    -- these will be packaged to a single struct later
+    ${helpers.generateTrafficSourceSQL('fixed_traffic_source','first_traffic_source')},
+    ${helpers.generateTrafficSourceSQL('fixed_traffic_source','last_traffic_source', false)},
+    ${helpers.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'first_click_ids')},
+    ${helpers.generateClickIdTrafficSourceSQL('click_ids',config.CLICK_IDS_ARRAY,'last_click_ids', false)},
+
+    -- last
+    ${helpers.generateArrayAggSQL('user_id',false, false)}, -- to account for potentially multiple
+    STRUCT(
+      ${helpers.generateArrayAggSQL('page.location','exit_page_location', false)},
+      ${helpers.generateArrayAggSQL('page.path','exit_page_path', false)},
+      ${helpers.generateArrayAggSQL('page.hostname','exit_page_hostname', false)},
+      ${helpers.generateArrayAggSQL('event_params.content_group','exit_content_group', false)}
+    ) AS exit_page,
+
+    MIN(event_params.ga_session_number) AS ga_session_number, -- could be NULL when hit comes from MP
+
+    MIN(event_date) AS session_date,
+    MIN(time.event_timestamp_utc) AS session_start_timestamp_utc,
+    MAX(time.event_timestamp_utc) AS session_end_timestamp_utc,
+    SUM(event_params.engagement_time_msec) AS engagement_time_msec,
+
+    STRUCT(
+      LOGICAL_OR(event_params.session_engaged = "1") AS is_engaged_session,
+      LOGICAL_OR(has_source) AS is_with_source,
+      NOT LOGICAL_OR(has_source) AS is_direct_session,
+      LOGICAL_OR(url_params.gtm_debug IS NOT NULL) AS is_debug_session,
+      LOGICAL_OR(url_params._gl IS NOT NULL) AS is_cross_domain
+    ) AS session_info
+
+  FROM ${ref("ga4_events")}
+  WHERE
+    event_date >= date_checkpoint - 1 -- grab 1 extra day, to include sessions starting earlier
+
+    -- only hits with user_pseudo_id and session_id
+    AND user_pseudo_id IS NOT NULL
+    AND session_id IS NOT NULL
+  GROUP BY
+    session_id,
+    stream_id,
+    user_pseudo_id,
+    property_id
+    -- this should not lead to duplicates. If it does, we'll get rid of those in ga4_sessions anyway
+),
+
+source_categories AS (
+  SELECT
+    source,
+    source_category
+  FROM ${ref("source_categories")}
+),
+
+-- create time struct + session_source struct with first and last traffic_source of the session
+stage_create_session_source_and_time AS (
+  SELECT
+    source_events.* EXCEPT (
+      session_start_timestamp_utc,
+      session_end_timestamp_utc,
+      engagement_time_msec,
+      first_traffic_source,
+      last_traffic_source,
+      first_click_ids,
+      last_click_ids
+    ),
+    STRUCT(
+      source_events.session_start_timestamp_utc,
+      source_events.session_end_timestamp_utc,
+      source_events.engagement_time_msec,
+      TIMESTAMP_DIFF(source_events.session_end_timestamp_utc, source_events.session_start_timestamp_utc, SECOND) AS session_duration_s
+    ) AS time,
+    (
+      SELECT AS STRUCT
+        (
+          SELECT AS STRUCT
+            first_traffic_source.*,
+            first_click_ids.*,
+            ${helpers.getDefaultChannelGroupingSQL(config,
+                                            'first_traffic_source.source',
+                                            'first_traffic_source.medium',
+                                            'first_traffic_source.campaign',
+                                            'join_first.source_category',
+                                            'first_traffic_source.term',
+                                            'first_traffic_source.content',
+                                            'first_traffic_source.campaign_id'
+                                            )} AS default_channel_grouping
+        ) AS first,
+        (
+          SELECT AS STRUCT
+            last_traffic_source.*,
+            last_click_ids.*,
+            ${helpers.getDefaultChannelGroupingSQL(config,
+                                            'last_traffic_source.source',
+                                            'last_traffic_source.medium',
+                                            'last_traffic_source.campaign',
+                                            'join_last.source_category',
+                                            'last_traffic_source.term',
+                                            'last_traffic_source.content',
+                                            'last_traffic_source.campaign_id'
+                                            )} AS default_channel_grouping
+        ) AS last
+    ) AS session_source
+  FROM source_events
+  LEFT JOIN source_categories AS join_first
+    ON source_events.first_traffic_source.source LIKE join_first.source
+  LEFT JOIN source_categories AS join_last
+    ON source_events.last_traffic_source.source LIKE join_last.source
+)
+
+SELECT * EXCEPT (is_multiday_session)
+FROM stage_create_session_source_and_time
+WHERE (
+  session_date >= date_checkpoint -- new sessions
+  OR is_multiday_session -- or older sessions from yesterday
+)
+-- could be some incremental duplicates, these will be discarded downstream
