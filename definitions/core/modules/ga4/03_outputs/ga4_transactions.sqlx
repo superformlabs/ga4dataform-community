@@ -1,0 +1,166 @@
+/*
+	This file is part of "GA4 Dataform Package".
+	Copyright (C) 2023-2026 Superform Labs <support@superformlabs.eu>
+	Artem Korneev, Jules Stuifbergen,
+	Johan van de Werken, Krisztián Korpa,
+	Simon Breton
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, version 3 of the License.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License in the LICENSE.txt file for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+config {
+  type: "table",
+  tags: [dataform.projectConfig.vars.GA4_DATASET,"transactions","outputs"],
+  schema: dataform.projectConfig.vars.OUTPUTS_DATASET,
+  description: "transactions table with nested items, transaction totals and running totals (based on user_pseudo_id)",
+  bigquery: {
+    partitionBy: "transaction_date",
+    labels: require("includes/core/helpers.js").helpers.storageLabels()
+  },
+    columns: require("includes/core/documentation/helpers.js").ga4Transactions
+}
+
+js {
+  const { helpers } = require("includes/core/modules/ga4/helpers");
+  const config = helpers.getModuleConfig('ga4');
+}
+
+pre_operations {
+  set @@query_label = "${helpers.executionLabels()}";
+}
+
+WITH source_transactions AS (
+  SELECT
+    *,
+    IF(
+      event_name = 'purchase',
+      ROW_NUMBER() OVER (
+        PARTITION BY
+          COALESCE(
+            transaction_id,
+            CAST(event_id AS STRING)
+          )
+        ORDER BY time.event_timestamp
+      ),
+      1
+    ) AS duplicate_count
+  FROM ${ref("int_ga4_transactions")}
+  -- if we want to dedupe, insert deduplication code here
+  -- noqa: disable=all
+  ${helpers.generateTransactionsDedupeSQL(config.TRANSACTIONS_DEDUPE)} -- rewrite
+  -- noqa: enable=all
+),
+
+stage_purchases AS (
+  -- select purchases only
+  SELECT
+    * EXCEPT (event_name, item_totals),
+    STRUCT(
+      item_totals.quantity,
+      item_totals.item_revenue,
+      item_totals.item_revenue_in_usd,
+      item_totals.coupons,
+      item_totals.unique_coupons
+    ) AS item_totals,
+    duplicate_count > 1 AS is_duplicate,
+    STRUCT(
+      IF(uid IS NULL, NULL, ROW_NUMBER() OVER user) AS transactions,
+      IF(uid IS NULL, NULL, SUM(ecommerce.purchase_revenue) OVER user) AS purchase_revenue,
+      IF(uid IS NULL, NULL, SUM(ecommerce.purchase_revenue_in_usd) OVER user) AS purchase_revenue_in_usd,
+      IF(uid IS NULL, NULL, SUM(ecommerce.total_item_quantity) OVER user) AS total_item_quantity,
+      -- calculate times between purchase in seconds, divide to get the granularity you want
+      IF(
+        uid IS NULL,
+        NULL,
+        TIMESTAMP_DIFF(
+          time.event_timestamp_utc,
+          LAG(time.event_timestamp_utc) OVER user,
+          SECOND
+        )
+      ) AS seconds_since_previous_purchase,
+      IF(
+        uid IS NULL,
+        NULL,
+        TIMESTAMP_DIFF(
+          LEAD(time.event_timestamp_utc) OVER user,
+          time.event_timestamp_utc,
+          SECOND
+        )
+      ) AS seconds_to_next_purchase
+    ) AS running_totals
+
+  FROM source_transactions
+  WHERE event_name = 'purchase'
+  WINDOW
+    user AS (PARTITION BY uid ORDER BY time.event_timestamp) -- this is windowing over a the configured column
+),
+
+stage_refunds AS (
+  SELECT
+    transaction_id,
+    COUNT(*) AS number_of_refunds,
+    STRUCT(
+      MIN(time.event_timestamp_utc) AS min_refund_timestamp,
+      MAX(time.event_timestamp_utc) AS max_refund_timestamp,
+      STRUCT(
+        SUM(item_totals.quantity) AS quantity,
+        SUM(item_totals.item_refund_in_usd) AS item_refund_in_usd,
+        SUM(item_totals.item_refund) AS item_refund
+      ) AS refund_item_totals,
+      ARRAY_AGG(
+        STRUCT(
+          event_id,
+          session_id,
+          user_pseudo_id,
+          user_id,
+          uid,
+          stream_id,
+          platform,
+          time,
+          currency,
+          coupon,
+          items AS items,
+          STRUCT(
+            item_totals.quantity,
+            item_totals.item_refund_in_usd,
+            item_totals.item_refund,
+            item_totals.coupons,
+            item_totals.unique_coupons
+          ) AS item_totals
+        )
+      ) AS refunds
+    ) AS refund_info
+
+  FROM source_transactions
+  WHERE event_name = 'refund'
+  GROUP BY ALL
+),
+
+-- make totals agg: sum(revenue) - sum(abs(refund values))
+final_add_totals AS (
+  SELECT
+    stage_purchases.*,
+    STRUCT(
+      item_totals.quantity - COALESCE(ABS(refund_info.refund_item_totals.quantity), 0) AS quantity,
+      item_totals.item_revenue_in_usd - COALESCE(ABS(refund_info.refund_item_totals.item_refund_in_usd), 0) AS item_revenue_in_usd,
+      item_totals.item_revenue - COALESCE(ABS(refund_info.refund_item_totals.item_refund), 0) AS item_revenue
+    ) AS net_item_totals,
+    COALESCE(SUM(stage_refunds.number_of_refunds), 0) AS number_of_refunds,
+    stage_refunds.* EXCEPT (transaction_id, number_of_refunds)
+  FROM stage_purchases
+  LEFT JOIN stage_refunds USING (transaction_id)
+  GROUP BY ALL
+)
+
+SELECT *
+FROM final_add_totals

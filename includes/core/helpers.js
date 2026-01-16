@@ -1,6 +1,6 @@
 /*
 	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
+	Copyright (C) 2023-2026 Superform Labs <support@superformlabs.eu>
 	Artem Korneev, Jules Stuifbergen,
 	Johan van de Werken, Krisztián Korpa,
 	Simon Breton
@@ -19,30 +19,7 @@
 */
 
 /**
- * Returns the merged core and custom configuration objects.
- * @returns {Object} Merged configuration object
- */
-const getConfig = () => {
-  const { coreConfig } = require("./default_config");
-  const { customConfig } = require("../custom/config");
-  return { ...coreConfig, ...customConfig };
-};
-
-/**
- * Generates SQL for the qualify statement in the transactions table
- * @param {boolean} tf - true or false, true: output, false: no output
- * @returns {string} SQL fragment for qualify statement to dedupe transactions
- */
-const generateTransactionsDedupeSQL = (tf) => {
-  if(tf) {
-        return `qualify duplicate_count = 1`
-  } else {
-     return ``
-  }
-}
-
-/**
- * Generates SQL for a single parameter unnest based on its configuration. By default, it will unnest from event_params column, but you cold change it to user_properties or items.item_params.
+ * Generates SQL for a single parameter unnest based on its configuration. By default, it will unnest FROM event_params column, but you cold change it to user_properties or items.item_params.
  * @param {Object} config - Parameter configuration object
  * @param {string} config.type - Data type ('decimal', 'string', 'integer, 'float, 'double')
  * @param {string} config.name - Parameter name
@@ -54,30 +31,30 @@ const generateTransactionsDedupeSQL = (tf) => {
 const generateParamSQL = (config, column = "event_params") => {
   let value = "";
   if (config.type === "decimal") {
-    value = `coalesce(
-            safe_cast((select value.int_value from unnest(${column}) where key = '${config.name}') as numeric),
-            safe_cast((select value.double_value from unnest(${column}) where key = '${config.name}') as numeric),
-            safe_cast((select value.float_value  from unnest(${column}) where key = '${config.name}') as numeric)
+    value = `COALESCE(
+            SAFE_CAST((SELECT value.int_value FROM UNNEST(${column}) WHERE key = '${config.name}') AS NUMERIC),
+            SAFE_CAST((SELECT value.double_value FROM UNNEST(${column}) WHERE key = '${config.name}') AS NUMERIC),
+            SAFE_CAST((SELECT value.float_value  FROM UNNEST(${column}) WHERE key = '${config.name}') AS NUMERIC)
           ) `;
   } else if (config.type === "string") {
     value = `
-          (select coalesce(value.string_value, cast(value.int_value as string), cast(value.float_value as string), cast(value.double_value as string) ) from unnest(${column}) where key = '${config.name}') `;
+          (SELECT COALESCE(value.string_value, CAST(value.int_value AS STRING), CAST(value.float_value AS STRING), CAST(value.double_value AS STRING) ) FROM UNNEST(${column}) WHERE key = '${config.name}') `;
   } else {
-    value = `(select value.${config.type}_value from unnest(${column}) where key = '${config.name}') `;
+    value = `(SELECT value.${config.type}_value FROM UNNEST(${column}) WHERE key = '${config.name}') `;
   }
   value = config.cleaningMethod ? config.cleaningMethod(value) : value;
-  return `${value} as ${config.renameTo ? config.renameTo : config.name}`;
+  return `${value} AS ${config.renameTo ? config.renameTo : config.name}`;
 };
 
 /**
  * Generates SQL for multiple parameters unnest based on their configuration.
- * @param {Array} config_array - Array of parameter configuration objects
+ * @param {Array} configArray - Array of parameter configuration objects
  * @param {string} [column='event_params'] - Column name containing the parameters
  * @returns {string} SQL fragment for multiple parameters unnest
  */
-const generateParamsSQL = (config_array, column = "event_params") => {
+const generateParamsSQL = (configArray, column = "event_params") => {
   return `
-      ${config_array
+      ${configArray
         .map((config) => {
           return generateParamSQL(config, column);
         })
@@ -99,7 +76,7 @@ const generateURLParamSQL = (columnName, urlParam, urlDecode = true) => {
   let value = `regexp_extract(${columnName}, r"^[^#]+[?&]${urlParam.name}=([^&#]+)")`;
   value = urlParam.cleaningMethod ? urlParam.cleaningMethod(value) : value;
   value = urlDecode ? urlDecodeSQL(value) : value;
-  return `${value} as ${urlParam.renameTo ? urlParam.renameTo : urlParam.name}`;
+  return `${value} AS ${urlParam.renameTo ? urlParam.renameTo : urlParam.name}`;
 };
 
 /**
@@ -122,12 +99,12 @@ const generateURLParamsSQL = (columnName, urlParamsArray, urlDecode = true) => {
 
 /**
  * Generates SQL for a struct creation based on provided SQL.
- * @param {string} SQL - SQL fragment
+ * @param {string} sql - SQL fragment
  * @returns {string} SQL fragment for struct creation
  */
-const generateStructSQL = (SQL) => {
+const generateStructSQL = (sql) => {
   return `
-    STRUCT (${SQL})
+    STRUCT (${sql})
   `;
 };
 
@@ -143,14 +120,14 @@ const generateListSQL = (list) => {
 /**
  * Generates SQL for a WHERE clause based on provided list.
  * @param {string} type - Filter type ('exclude' or 'include')
- * @param {string} columm - Column name
+ * @param {string} column - Column name
  * @param {Array} list - JavaScript array of values
  * @returns {string} SQL fragment for WHERE clause creation
  */
-const generateFilterTypeFromListSQL = (type = "exclude", columm, list) => {
+const generateFilterTypeFromListSQL = (type = "exclude", column, list) => {
   if (list.length == 0) return `true`;
   const filterType = type === "exclude" ? "not in" : "in";
-  return `coalesce(${columm},"") ${filterType}  ${generateListSQL(list)}`;
+  return `COALESCE(${column},"") ${filterType}  ${generateListSQL(list)}`;
 };
 
 /**
@@ -172,82 +149,6 @@ const generateArrayAggSQL = (
   return `ARRAY_AGG(${paramName} IGNORE NULLS ORDER BY ${orderBy} ${
     orderTypeAsc ? "ASC" : "DESC"
   } LIMIT 1)[SAFE_OFFSET(0)] ${alias}`;
-};
-
-/**
- * Generates SQL to return the first or last value of an array aggregation. Special case for traffic_source structs. Used in sensitization.
- * @param {string} fixedTrafficSourceTable - Table name containing the traffic source data
- * @param {string} [columnName] - Optional column name for alias
- * @param {boolean} [orderTypeAsc=true] - Optional order type, default is ascending
- * @param {string} [orderBy='time.event_timestamp_utc'] - Optional order by clause
- * @returns {string} SQL fragment for array aggregation
- */
-const generateTrafficSourceSQL = (
-  fixedTrafficSourceTable,
-  columnName = null,
-  orderTypeAsc = true,
-  orderBy = "time.event_timestamp_utc"
-) => {
-  const alias =
-    columnName === null ? "" : `as ${columnName || "traffic_source"} `;
-  const orderDirection = orderTypeAsc ? "asc" : "desc";
-
-  return `
-        array_agg(
-            if(
-                coalesce(
-                    ${fixedTrafficSourceTable}.campaign_id,
-                    ${fixedTrafficSourceTable}.campaign,
-                    ${fixedTrafficSourceTable}.source,
-                    ${fixedTrafficSourceTable}.medium,
-                    ${fixedTrafficSourceTable}.term,
-                    ${fixedTrafficSourceTable}.content
-                ) is null,
-                null,
-                ${fixedTrafficSourceTable}
-            )
-            ignore nulls
-            order by ${orderBy} ${orderDirection}
-            limit 1
-        )[safe_offset(0)] ${alias}`;
-};
-
-/**
- * Generates SQL to return the first or last value of an array aggregation. Special case for click_ids structs. Used in sensitization.
- * @param {string} clickIdStruct - Table name containing the click_ids data
- * @param {Array} clickIdsArray - Array of click_id configuration objects
- * @param {string} [columnName] - Optional column name for alias
- * @param {boolean} [orderTypeAsc=true] - Optional order type, default is ascending
- * @param {string} [orderBy='time.event_timestamp_utc'] - Optional order by clause
- * @returns {string} SQL fragment for array aggregation
- */
-const generateClickIdTrafficSourceSQL = (
-  clickIdStruct,
-  clickIdsArray,
-  columnName = null,
-  orderTypeAsc = true,
-  orderBy = "time.event_timestamp_utc"
-) => {
-  const alias = columnName === null ? "" : `as ${columnName || "click_id"} `;
-  const orderDirection = orderTypeAsc ? "asc" : "desc";
-
-  const coalesceItems = clickIdsArray
-    .map((item) => `${clickIdStruct}.${item.name}`)
-    .join(",\n");
-
-  return `
-        array_agg(
-            if(
-                coalesce(
-                    ${coalesceItems}
-                ) is null,
-                null,
-                ${clickIdStruct}
-            )
-            ignore nulls
-            order by ${orderBy} ${orderDirection}
-            limit 1
-        )[safe_offset(0)] ${alias}`;
 };
 
 /**
@@ -305,110 +206,6 @@ const getSqlUnionAllFromRowsSQL = (rows) => {
 };
 
 /**
- * Generates SQL for a CASE statement to determine the channel grouping based on provided parameters. This logic represents the default channel grouping logic in GA4.
- * @param {Object} config - Custom configuration object
- * @param {string} source - Source column name
- * @param {string} medium - Medium column name
- * @param {string} campaign - Campaign column name
- * @param {string} category - Category column name
- * @param {string} term - Term column name
- * @param {string} content - Content column name
- * @param {string} campaign_id - Campaign ID column name
- * @returns {string} SQL fragment for CASE statement creation
- */
-const getDefaultChannelGroupingSQL = (
-  config,
-  source,
-  medium,
-  campaign,
-  category,
-  term,
-  content,
-  campaign_id
-) => {
-  return `
-    case 
-      when 
-        (
-          coalesce(${source}, ${medium}, ${campaign}, ${term}, ${content}, ${campaign_id}) is null
-        ) or (
-          ${source} = 'direct'
-          and (${medium} = '(none)' or ${medium} = '(not set)')
-        ) 
-        then 'Direct'
-      when 
-        (
-          regexp_contains(${source}, r"^(${config.SOCIAL_PLATFORMS_REGEX})$")
-          or ${category} = 'SOURCE_CATEGORY_SOCIAL'
-        )
-        and regexp_contains(${medium}, r"^(.*cp.*|ppc|retargeting|paid.*)$")
-        then 'Paid Social'
-      when 
-        regexp_contains(${source}, r"^(${config.SOCIAL_PLATFORMS_REGEX})$")
-        or ${medium} in ("social", "social-network", "social-media", "sm", "social network", "social media")
-        or ${category} = 'SOURCE_CATEGORY_SOCIAL'
-        then 'Organic Social'
-      when 
-        regexp_contains(${medium}, r"email|e-mail|e_mail|e mail|newsletter")
-        or regexp_contains(${source}, r"email|e-mail|e_mail|e mail|newsletter")
-        then 'Email'
-      when 
-        regexp_contains(${medium}, r"affiliate|affiliates")
-        then 'Affiliates'
-      when 
-        ${category} = 'SOURCE_CATEGORY_SHOPPING'
-        and regexp_contains(${medium}, r"^(.*cp.*|ppc|paid.*)$")
-        then 'Paid Shopping'
-      when 
-        ${category} = 'SOURCE_CATEGORY_SHOPPING'
-        or ${campaign} = 'Shopping Free Listings'
-        or ${medium} = 'shopping_free'
-        then 'Organic Shopping'
-      when 
-        (${category} = 'SOURCE_CATEGORY_VIDEO' and regexp_contains(${medium}, r"^(.*cp.*|ppc|paid.*)$"))
-        or ${source} = 'dv360_video'
-        then 'Paid Video'
-      when 
-        regexp_contains(${medium}, r"^(display|cpm|banner)$")
-        or ${source} = 'dv360_display'
-        then 'Display'
-      when 
-        ${category} = 'SOURCE_CATEGORY_SEARCH'
-        and regexp_contains(${medium}, r"^(.*cp.*|ppc|retargeting|paid.*)$")
-        then 'Paid Search'
-      when 
-        regexp_contains(${medium}, r"^(cpv|cpa|cpp|cpc|content-text)$")
-        then 'Other Advertising'
-      when 
-        ${medium} = 'organic' or ${category} = 'SOURCE_CATEGORY_SEARCH'
-        then 'Organic Search'
-      when 
-        ${category} = 'SOURCE_CATEGORY_VIDEO'
-        or regexp_contains(${medium}, r"^(.*video.*)$")
-        then 'Organic Video'
-      when ${config.EXTRA_CHANNEL_GROUPS} and
-        ${medium} = 'referral' and ${category} = 'SOURCE_CATEGORY_AI'
-        then 'Organic AI'
-      when 
-        ${medium} in ("referral", "app", "link") -- VALIDATED?
-        then 'Referral'
-      when 
-        ${medium} = 'audio'
-        then 'Audio'
-      when 
-        ${medium} = 'sms'
-        or ${source} = 'sms'
-        then 'SMS'
-      when 
-        regexp_contains(${medium}, r"(mobile|notification|push$)")
-        or ${source} = 'firebase'
-        then 'Mobile Push Notifications'
-      else '(Other)' 
-    end
-  `;
-};
-
-/**
  * Generates SQL to URL decode a column. Used to clean up URL parameters, like utm_source e.
  * @param {string} urlColumnName - Column name containing the URL
  * @returns {string} SQL fragment for URL decoding
@@ -425,26 +222,16 @@ const urlDecodeSQL = (urlColumnName) => {
 };
 
 /**
- * Generates SQL to concatenate click_ids column names.
- * @param {Array} clickIds - Array of click_id configuration objects
- * @param {string} prefix - Prefix for the click_id column names
- * @returns {string} SQL fragment for click_id column names concatenation
- */
-const getClickIdsDimensionsSQL = (clickIds, prefix) => {
-  return clickIds.map((id) => `${prefix}.${id.name}`).join(",\n");
-};
-
-/**
- * Generates SQL to safely cast a column to a specified type. This method is used as cleaningMethod in generateParamSQL method.
+ * Generates SQL to safely cast a column to a specified type. This method is used AS cleaningMethod in generateParamSQL method.
  * @param {string} columnName - Column name to be cast
  * @param {string} [type='INT64'] - Optional type, default is INT64
  * @returns {string} SQL fragment for safe casting
  */
 const safeCastSQL = (columnName, type = "INT64") =>
-  `safe_cast(${columnName} as ${type})`;
+  `SAFE_CAST(${columnName} AS ${type})`;
 
 /**
- * Generates SQL to clear URL parameters. This method is used as cleaningMethod in generateParamSQL method.
+ * Generates SQL to clear URL parameters. This method is used AS cleaningMethod in generateParamSQL method.
  * @param {string} columnName - Column name containing the URL
  * @returns {string} SQL fragment for URL clearing
  */
@@ -452,39 +239,11 @@ const clearURLSQL = (columnName) =>
   `REGEXP_REPLACE(${columnName}, r'(?i)&amp(;|=)', '&')`;
 
 /**
- * Generates SQL to convert a column to lowercase. This method is used as cleaningMethod in generateParamSQL method.
+ * Generates SQL to convert a column to lowercase. This method is used AS cleaningMethod in generateParamSQL method.
  * @param {string} columnName - Column name to be converted
  * @returns {string} SQL fragment for lowercase conversion
  */
 const lowerSQL = (columnName) => `lower(${columnName})`;
-
-/**
- * Generates SQL to coalesce click_ids from different sources to return the first non-null value.
- * @param {Object} clickId - Click_id configuration object
- * @param {string} clickId.name - Name of the click_id
- * @returns {string} SQL fragment for click_id coalescing
- */
-const generateClickIdCoalesceSQL = (clickId) => {
-  if (clickId.sources.includes("collected_traffic_source")) {
-    return `coalesce(collected_traffic_source.${clickId.name}, event_params.${clickId.name},click_ids.${clickId.name}) as ${clickId.name}`;
-  }
-  return `click_ids.${clickId.name} as ${clickId.name}`;
-};
-
-/**
- * Generates SQL to create a CASE statement for click_ids based on configuration CLICK_IDS_ARRAY. it return one of source/medium/campaign if click_id is not null.
- * @param {string} parameterName - Name of the parameter to be used in the CASE statement
- * @param {Array<{name: string, source: string, medium: string, campaign: string, sources: string[]}>>} clickIdsArray - Array of click_id configuration objects. Containd click_id name, and values that should be set if click_id is not null.
- * @returns {string} SQL fragment for click_id CASE statement creation
- */
-const generateClickIdCasesSQL = (parameterName, clickIdsArray) => {
-  return clickIdsArray
-    .map(
-      (id) =>
-        `when click_ids.${id.name} is not null then '${id[parameterName]}'`
-    )
-    .join("\n");
-};
 
 // Generic helper functions
 
@@ -503,6 +262,7 @@ const isStringInteger = (str) => {
  * @param {Object} config - Configuration object
  * @returns {boolean} True if the configuration is valid, false otherwise
  */
+
 const checkColumnNames = (config) => {
   // column checker helper function
   const sanityCheck = (configArray, description) => {
@@ -542,8 +302,6 @@ const checkColumnNames = (config) => {
   return true;
 };
 
-
-
 // Returns a comma-separated string of execution labels in the format "key:value"
 // Used for dynamically tagging BigQuery jobs with labels
 const executionLabels = () => {
@@ -551,12 +309,12 @@ const executionLabels = () => {
 
   // Filter keys that are either generic or execution-specific labels
   const keys = Object.keys(vars).filter(
-    key => key.includes("LABEL_GENERIC_") || key.includes("LABEL_EXECUTION_")
+    (key) => key.includes("LABEL_GENERIC_") || key.includes("LABEL_EXECUTION_")
   );
 
-  // Format each label as "key:value" and join with commas
+  // Format each label AS "key:value" and join with commas
   return keys
-    .map(key => {
+    .map((key) => {
       const labelName = key
         .replace("LABEL_GENERIC_", "")
         .replace("LABEL_EXECUTION_", "")
@@ -573,39 +331,37 @@ const storageLabels = () => {
 
   // Select only generic labels that are not storage-specific
   const keys = Object.keys(vars).filter(
-    key => key.includes("GENERIC") && !key.includes("STORAGE")
+    (key) => key.includes("GENERIC") && !key.includes("STORAGE")
   );
 
-  // Return an object where each key is a cleaned label name and value is from vars
+  // Return an object WHERE each key is a cleaned label name and value is FROM vars
   return Object.fromEntries(
-    keys.map(key => {
+    keys.map((key) => {
       const labelName = key.replace("LABEL_GENERIC_", "").toLowerCase();
       return [labelName, vars[key]];
     })
   );
 };
 
-
-// Returns a comma-separated list of labels formatted as SQL-compatible tuples
+// Returns a comma-separated list of labels formatted AS SQL-compatible tuples
 // Example output: ('department', 'analytics'), ('cost_center', 'growth')
 // Intended for use in BigQuery SET QUERIES clause to label tables
 const storageUpdateLabels = () => {
   const vars = dataform.projectConfig.vars;
 
-  return Object.keys(vars)
-    // Filter for generic labels that are not related to storage-specific configs
-    .filter(
-      key => key.includes("GENERIC") && !key.includes("STORAGE")
-    )
-    // Convert each key-value pair into a SQL tuple string
-    .map(key => {
-      const labelName = key.replace("LABEL_GENERIC_", "").toLowerCase();
-      return `('${labelName}', '${vars[key]}')`;
-    })
-    // Join all tuples with commas to produce a valid SQL list
-    .join(", ");
+  return (
+    Object.keys(vars)
+      // Filter for generic labels that are not related to storage-specific configs
+      .filter((key) => key.includes("GENERIC") && !key.includes("STORAGE"))
+      // Convert each key-value pair into a SQL tuple string
+      .map((key) => {
+        const labelName = key.replace("LABEL_GENERIC_", "").toLowerCase();
+        return `('${labelName}', '${vars[key]}')`;
+      })
+      // Join all tuples with commas to produce a valid SQL list
+      .join(", ")
+  );
 };
-
 
 /**
  * Generates a series of ALTER TABLE statements to apply storage labels
@@ -622,30 +378,224 @@ function generateAlterTableStatements(tables) {
   const labelString = storageUpdateLabels();
 
   // Loop through each table to create an ALTER TABLE statement
-  return tables
-    .map(table => {
-      let dataset;
+  return (
+    tables
+      .map((table) => {
+        let dataset;
 
-      // Decide which dataset the table belongs to based on its name prefix
-      // Tables starting with 'int_' are in the TRANSFORMATIONS_DATASET
-      // Others are in the OUTPUTS_DATASET
-      if (table.startsWith("int_")) {
-        dataset = vars.TRANSFORMATIONS_DATASET;
-      } else {
-        dataset = vars.OUTPUTS_DATASET;
-      }
+        // Decide which dataset the table belongs to based on its name prefix
+        // Tables starting with 'int_' are in the TRANSFORMATIONS_DATASET
+        // Others are in the OUTPUTS_DATASET
+        if (table.startsWith("int_")) {
+          dataset = vars.TRANSFORMATIONS_DATASET;
+        } else {
+          dataset = vars.OUTPUTS_DATASET;
+        }
 
-      // Construct and return the SQL string for setting table labels
-      return `ALTER TABLE \`${dataset}.${table}\`\nSET OPTIONS (\n  labels = [${labelString}]);`;
-    })
+        // Construct and return the SQL string for setting table labels
+        return `ALTER TABLE \`${dataset}.${table}\`\nSET OPTIONS (\n  labels = [${labelString}]);`;
+      })
 
-    // Join all statements with line breaks to form the full script
-    .join("\n\n");
+      // Join all statements with line breaks to form the full script
+      .join("\n\n")
+  );
 }
 
+/**
+ * Sanitizes a string to be a valid BigQuery column name.
+ * - Replaces invalid characters with underscores.
+ * - Ensures the name starts with a letter or underscore.
+ * - Converts to lowercase.
+ * @param {string} columnName - The string to sanitize.
+ * @returns {string} A valid BigQuery column name.
+ */
+const sanitizeBigQueryColumnName = (columnName) => {
+  if (!columnName) {
+    return null;
+  }
+  // Replace any character that is not a letter, number, or underscore with an underscore.
+  let sanitizedName = columnName.replace(/[^a-zA-Z0-9_]/g, "_");
+  // If the first character is a digit, prepend an underscore.
+  if (/^[0-9]/.test(sanitizedName)) {
+    sanitizedName = "_" + sanitizedName;
+  }
+  return sanitizedName.toLowerCase();
+};
 
+/**
+ * Generates a SQL WHERE clause with LIKE operators for filtering.
+ *
+ * @param {string} [type='include'] - 'include' for LIKE, 'exclude' for NOT LIKE.
+ * @param {string} column - The column to apply the filter on.
+ * @param {Array<string>} list - A list of string patterns to match against.
+ * @param {string} [logic='and'] - The logical operator ('and' or 'or') to join conditions.
+ * @returns {string} - A SQL string for the WHERE clause.
+ */
+const generateFilterLikeSQL = (
+  type = "include",
+  column,
+  list,
+  logic = "and"
+) => {
+  if (!list || list.length === 0) {
+    return "true";
+  }
+
+  const likeOperator = type === "exclude" ? "NOT LIKE" : "LIKE";
+
+  const conditions = list.map((item) => `${column} ${likeOperator} '${item}'`);
+
+  return `(\n  ${conditions.join(`\n  ${logic} `)}\n)`;
+};
+
+/*
+ * Retrieves configuration for a specific module by type (core or custom)
+ * @param {string} moduleName - The name of the module to get configuration for
+ * @param {string} [configType='custom'] - The configuration type ('core' or 'custom')
+ * @returns {Object} Merged configuration object FROM YAML and JSON files
+ * @description
+ * Attempts to load both YAML and JSON configuration files for the specified module and type.
+ * If either file fails to load, an empty object is used AS fallback.
+ * The function merges YAML config (as JSON) with JSON config, with JSON taking precedence.
+ *
+ * @example
+ * // Get custom configuration for 'user' module
+ * const config = getConfigByType('user', 'custom');
+ *
+ * // Get core configuration for 'auth' module
+ * const coreConfig = getConfigByType('auth', 'core');
+ */
+const getConfigByType = (moduleName, configType = "custom") => {
+  let yamlConfig;
+  let jsonConfig;
+  let jsConfig;
+  try {
+    const {
+      asJson,
+    } = require(`includes/${configType}/modules/${moduleName}/config.yaml`);
+    yamlConfig = asJson;
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new Error(
+        `includes/${configType}/modules/${moduleName}/config.yaml: ` + error
+      );
+    }
+    yamlConfig = {};
+  }
+  try {
+    const jsonConfigFile = require(`includes/${configType}/modules/${moduleName}/config.json`);
+    jsonConfig = jsonConfigFile;
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new Error(
+        `includes/${configType}/modules/${moduleName}/config.json: ` + error
+      );
+    }
+    jsonConfig = {};
+  }
+  try {
+    const jsConfigFile = require(`includes/${configType}/modules/${moduleName}/config.js`);
+    jsConfig = jsConfigFile.config ? jsConfigFile.config :jsConfigFile.customConfig;
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new Error(
+        `includes/${configType}/modules/${moduleName}/config.js: ` + error
+      );
+    }
+    jsConfig = {};
+  }
+  return { ...yamlConfig, ...jsonConfig, ...jsConfig };
+};
+
+/**
+ * Retrieves complete module configuration by merging core and custom configurations
+ * @param {string} moduleName - The name of the module to get configuration for
+ * @returns {Object} Merged configuration object combining core and custom configs
+ * @description
+ * Loads both core and custom configurations for the specified module and merges them.
+ * Custom configuration takes precedence over core configuration in case of conflicts.
+ *
+ * @example
+ * // Get complete configuration for 'profitReport' module
+ * const fullConfig = getModuleConfig('profitReport');
+ */
+const getModuleConfig = (moduleName) => {
+  const coreConfig = getConfigByType(moduleName, "core");
+  const customConfig = getConfigByType(moduleName);
+  const config = { ...coreConfig, ...customConfig };
+  // throw Error(`${moduleName} config: ${JSON.stringify(coreConfig)}`);
+  if ("ENABLED" in config) {
+    config.enabled = config.ENABLED;
+  }
+  if ("VERSION" in config) {
+    config.version = config.VERSION;
+  }
+  if (!("enabled" in config)) {
+    throw new Error(`Module ${moduleName} config is missing enabled property`);
+  }
+  if (!("version" in config)) {
+    throw new Error(`Module ${moduleName} config is missing version property`);
+  }
+
+  // Check for dependencies
+  if ("dependencies" in config && config.dependencies.length > 0) {
+    for (const dependency of config.dependencies) {
+      try {
+        const dependencyConfig = getModuleConfig(dependency);
+        if (!dependencyConfig.enabled) {
+          throw new Error(
+            `Module ${moduleName}: Required dependency ${dependency} but it is disabled`
+          );
+        }
+      } catch (error) {
+        throw new Error(
+          `Module ${moduleName}: Required dependency ${dependency} but cannot be found: ${error}`
+        );
+      }
+    }
+  }
+  return config;
+};
+
+/**
+ * @deprecated Use getModuleConfig("ga4") instead. This function is only kept for backward compatibility.
+ * @returns {Object} Module configuration object
+ */
+const getConfig = () => {
+  return getModuleConfig("ga4");
+};
+
+/**
+ * Checks if a module is enabled based on its configuration
+ * @param {string} moduleName - The name of the module to check
+ * @returns {Object} Object containing the disabled status of the module. To use in the config section of the action.
+ * @description
+ * Retrieves the complete module configuration and checks if the module is enabled.
+ * Returns an object with a 'disabled' property that is the inverse of the 'enabled' config.
+ * If no 'enabled' property exists in the config, the module is considered disabled.
+ *
+ * @example
+ * // Set disabled property in action config to true if module is disabled
+ *  config {
+ *   type: "table",
+ *     ...require("includes/core/helpers.js").helpers.isModuleEnabled('profitReport')
+ *   }
+ *
+ * @returns {Object} Object with disabled property
+ * @returns {boolean} returns.disabled - True if module is disabled, false if enabled
+ */
+const isModuleEnabled = (moduleName) => {
+  const config = getModuleConfig(moduleName);
+  let enabled = false;
+
+  if ("enabled" in config) {
+    enabled = config.enabled;
+  }
+  return { disabled: !enabled };
+};
 
 const helpers = {
+  generateFilterLikeSQL,
   checkColumnNames,
   generateParamsSQL,
   generateURLParamsSQL,
@@ -653,25 +603,21 @@ const helpers = {
   generateListSQL,
   generateFilterTypeFromListSQL,
   generateArrayAggSQL,
-  generateTrafficSourceSQL,
-  generateClickIdTrafficSourceSQL,
   getSqlUnionAllFromRowsSQL,
-  getDefaultChannelGroupingSQL,
+  isModuleEnabled,
   urlDecodeSQL,
   safeCastSQL,
   clearURLSQL,
   lowerSQL,
-  getClickIdsDimensionsSQL,
   getConfig,
-  generateClickIdCoalesceSQL,
-  generateClickIdCasesSQL,
-  generateTransactionsDedupeSQL,
+  getModuleConfig,
   storageLabels,
   executionLabels,
   storageUpdateLabels,
-  generateAlterTableStatements
+  generateAlterTableStatements,
+  sanitizeBigQueryColumnName,
 };
 
 module.exports = {
-  helpers
+  helpers,
 };

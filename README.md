@@ -5,8 +5,8 @@ This open-source repository contains all the Dataform files and folders that the
 
 ## Current Version
 
-![Version](https://img.shields.io/badge/version-1.18.0-blue)  
-**Last Updated:** October 17, 2025
+![Version](https://img.shields.io/badge/version-1.19.0-blue)
+**Last Updated:** January 15, 2026
 
 You can use this repository to:
 1. Explore the code before installing it

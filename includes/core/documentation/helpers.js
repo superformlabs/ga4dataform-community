@@ -1,6 +1,6 @@
 /*
 	This file is part of "GA4 Dataform Package".
-	Copyright (C) 2023-2025 Superform Labs <support@ga4dataform.com>
+	Copyright (C) 2023-2026 Superform Labs <support@superformlabs.eu>
 	Artem Korneev, Jules Stuifbergen,
 	Johan van de Werken, Krisztián Korpa,
 	Simon Breton
@@ -18,12 +18,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-const ga4Events = require("includes/core/documentation/ga4_events.json");
-const ga4Sessions = require("includes/core/documentation/ga4_sessions.json");
-const ga4Transactions = require("includes/core/documentation/ga4_transactions.json");
+const ga4Events = require("includes/core/documentation/modules/ga4/ga4_events.json");
+const ga4Sessions = require("includes/core/documentation/modules/ga4/ga4_sessions.json");
+const ga4Transactions = require("includes/core/documentation/modules/ga4/ga4_transactions.json");
 
 const { helpers } = require("includes/core/helpers");
-const config = helpers.getConfig();
+const config = helpers.getModuleConfig('ga4');
 
 config.CUSTOM_EVENT_PARAMS_ARRAY.forEach((param) => {
   if (param.description) {
@@ -85,5 +85,5 @@ config.CUSTOM_ITEM_PARAMS_ARRAY.forEach((param) => {
 module.exports = {
   ga4Events,
   ga4Sessions,
-  ga4Transactions
+  ga4Transactions,
 };
