@@ -904,6 +904,7 @@
   { "source": "search-results", "source_category": "SOURCE_CATEGORY_SEARCH" },
   { "source": "search.aol.co.uk", "source_category": "SOURCE_CATEGORY_SEARCH" },
   { "source": "search.aol.com", "source_category": "SOURCE_CATEGORY_SEARCH" },
+  { "source": "search.brave.com", "source_category": "SOURCE_CATEGORY_SEARCH" },
   {
     "source": "search.google.com",
     "source_category": "SOURCE_CATEGORY_SEARCH"
