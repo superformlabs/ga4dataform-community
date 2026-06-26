@@ -101,7 +101,7 @@ stage_unnest_params AS (
     event_name,
     table_suffix,
     PARSE_DATE('%Y%m%d', event_date) AS event_date, -- partition column
-    DATE_DIFF(CURRENT_DATE(), CAST(event_date AS DATE FORMAT 'YYYYMMDD'), DAY) > ${config.DATA_IS_FINAL_DAYS} AS is_final, -- used for incrementality
+    DATE_DIFF(CURRENT_DATE('${dataform.projectConfig.vars.LOCAL_TIMEZONE}'), CAST(event_date AS DATE FORMAT 'YYYYMMDD'), DAY) > ${config.DATA_IS_FINAL_DAYS} AS is_final, -- used for incrementality
 
     STRUCT(
       -- timestamps

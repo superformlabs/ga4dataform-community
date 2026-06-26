@@ -192,7 +192,11 @@ const getDefaultChannelGroupingSQL = (
         or regexp_contains(${medium}, r"^(.*video.*)$")
         then 'Organic Video'
       when ${config.EXTRA_CHANNEL_GROUPS} and
-        ${medium} = 'referral' and ${category} = 'SOURCE_CATEGORY_AI'
+        (
+           ${medium} = 'referral' AND ${category} = 'SOURCE_CATEGORY_AI'
+           -- they add these as utm
+           OR ${source} in ('chatgpt.com', 'perplexity')
+        )
         then 'Organic AI'
       when 
         ${medium} in ("referral", "app", "link") -- VALIDATED?
